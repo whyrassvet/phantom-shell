@@ -196,6 +196,36 @@ git -C ~/Projects/phantom-shell status
 git -C ~/Projects/phantom-shell log --oneline -5
 ```
 
+### Git и откат
+
+Ветки: `main` — базовая линия (upstream + документы), `feat/caelestia-bar` — вся работа по бару.
+Тег `upstream-2.97` — чистый upstream (commit `4202205`).
+
+```bash
+# откатить незакоммиченные правки
+git -C ~/Projects/phantom-shell checkout -- .
+
+# откатить всё до последнего коммита на ветке (удаляет и новые файлы)
+git -C ~/Projects/phantom-shell reset --hard HEAD
+git -C ~/Projects/phantom-shell clean -fd quickshell/caelestia-bar
+
+# посмотреть, что изменено
+git -C ~/Projects/phantom-shell status
+git -C ~/Projects/phantom-shell diff
+
+# вернуться к базовой линии (документы, без бара)
+git -C ~/Projects/phantom-shell checkout main
+
+# вернуться к чистому upstream
+git -C ~/Projects/phantom-shell checkout upstream-2.97
+
+# вернуться к работе над баром
+git -C ~/Projects/phantom-shell checkout feat/caelestia-bar
+```
+
+Коммиты делаются по этапам: один этап — один коммит, чтобы откат был точечным.
+Публикация на GitHub — позже (`gh` пока не установлен).
+
 ---
 
 ## 9. Документация и передача контекста
