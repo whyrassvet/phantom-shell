@@ -12,16 +12,13 @@ import qs.utils
 Singleton {
     id: root
 
-    property bool showPreview
     property string scheme
     property string flavour
-    readonly property bool light: showPreview ? previewLight : currentLight
+    readonly property bool light: currentLight
     property bool currentLight
-    property bool previewLight
-    readonly property M3Palette palette: showPreview ? preview : current
+    readonly property M3Palette palette: current
     readonly property M3TPalette tPalette: M3TPalette {}
     readonly property M3Palette current: M3Palette {}
-    readonly property M3Palette preview: M3Palette {}
     readonly property Transparency transparency: Transparency {}
     readonly property alias wallLuminance: analyser.luminance
 
@@ -63,8 +60,8 @@ Singleton {
         return Qt.hsla(c.hslHue, c.hslSaturation, 0.1, 1);
     }
 
-    function load(data: string, isPreview: bool): bool {
-        const colours = isPreview ? preview : current;
+    function load(data: string): bool {
+        const colours = current;
         let scheme;
         try {
             scheme = JSON.parse(data);
@@ -77,13 +74,9 @@ Singleton {
             return false;
         }
 
-        if (!isPreview) {
-            root.scheme = typeof scheme.name === "string" ? scheme.name : "";
-            flavour = typeof scheme.flavour === "string" ? scheme.flavour : "";
-            currentLight = scheme.mode === "light";
-        } else {
-            previewLight = scheme.mode === "light";
-        }
+        root.scheme = typeof scheme.name === "string" ? scheme.name : "";
+        flavour = typeof scheme.flavour === "string" ? scheme.flavour : "";
+        currentLight = scheme.mode === "light";
 
         for (const [name, colour] of Object.entries(scheme.colours)) {
             const propName = name.startsWith("term") ? name : `m3${name}`;
@@ -94,10 +87,10 @@ Singleton {
     }
 
     function reloadActiveScheme(): void {
-        if (shadowsSchemeData && load(shadowsSchemeData, false))
+        if (shadowsSchemeData && load(shadowsSchemeData))
             return;
         if (savedSchemeData)
-            load(savedSchemeData, false);
+            load(savedSchemeData);
     }
 
     function setMode(mode: string): void {

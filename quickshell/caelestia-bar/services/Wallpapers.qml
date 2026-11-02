@@ -13,18 +13,13 @@ Searcher {
 
     readonly property string currentNamePath: `${Paths.state}/wallpaper/path.txt`
     readonly property string shadowsCurrentPath: `${Paths.home}/.cache/hyprquickpaper-current`
-    readonly property list<string> smartArg: GlobalConfig.services.smartScheme ? [] : ["--no-smart"]
     readonly property string fallback: Quickshell.shellPath("assets/wallpaper.webp")
 
-    property bool showPreview: false
-    readonly property string current: showPreview ? previewPath : actualCurrent
-    property string previewPath
+    readonly property string current: actualCurrent
     property string actualCurrent
     property string shadowsCurrent
     property string legacyCurrent
     property string pendingSetPath
-    property bool previewColourLock
-    property bool pendingPreviewClear
 
     function getCategoryFor(w: FileSystemEntry): string {
         let category = w.parentDir.slice(Paths.wallsdir.length + 1);
@@ -56,28 +51,6 @@ Searcher {
 
     function updateCurrent(): void {
         actualCurrent = shadowsCurrent || legacyCurrent || fallback;
-        previewColourLock = false;
-    }
-
-    function preview(path: string): void {
-        previewPath = path;
-        showPreview = true;
-
-        if (Colours.scheme === "dynamic")
-            getPreviewColoursProc.running = true;
-    }
-
-    function stopPreview(): void {
-        showPreview = false;
-        if (previewColourLock)
-            pendingPreviewClear = true;
-        else
-            Colours.showPreview = false;
-    }
-
-    onPreviewColourLockChanged: {
-        if (!previewColourLock && pendingPreviewClear)
-            Colours.showPreview = false;
     }
 
     list: wallpapers.entries
@@ -173,15 +146,4 @@ Searcher {
         filter: FileSystemModel.Images
     }
 
-    Process {
-        id: getPreviewColoursProc
-
-        command: ["caelestia", "wallpaper", "-p", root.previewPath, ...root.smartArg]
-        stdout: StdioCollector {
-            onStreamFinished: {
-                Colours.load(text, true);
-                Colours.showPreview = true;
-            }
-        }
-    }
 }
