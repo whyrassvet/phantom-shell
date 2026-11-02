@@ -104,8 +104,7 @@ StyledRect {
                 id: expandIconInner
 
                 anchors.centerIn: parent
-                anchors.verticalCenterOffset: 2
-                text: "expand_more"
+                text: "chevron_left"
                 color: Colours.palette.m3onSurfaceVariant
                 fontStyle: Tokens.font.icon.medium
                 rotation: root.expanded ? 180 : 0
