@@ -11,6 +11,8 @@ data, state, cache and configuration rather than the `caelestia` directories.
 `services/Wallpapers.qml` no longer invokes the Caelestia CLI automatically
 when the wallpaper state file is missing or empty. Explicit wallpaper operations
 still use the upstream CLI and require replacement.
+`services/Colours.qml` targets the bar layer instead of the Caelestia drawers,
+and retains its built-in palette if the phantom-shell scheme is invalid or absent.
 
 The bar module in `modules/bar/` was copied from the same installed version
 and subsequently modified for phantom-shell. Vendoring these directories alone

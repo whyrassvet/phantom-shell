@@ -61,11 +61,21 @@ Singleton {
 
     function load(data: string, isPreview: bool): void {
         const colours = isPreview ? preview : current;
-        const scheme = JSON.parse(data);
+        let scheme;
+        try {
+            scheme = JSON.parse(data);
+        } catch (error) {
+            console.warn("Ignoring invalid phantom-shell colour scheme:", error);
+            return;
+        }
+        if (!scheme || typeof scheme.colours !== "object" || !scheme.colours || Array.isArray(scheme.colours)) {
+            console.warn("Ignoring invalid phantom-shell colour scheme: missing colours object");
+            return;
+        }
 
         if (!isPreview) {
-            root.scheme = scheme.name;
-            flavour = scheme.flavour;
+            root.scheme = typeof scheme.name === "string" ? scheme.name : "";
+            flavour = typeof scheme.flavour === "string" ? scheme.flavour : "";
             currentLight = scheme.mode === "light";
         } else {
             previewLight = scheme.mode === "light";
@@ -73,7 +83,7 @@ Singleton {
 
         for (const [name, colour] of Object.entries(scheme.colours)) {
             const propName = name.startsWith("term") ? name : `m3${name}`;
-            if (colours.hasOwnProperty(propName))
+            if (colours.hasOwnProperty(propName) && typeof colour === "string" && /^(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(colour))
                 colours[propName] = `#${colour}`;
         }
     }
@@ -85,10 +95,10 @@ Singleton {
     function reloadHyprRules(): void {
         let rule, trEnabled;
         if (Hypr.usingLua) {
-            rule = `eval hl.layer_rule({ match = { namespace = "caelestia-drawers" }, %1 = %2 })`;
+            rule = `eval hl.layer_rule({ match = { namespace = "caelestia-bar" }, %1 = %2 })`;
             trEnabled = transparency.enabled;
         } else {
-            rule = "keyword layerrule %1 %2, match:namespace caelestia-drawers";
+            rule = "keyword layerrule %1 %2, match:namespace caelestia-bar";
             trEnabled = transparency.enabled ? 1 : 0;
         }
         Hypr.extras.batchMessage([rule.arg("blur").arg(trEnabled), rule.arg("ignore_alpha").arg(Math.max(0, transparency.base - 0.03))]);
@@ -116,6 +126,7 @@ Singleton {
     FileView {
         path: `${Paths.state}/scheme.json`
         watchChanges: true
+        printErrors: false
         onFileChanged: reload()
         onLoaded: root.load(text(), false)
     }

@@ -10,6 +10,10 @@ test -d /tmp/opencode
 scratch="$(mktemp -d /tmp/opencode/phantom-headless-test.XXXXXX)"
 mkdir -m 700 "$scratch/runtime"
 mkdir -p "$scratch/home" "$scratch/config" "$scratch/cache" "$scratch/state" "$scratch/data" "$scratch/bin"
+if [ "${PHANTOM_TEST_SCHEME_TEXT+x}" = x ]; then
+  mkdir -p "$scratch/state/phantom-shell"
+  printf '%s' "$PHANTOM_TEST_SCHEME_TEXT" > "$scratch/state/phantom-shell/scheme.json"
+fi
 cat > "$scratch/bin/caelestia" <<'EOF'
 #!/usr/bin/env bash
 printf 'caelestia CLI was invoked: %s\n' "$*" >> "$PHANTOM_CLI_PROBE"
@@ -61,6 +65,10 @@ if ! grep -Fq 'Configuration Loaded' "$scratch/log" || grep -Fq 'Failed to load 
 fi
 if [ -s "$scratch/cli.log" ]; then
   printf 'Unexpected call to Caelestia CLI: %s/cli.log\n' "$scratch" >&2
+  exit 1
+fi
+if [ "${PHANTOM_EXPECT_SCHEME_WARNING:-0}" = 1 ] && ! grep -Fq 'Ignoring invalid phantom-shell colour scheme:' "$scratch/log"; then
+  printf 'Expected invalid-scheme warning was not found in %s/log\n' "$scratch" >&2
   exit 1
 fi
 printf 'Configuration loaded without a Caelestia CLI call; visual and interactive behaviour not tested.\n'
