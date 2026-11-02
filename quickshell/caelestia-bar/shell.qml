@@ -47,39 +47,27 @@ ShellRoot {
                 return mon.activeWorkspace?.toplevels.values.some(t => t.lastIpcObject.fullscreen > 1) ?? false;
             }
 
+            // Reserve the bar's space without adding another visible surface.
             StyledWindow {
-                id: win
+                id: reservation
 
-                name: "bar"
+                name: "reservation"
                 screen: scope.modelData
-
                 anchors.top: true
                 anchors.left: true
                 anchors.right: true
-
                 WlrLayershell.layer: WlrLayer.Top
                 exclusiveZone: bar.exclusiveZone
-                implicitHeight: BarConfig.thickness
-                visible: bar.shouldBeVisible
-                color: Effects.flat ? Colours.palette.m3surface : Colours.tPalette.m3surface
-
-                Bar.BarWrapper {
-                    id: bar
-
-                    anchors.fill: parent
-                    screen: scope.modelData
-                    screenState: ShellState.forScreen(scope.modelData)
-                    popouts: pops
-                    fullscreen: scope.fullscreen
-                }
+                implicitHeight: 1
+                color: "transparent"
+                mask: Region {}
             }
 
-            // Popouts live in their own fullscreen surface so they are not clipped
-            // by the bar window. The mask limits input to the revealed popout,
-            // and excluding nothing keeps the bar's exclusive zone intact.
+            // Draw the bar and popouts together so neither is blurred behind the other.
+            // Only the bar and visible popout receive input; empty space stays click-through.
             StyledWindow {
                 id: popoutWin
-                name: "popouts"
+                name: "bar"
                 screen: scope.modelData
 
                 anchors.top: true
@@ -101,16 +89,47 @@ ShellRoot {
                     }
                 }
 
-                WlrLayershell.layer: WlrLayer.Overlay
+                WlrLayershell.layer: WlrLayer.Top
                 WlrLayershell.exclusionMode: ExclusionMode.Ignore
                 WlrLayershell.keyboardFocus: pops.hasCurrent && pops.currentName === "wirelesspassword" ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
                 exclusiveZone: -1
 
                 mask: Region {
-                    x: Math.max(0, Math.floor(revealArea.x - revealArea.joinRadius))
-                    y: BarConfig.thickness
-                    width: Math.min(scope.modelData.width - x, Math.ceil(pops.width + 2 * revealArea.joinRadius))
-                    height: Math.max(0, Math.ceil(pops.height * popoutWin.reveal))
+                    id: barInputRegion
+
+                    width: scope.modelData.width
+                    height: bar.shouldBeVisible ? BarConfig.thickness : 0
+
+                    Region {
+                        id: popoutInputRegion
+
+                        x: Math.max(0, Math.floor(revealArea.x - revealArea.joinRadius))
+                        y: BarConfig.thickness
+                        width: Math.min(scope.modelData.width - x, Math.ceil(pops.width + 2 * revealArea.joinRadius))
+                        height: bar.shouldBeVisible ? Math.max(0, Math.ceil(pops.height * popoutWin.reveal)) : 0
+                    }
+                }
+
+                Rectangle {
+                    id: barBackground
+
+                    anchors.top: parent.top
+                    width: parent.width
+                    height: BarConfig.thickness
+                    visible: bar.shouldBeVisible
+                    color: Effects.flat ? Colours.palette.m3surface : Colours.tPalette.m3surface
+                }
+
+                Bar.BarWrapper {
+                    id: bar
+
+                    anchors.top: parent.top
+                    width: parent.width
+                    height: BarConfig.thickness
+                    screen: scope.modelData
+                    screenState: ShellState.forScreen(scope.modelData)
+                    popouts: pops
+                    fullscreen: scope.fullscreen
                 }
 
                 // Hover tracking: hover events propagate through children, so
@@ -140,7 +159,7 @@ ShellRoot {
 
                         ShapePath {
                             strokeWidth: 0
-                            fillColor: win.color
+                            fillColor: barBackground.color
                             startX: 0
                             startY: 0
                             PathLine { x: revealArea.width; y: 0 }
@@ -174,7 +193,7 @@ ShellRoot {
 
                     ShapePath {
                         strokeWidth: 0
-                        fillColor: win.color
+                        fillColor: barBackground.color
                         startX: 0
                         startY: 0
                         PathQuad { x: revealArea.joinRadius; y: revealArea.joinRadius; controlX: revealArea.joinRadius; controlY: 0 }
@@ -183,7 +202,7 @@ ShellRoot {
                     }
                     ShapePath {
                         strokeWidth: 0
-                        fillColor: win.color
+                        fillColor: barBackground.color
                         startX: revealArea.width + revealArea.joinRadius
                         startY: 0
                         PathLine { x: revealArea.width + revealArea.joinRadius; y: revealArea.joinRadius }

@@ -31,7 +31,32 @@ with tempfile.TemporaryDirectory(prefix="phantom-flat-test-", dir="/tmp/opencode
     source = shell.read_text()
     marker = "                color: Effects.flat ? Colours.palette.m3surface : Colours.tPalette.m3surface"
     assert source.count(marker) == 1
-    shell.write_text(source.replace(marker, marker + '\n                onColorChanged: console.log("PHANTOM_FLAT_TEST", Effects.flat, color.a)\n                Component.onCompleted: console.log("PHANTOM_FLAT_TEST", Effects.flat, color.a)'))
+    source = source.replace(marker, marker + '\n                onColorChanged: console.log("PHANTOM_FLAT_TEST", Effects.flat, color.a)\n                Component.onCompleted: console.log("PHANTOM_FLAT_TEST", Effects.flat, color.a)')
+    marker = "            onFullscreenChanged: {"
+    assert source.count(marker) == 1
+    instrumentation = '''            Timer {
+                interval: 1200
+                repeat: true
+                running: true
+                property int phase: 0
+                onTriggered: {
+                    if (phase === 0) {
+                        console.log("PHANTOM_MASK_CLOSED", bar.shouldBeVisible, barInputRegion.height, popoutInputRegion.height, reservation.exclusiveZone);
+                        pops.currentName = "bluetooth";
+                        pops.hasCurrent = true;
+                    } else if (phase === 1) {
+                        console.log("PHANTOM_MASK_OPEN", pops.hasCurrent, popoutInputRegion.height > 0, popoutInputRegion.width > 0);
+                        pops.close();
+                    } else {
+                        console.log("PHANTOM_MASK_RESTORED", popoutInputRegion.height === 0);
+                        stop();
+                    }
+                    phase++;
+                }
+            }
+
+'''
+    shell.write_text(source.replace(marker, instrumentation + marker))
     for name in ("home", "runtime", "config", "cache", "state", "data", "bin"):
         (scratch / name).mkdir(parents=True, exist_ok=True)
     (scratch / "runtime").chmod(0o700)
@@ -62,7 +87,10 @@ with tempfile.TemporaryDirectory(prefix="phantom-flat-test-", dir="/tmp/opencode
             offset = log.stat().st_size
             marker_file.unlink()
             wait_for(log, "PHANTOM_FLAT_TEST false 0.5", proc, offset)
+            wait_for(log, "PHANTOM_MASK_CLOSED true 40 0 40", proc)
+            wait_for(log, "PHANTOM_MASK_OPEN true true true", proc)
+            wait_for(log, "PHANTOM_MASK_RESTORED true", proc)
         finally:
             os.killpg(proc.pid, 15)
             proc.wait(timeout=10)
-    print("Flat mode switches the bar between opaque and transparent backgrounds")
+    print("Flat mode and shared-surface region geometry passed in headless mode")
