@@ -41,7 +41,7 @@ StyledRect {
         return false;
     }
 
-    color: Qt.alpha(Colours.tPalette.m3surfaceContainer, Math.max(0.65, Colours.tPalette.m3surfaceContainer.a))
+    color: Colours.tPalette.m3surfaceContainer
     radius: height / 2
 
     clip: true
