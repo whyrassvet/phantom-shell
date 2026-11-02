@@ -28,6 +28,12 @@ Qt development libraries, and `/tmp/opencode`. It masks the system Caelestia
 QML module and checks that loaded Caelestia libraries come from the build tree.
 This test does not run the bar or prove full independence from Caelestia.
 
+`install/build-phantom-plugins.sh BUILD_DIR NEW_PRIVATE_PREFIX` also configures,
+builds, and stages the plugins. Both paths must be absolute; the prefix must not
+already exist and its parent must exist. The script refuses to replace an
+existing prefix, so updates and integration with the main installer are not yet
+implemented. It can reuse a CMake build directory, which it will modify.
+
 To test an already staged private installation, pass its prefix and QML path:
 
 ```sh
