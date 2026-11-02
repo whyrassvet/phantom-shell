@@ -4,7 +4,7 @@ import Quickshell.Wayland
 import QtQuick
 import QtQuick.Effects
 
-// The welcome intro, shown once after DarkShadow's Shell is installed (rice-welcome show plays it again).
+// The welcome intro, shown once after Phantom Shell is installed (rice-welcome show plays it again).
 // Night falls over the desktop from the middle of the screen, a few words rise letter by letter, the moon
 // draws itself in, and "Take a look" opens the night up again from the moon. Then Settings opens with a
 // short tour.
@@ -13,7 +13,7 @@ ShellRoot {
     readonly property string home: Quickshell.env("HOME")
     readonly property string user: Quickshell.env("USER")
     property string distro: "Linux"
-    property string version: ""
+    readonly property string version: "0.1.0-aplha" // Placeholder until Phantom has its own versioning.
     property bool leaving: false
 
     // distro logo (Nerd Font "font logos"): the same ones as the bar and the dashboard
@@ -24,7 +24,7 @@ ShellRoot {
         debian: "", opensuse: "", gentoo: "", void: "", alpine: "", linuxmint: "", pop: ""
     })
     Process {
-        command: ["bash", "-c", ". /etc/os-release 2>/dev/null; printf '%s\\n%s\\n' \"${NAME:-Linux}\" \"${ID:-linux} ${ID_LIKE:-}\"; tr -d ' \\r\\n' 2>/dev/null <\"$HOME/.config/rice/version\""]
+        command: ["bash", "-c", ". /etc/os-release 2>/dev/null; printf '%s\\n%s\\n' \"${NAME:-Linux}\" \"${ID:-linux} ${ID_LIKE:-}\""]
         running: true
         stdout: StdioCollector {
             onStreamFinished: {
@@ -32,7 +32,6 @@ ShellRoot {
                 if ((l[0] || "").trim().length > 0) root.distro = l[0].trim()
                 const ids = (l[1] || "").toLowerCase().split(/\s+/)
                 for (let i = 0; i < ids.length; i++) if (root.glyphs[ids[i]] !== undefined) { root.glyph = root.glyphs[ids[i]]; break }
-                root.version = (l[2] || "").trim().replace(/^[vV]/, "")
             }
         }
     }
@@ -205,7 +204,7 @@ ShellRoot {
             T {
                 anchors.horizontalCenter: parent.horizontalCenter
                 kind: "title"
-                text: "DarkShadow's Shell"
+                text: "Phantom Shell"
                 font.pixelSize: 40
                 font.bold: true
                 // the letters come together
