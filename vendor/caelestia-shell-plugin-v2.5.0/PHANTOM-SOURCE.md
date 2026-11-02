@@ -13,8 +13,11 @@ background, the microphone indicator, and the keyboard layout by default.
 sets base opacity to 0.5 by default.
 
 These sources are a starting point for removing the runtime dependency on the
-installed `caelestia-shell` package. They are not yet wired into phantom-shell's
-installer or runtime, and the bar still depends on the installed package.
+installed `caelestia-shell` package. The separate `bin/phantom-bar` launcher
+loads privately staged plugins and has been tested in isolation and in live bar
+tests. The main installer builds the plugins, and the Hyprland configuration
+starts the bar. Full independence has not been verified in a clean installation;
+some other functions still call the CLI.
 
 An isolated compilation can be configured with:
 
@@ -35,8 +38,10 @@ This test does not run the bar or prove full independence from Caelestia.
 `install/build-phantom-plugins.sh BUILD_DIR NEW_PRIVATE_PREFIX` also configures,
 builds, and stages the plugins. Both paths must be absolute; the prefix must not
 already exist and its parent must exist. The script refuses to replace an
-existing prefix, so updates and integration with the main installer are not yet
-implemented. It can reuse a CMake build directory, which it will modify.
+existing prefix. It can reuse a CMake build directory, which it will modify.
+The separate `install/install-phantom-plugins.sh` stages versioned builds and
+switches `plugin-current` after file checks, retaining previous versions. A full
+build has succeeded and the main installer calls this script.
 
 To test an already staged private installation, pass its prefix and QML path:
 
@@ -44,8 +49,9 @@ To test an already staged private installation, pass its prefix and QML path:
 bash tests/smoke-caelestia-plugin.sh "$STAGE" "$STAGE/lib/qt6/qml"
 ```
 
-`bin/phantom-bar` looks for private plugins under
-`${XDG_DATA_HOME:-$HOME/.local/share}/phantom-shell/lib/qt6/qml` and refuses
-to start when the private modules or libraries are missing. The installer does
-not yet build or install these plugins, and this launcher is not yet wired into
-the session autostart. Do not remove the installed Caelestia package yet.
+`bin/phantom-bar` looks under `${XDG_DATA_HOME:-$HOME/.local/share}/phantom-shell/`
+using `plugin-current/lib/qt6/qml`, or the legacy `lib/qt6/qml` when there is
+no current link; `PHANTOM_QML_ROOT` overrides this. It refuses to start when
+private modules or libraries are missing. The main installer builds the plugins,
+and the Hyprland configuration starts the launcher. A clean installation without
+Caelestia packages and complete functionality still require acceptance testing.

@@ -4,6 +4,13 @@
 
 ---
 
+## 2026-11-03 — коммиты интеграции и удаление предпросмотра
+
+- По просьбе пользователя сохранены отдельными коммитами личные настройки Hyprland и интеграция установки/автозапуска бара. Удалены неотслеживаемые `bin/phantom-wallpaper-preview` и его тест, а также неиспользуемый предпросмотр Caelestia в `Wallpapers.qml` и `Colours.qml`; выбор обоев shadows и IPC сохранены. Установленная копия не менялась. Копии `/tmp/opencode/phantom-cleanup-20261103/`.
+- Прошли `tests/phantom-user-config.sh`, `tests/phantom-hypr-loader.py`, `tests/install-phantom-plugins.sh`, `tests/phantom-matugen.py`, `tests/phantom-matugen-headless.py`, `tests/phantom-wallpaper-select.py`, `tests/phantom-wallpaper-ipc-headless.py`; headless использовал установленный приватный префикс. Обновлены документы и исправлено устаревшее описание интеграции плагинов. Чистая установка и визуальная проверка остаются.
+
+---
+
 ## 2026-11-03 — стандартные сочетания и анимации Hyprland
 
 - По согласованию в `config/hypr/hyprland.lua` перенесены личные Super+T, Super+F, Super+Shift+B, Super+Shift+A и пять анимаций с кривыми; Super+J и одиночный Super уже были, Super+V удалён. Другие личные настройки, установленная копия и сессия не менялись. Копии `/tmp/opencode/phantom-hypr-defaults-20261103/`.
