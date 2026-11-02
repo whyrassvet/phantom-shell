@@ -43,7 +43,7 @@ PanelWindow {
     }
     function nudge(dx, dy) {
         const w = selWin
-        if (!w) return
+        if (!w || w.autoBottom) return
         w.px = Math.max(0, Math.min(root.sw - w.dispW, w.px + dx))
         w.py = Math.max(0, Math.min(root.sh - w.dispH, w.py + dy))
         root.saveGeom(sel)
@@ -135,7 +135,7 @@ PanelWindow {
                 id: body
                 anchors.fill: parent
                 hoverEnabled: true
-                cursorShape: pressed ? Qt.ClosedHandCursor : Qt.OpenHandCursor
+                cursorShape: fr.w && fr.w.autoBottom ? Qt.ArrowCursor : (pressed ? Qt.ClosedHandCursor : Qt.OpenHandCursor)
                 property real sx: 0
                 property real sy: 0
                 property real ox: 0
@@ -150,10 +150,10 @@ PanelWindow {
                     keys.forceActiveFocus()
                     const g = mapToItem(null, m.x, m.y)
                     sx = g.x; sy = g.y; ox = fr.w.px; oy = fr.w.py
-                    fr.w.dragging = true
+                    if (!fr.w.autoBottom) fr.w.dragging = true
                 }
                 onPositionChanged: function(m) {
-                    if (!pressed) return
+                    if (!pressed || fr.w.autoBottom) return
                     const g = mapToItem(null, m.x, m.y)
                     if (!moved && Math.abs(g.x - sx) + Math.abs(g.y - sy) < 3) return
                     moved = true
@@ -166,6 +166,7 @@ PanelWindow {
                 }
                 onReleased: {
                     ed.guideX = false; ed.guideY = false
+                    if (fr.w.autoBottom) return
                     fr.w.px = Math.round(fr.w.px); fr.w.py = Math.round(fr.w.py)
                     fr.w.dragging = false
                     if (moved) { ed.root.saveGeom(modelData.id); Sfx.play("done") }
@@ -174,7 +175,7 @@ PanelWindow {
 
             // resize handles: corners (and edges for free-size widgets)
             Repeater {
-                model: fr.picked ? (modelData.free ? ["tl", "tr", "bl", "br", "t", "b", "l", "r"] : ["tl", "tr", "bl", "br"]) : []
+                model: fr.picked && !fr.w.autoBottom ? (modelData.free ? ["tl", "tr", "bl", "br", "t", "b", "l", "r"] : ["tl", "tr", "bl", "br"]) : []
                 delegate: Rectangle {
                     readonly property string h: modelData
                     readonly property bool corner: h.length === 2
@@ -273,6 +274,7 @@ PanelWindow {
             EdChip { visible: ed.selInfo && !ed.selInfo.free; text: Math.round((ed.selWin ? ed.selWin.sc : 1) * 100) + "%" }
             EdIcon {
                 icon: ""
+                visible: !ed.selWin || !ed.selWin.autoBottom
                 tip: ed.selInfo && ed.selInfo.free ? "Full width" : "Actual size"
                 onClicked: {
                     const w = ed.selWin

@@ -15,6 +15,7 @@ PanelWindow {
     property int cw: 300          // natural size of the content
     property int ch: 200
     property bool free: false     // free width and height (visualizer) instead of scaling
+    property bool autoBottom: false // full screen width, anchored to the bottom edge
     property int defW: 600
     property int defH: 160
     property int bw: 1920
@@ -29,16 +30,17 @@ PanelWindow {
     Behavior on fk { NumberAnimation { duration: 260; easing.type: Easing.OutCubic } }
 
     // current look; the editor changes these while you drag
-    property real px: defX
-    property real py: defY
+    property real px: autoBottom ? 0 : defX
+    property real py: autoBottom ? Math.max(0, bh - dispH) : defY
     property real sc: 1
-    property real fw: defW
+    property real fw: autoBottom ? bw : defW
     property real fh: defH
     property real op: 1
     property real bgv: 1
     property string sty: ""
     property bool flp: false
     property bool dragging: false
+    property bool ready: false
     readonly property real dispW: free ? fw : cw * sc
     readonly property real dispH: free ? fh : ch * sc
 
@@ -46,11 +48,13 @@ PanelWindow {
     default property alias content: inner.data
 
     function adopt() {
-        if (dragging) return
-        px = wc.x !== undefined ? wc.x : defX
-        py = wc.y !== undefined ? wc.y : defY
+        if (!ready || dragging) return
+        if (!autoBottom) {
+            px = wc.x !== undefined ? wc.x : defX
+            py = wc.y !== undefined ? wc.y : defY
+            fw = wc.w !== undefined ? wc.w : defW
+        }
         sc = wc.scale !== undefined ? wc.scale : 1
-        fw = wc.w !== undefined ? wc.w : defW
         fh = wc.h !== undefined ? wc.h : defH
         op = wc.opacity !== undefined ? wc.opacity : 1
         bgv = wc.bg !== undefined ? wc.bg : 1
@@ -62,7 +66,7 @@ PanelWindow {
     onDefYChanged: adopt()
     onDefWChanged: adopt()
     onDefHChanged: adopt()
-    Component.onCompleted: adopt()
+    Component.onCompleted: { ready = true; adopt() }
 
     visible: active && fk > 0.01
     color: "transparent"

@@ -83,7 +83,7 @@ ShellRoot {
     function resetWidget(id) {
         const w = wins[id]
         ds(["reset-widget", id])
-        if (w) { w.sc = 1; w.op = 1; w.bgv = 1; w.flp = false; w.px = w.defX; w.py = w.defY; w.fw = w.defW; w.fh = w.defH }
+        if (w) { w.sc = 1; w.op = 1; w.bgv = 1; w.flp = false; if (!w.autoBottom) { w.px = w.defX; w.py = w.defY; w.fw = w.defW }; w.fh = w.defH }
     }
     function resetAll() { ds(["reset-pos"]) }
     function finishEditing() { const c = JSON.parse(JSON.stringify(cfg)); c.editing = false; cfg = c; ds(["edit", "off"]) }
@@ -235,8 +235,9 @@ ShellRoot {
     // audio visualizer: see-through, at the bottom of the screen by default, never takes clicks
     WidgetWindow {
         id: vizWin
+        screen: root.scr
         wid: "visualizer"; wc: root.wc("visualizer"); active: root.on("visualizer"); editing: root.editing; hidden: root.hideWidgets
-        free: true; passive: true
+        free: true; passive: true; autoBottom: true
         bw: root.sw; bh: root.sh
         defW: root.sw; defH: 180; defX: 0; defY: root.sh - 180
         Component.onCompleted: root.reg(wid, vizWin)
