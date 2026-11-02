@@ -12,6 +12,8 @@ ShellRoot {
     readonly property var scr: Quickshell.screens.length > 0 ? Quickshell.screens[0] : null
     readonly property int sw: scr ? scr.width : 1920
     readonly property int sh: scr ? scr.height : 1080
+    // Keep in sync with the installed Phantom bar's default thickness.
+    readonly property int barHeight: 40
     readonly property string placement: cfg.clock && cfg.clock.placement ? cfg.clock.placement : "draggable"
 
     function wc(id) { return cfg.widgets && cfg.widgets[id] ? cfg.widgets[id] : ({}) }
@@ -83,7 +85,7 @@ ShellRoot {
     function resetWidget(id) {
         const w = wins[id]
         ds(["reset-widget", id])
-        if (w) { w.sc = 1; w.op = 1; w.bgv = 1; w.flp = false; if (!w.autoBottom) { w.px = w.defX; w.py = w.defY; w.fw = w.defW }; w.fh = w.defH }
+        if (w) { w.sc = 1; w.op = 1; w.bgv = 1; w.flp = false; if (!w.autoBottom && w.fixedCorner === "") { w.px = w.defX; w.py = w.defY; w.fw = w.defW }; w.fh = w.defH }
     }
     function resetAll() { ds(["reset-pos"]) }
     function finishEditing() { const c = JSON.parse(JSON.stringify(cfg)); c.editing = false; cfg = c; ds(["edit", "off"]) }
@@ -158,7 +160,10 @@ ShellRoot {
     // ---- clock
     WidgetWindow {
         id: clockWin
+        screen: root.scr
         wid: "clock"
+        fixedCorner: root.placement === "draggable" ? "top-left" : ""
+        topInset: root.barHeight
         wc: root.placement === "draggable" ? (root.cfg.clock ? root.cfg.clock : ({})) : ({})
         draggable: root.placement === "draggable"
         editing: root.editing
@@ -202,6 +207,7 @@ ShellRoot {
     }
     WidgetWindow {
         id: calWin
+        screen: root.scr; fixedCorner: "bottom-right"
         wid: "calendar"; wc: root.wc("calendar"); active: root.on("calendar"); editing: root.editing; hidden: root.hideWidgets
         bw: root.sw; bh: root.sh; cw: 340; ch: 340; defX: root.sw - 380; defY: 200
         onMoved: function(id, x, y) { root.savePos(id, x, y) }
@@ -218,6 +224,7 @@ ShellRoot {
     }
     WidgetWindow {
         id: resWin
+        screen: root.scr; fixedCorner: "bottom-left"
         wid: "resources"; wc: root.wc("resources"); active: root.on("resources"); editing: root.editing; hidden: root.hideWidgets
         bw: root.sw; bh: root.sh; cw: 160; ch: 380; defX: 40; defY: root.sh - 440
         onMoved: function(id, x, y) { root.savePos(id, x, y) }

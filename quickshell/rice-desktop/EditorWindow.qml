@@ -43,7 +43,7 @@ PanelWindow {
     }
     function nudge(dx, dy) {
         const w = selWin
-        if (!w || w.autoBottom) return
+        if (!w || w.autoBottom || w.fixedCorner !== "") return
         w.px = Math.max(0, Math.min(root.sw - w.dispW, w.px + dx))
         w.py = Math.max(0, Math.min(root.sh - w.dispH, w.py + dy))
         root.saveGeom(sel)
@@ -135,7 +135,7 @@ PanelWindow {
                 id: body
                 anchors.fill: parent
                 hoverEnabled: true
-                cursorShape: fr.w && fr.w.autoBottom ? Qt.ArrowCursor : (pressed ? Qt.ClosedHandCursor : Qt.OpenHandCursor)
+                cursorShape: fr.w && (fr.w.autoBottom || fr.w.fixedCorner !== "") ? Qt.ArrowCursor : (pressed ? Qt.ClosedHandCursor : Qt.OpenHandCursor)
                 property real sx: 0
                 property real sy: 0
                 property real ox: 0
@@ -150,10 +150,10 @@ PanelWindow {
                     keys.forceActiveFocus()
                     const g = mapToItem(null, m.x, m.y)
                     sx = g.x; sy = g.y; ox = fr.w.px; oy = fr.w.py
-                    if (!fr.w.autoBottom) fr.w.dragging = true
+                    if (!fr.w.autoBottom && fr.w.fixedCorner === "") fr.w.dragging = true
                 }
                 onPositionChanged: function(m) {
-                    if (!pressed || fr.w.autoBottom) return
+                    if (!pressed || fr.w.autoBottom || fr.w.fixedCorner !== "") return
                     const g = mapToItem(null, m.x, m.y)
                     if (!moved && Math.abs(g.x - sx) + Math.abs(g.y - sy) < 3) return
                     moved = true
@@ -166,7 +166,7 @@ PanelWindow {
                 }
                 onReleased: {
                     ed.guideX = false; ed.guideY = false
-                    if (fr.w.autoBottom) return
+                    if (fr.w.autoBottom || fr.w.fixedCorner !== "") return
                     fr.w.px = Math.round(fr.w.px); fr.w.py = Math.round(fr.w.py)
                     fr.w.dragging = false
                     if (moved) { ed.root.saveGeom(modelData.id); Sfx.play("done") }
@@ -231,14 +231,16 @@ PanelWindow {
                                 s = Math.max(0.4, Math.min(3, Math.min(maxS, s)))
                                 if (ed.grid) s = Math.round(s * 20) / 20
                                 w.sc = s
-                                w.px = h.indexOf("l") >= 0 ? ax - w.cw * s : ax
-                                w.py = h.indexOf("t") >= 0 ? ay - w.ch * s : ay
+                                if (w.fixedCorner === "") {
+                                    w.px = h.indexOf("l") >= 0 ? ax - w.cw * s : ax
+                                    w.py = h.indexOf("t") >= 0 ? ay - w.ch * s : ay
+                                }
                             }
                         }
                         onReleased: {
                             Sfx.play("done")
                             const w = fr.w
-                            w.px = Math.round(w.px); w.py = Math.round(w.py)
+                            if (w.fixedCorner === "") { w.px = Math.round(w.px); w.py = Math.round(w.py) }
                             w.fw = Math.round(w.fw); w.fh = Math.round(w.fh)
                             w.dragging = false
                             ed.root.saveGeom(fr.wid)
@@ -274,7 +276,7 @@ PanelWindow {
             EdChip { visible: ed.selInfo && !ed.selInfo.free; text: Math.round((ed.selWin ? ed.selWin.sc : 1) * 100) + "%" }
             EdIcon {
                 icon: ""
-                visible: !ed.selWin || !ed.selWin.autoBottom
+                visible: !ed.selWin || (!ed.selWin.autoBottom && ed.selWin.fixedCorner === "")
                 tip: ed.selInfo && ed.selInfo.free ? "Full width" : "Actual size"
                 onClicked: {
                     const w = ed.selWin
@@ -286,6 +288,7 @@ PanelWindow {
             }
             EdIcon {
                 icon: ed.selInfo && ed.selInfo.free ? "" : ""
+                visible: !ed.selWin || ed.selWin.fixedCorner === ""
                 tip: ed.selInfo && ed.selInfo.free ? "Flip" : "Center on screen"
                 active: ed.selInfo && ed.selInfo.free ? (ed.selWin ? ed.selWin.flp : false) : false
                 onClicked: {

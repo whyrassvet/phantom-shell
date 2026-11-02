@@ -16,6 +16,9 @@ PanelWindow {
     property int ch: 200
     property bool free: false     // free width and height (visualizer) instead of scaling
     property bool autoBottom: false // full screen width, anchored to the bottom edge
+    property string fixedCorner: "" // top-left, bottom-left or bottom-right
+    property int edgeGap: 25
+    property int topInset: 0
     property int defW: 600
     property int defH: 160
     property int bw: 1920
@@ -30,8 +33,8 @@ PanelWindow {
     Behavior on fk { NumberAnimation { duration: 260; easing.type: Easing.OutCubic } }
 
     // current look; the editor changes these while you drag
-    property real px: autoBottom ? 0 : defX
-    property real py: autoBottom ? Math.max(0, bh - dispH) : defY
+    property real px: autoBottom ? 0 : fixedCorner === "bottom-right" ? Math.max(0, bw - dispW - edgeGap) : fixedCorner !== "" ? edgeGap : defX
+    property real py: autoBottom ? Math.max(0, bh - dispH) : fixedCorner === "top-left" ? topInset + edgeGap : fixedCorner !== "" ? Math.max(0, bh - dispH - edgeGap) : defY
     property real sc: 1
     property real fw: autoBottom ? bw : defW
     property real fh: defH
@@ -49,7 +52,7 @@ PanelWindow {
 
     function adopt() {
         if (!ready || dragging) return
-        if (!autoBottom) {
+        if (!autoBottom && fixedCorner === "") {
             px = wc.x !== undefined ? wc.x : defX
             py = wc.y !== undefined ? wc.y : defY
             fw = wc.w !== undefined ? wc.w : defW
@@ -100,7 +103,7 @@ PanelWindow {
 
         MouseArea {
             anchors.fill: parent
-            enabled: w.draggable && !w.passive && !w.editing
+            enabled: w.draggable && !w.passive && !w.editing && w.fixedCorner === ""
             property real sx: 0
             property real sy: 0
             property real ox: 0
