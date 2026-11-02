@@ -1,0 +1,3 @@
+-- Personal Hyprland rules, animations and bindings go here.
+-- This file is loaded after the project defaults and is not overwritten by the installer.
+-- To replace an existing binding, first call hl.unbind("SUPER + KEY").

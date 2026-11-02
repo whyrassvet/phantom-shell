@@ -30,6 +30,8 @@
 
 ---
 
+Personal Hyprland overrides: [docs/PHANTOM-USER-CONFIG.md](docs/PHANTOM-USER-CONFIG.md).
+
 ## Screenshots
 <p align="center">
   <img src="assets/screenshot.png" alt="DarkShadow's Shell: desktop with widgets" width="100%">

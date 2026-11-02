@@ -17,6 +17,26 @@
 -- require("myColors")
 
 
+-- Optional personal files are outside the installed project config and are never overwritten.
+local phantomConfigHome = os.getenv("XDG_CONFIG_HOME")
+if not phantomConfigHome or phantomConfigHome == "" then
+    phantomConfigHome = os.getenv("HOME") .. "/.config"
+end
+local phantomConfigDir = phantomConfigHome .. "/phantom-shell/"
+local function loadPhantomFile(name)
+    local path = phantomConfigDir .. name
+    local file, err, code = io.open(path, "r")
+    if not file then
+        if code == 2 then return nil end
+        error("Cannot read " .. path .. ": " .. tostring(err))
+    end
+    file:close()
+    return assert(loadfile(path))()
+end
+local phantomVars = loadPhantomFile("hyprland-vars.lua")
+if phantomVars == nil then phantomVars = {} end
+assert(type(phantomVars) == "table", "phantom-shell hyprland-vars.lua must return a table")
+
 ------------------
 ---- MONITORS ----
 ------------------
@@ -39,9 +59,9 @@ hl.monitor({
 ---------------------
 
 -- Set programs that you use
-local terminal    = "kitty"
-local fileManager = "dolphin"
-local menu        = "hyprlauncher"
+local terminal    = phantomVars.terminal or "kitty"
+local fileManager = phantomVars.fileManager or "dolphin"
+local menu        = phantomVars.menu or "hyprlauncher"
 
 
 -------------------
@@ -517,6 +537,9 @@ pcall(hl.config, { decoration = { blur = { popups = true, popups_ignorealpha = 0
 require("rice-keys")
 
 require("rice-dashboard")
+
+-- Apply personal rules and bindings after project defaults.
+loadPhantomFile("hyprland-user.lua")
 
 -- must stay last: gaming mode and "no blur & transparency" override
 require("rice-gaming")

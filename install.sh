@@ -101,6 +101,8 @@ copy_tree() { # copy_tree SRC_DIR DST_DIR
 }
 # shellcheck source=install/lib/phantom-bar.sh
 . "$ROOT/install/lib/phantom-bar.sh"
+# shellcheck source=install/lib/phantom-user-config.sh
+. "$ROOT/install/lib/phantom-user-config.sh"
 missing_cmds() {
   local c out=()
   for c in "${NEED_CMDS[@]}"; do command -v "$c" >/dev/null 2>&1 || out+=("$c"); done
@@ -566,6 +568,12 @@ confirm "Start?" || { warn "Cancelled."; exit 0; }
 STEP_TOTAL=$(( WANT[0] + WANT[1] + WANT[2] + WANT[3] + 1 ))
 n=0
 if [ "${WANT[0]}" = 1 ]; then n=$((n + 1)); step "$n" "Packages" "Everything the desktop needs, from your package manager"; step_packages; fi
+if [ "${WANT[2]}" = 1 ] || [ "${WANT[3]}" = 1 ]; then
+  if ! task "Create personal Phantom Hyprland files if absent" ensure_phantom_user_configs; then
+    fail "Could not prepare personal Hyprland files; stopping before installing configs or apps."
+    exit 1
+  fi
+fi
 if [ "${WANT[1]}" = 1 ]; then n=$((n + 1)); step "$n" "Fonts" "So text and icons look right"; step_fonts; fi
 if [ "${WANT[2]}" = 1 ]; then n=$((n + 1)); step "$n" "Config files" "Your old files are backed up first"; step_configs; fi
 if [ "${WANT[3]}" = 1 ]; then n=$((n + 1)); step "$n" "Apps and scripts" "Settings app, desktop widgets and the commands behind them"; step_apps
