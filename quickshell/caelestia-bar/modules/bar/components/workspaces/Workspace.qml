@@ -53,8 +53,10 @@ Item {
     implicitHeight: BarConfig.innerThickness
 
     StyledRect {
-        anchors.fill: parent
-        radius: Tokens.rounding.full
+        anchors.centerIn: parent
+        width: root.indicatorSize
+        height: root.indicatorSize
+        radius: width / 2
         color: root.focused ? Colours.palette.m3primary : Qt.alpha(Colours.palette.m3surfaceContainerHighest, root.isOccupied && Config.bar.workspaces.occupiedBg ? 0.6 : 0)
 
         Behavior on color {

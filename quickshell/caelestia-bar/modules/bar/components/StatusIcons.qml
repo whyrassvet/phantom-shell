@@ -42,7 +42,7 @@ StyledRect {
     }
 
     color: Colours.tPalette.m3surfaceContainer
-    radius: Tokens.rounding.full
+    radius: height / 2
 
     clip: true
     implicitHeight: BarConfig.innerThickness

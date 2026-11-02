@@ -11,7 +11,7 @@ import qs.services
 StyledRect {
     id: root
 
-    readonly property color colour: Colours.palette.m3tertiary
+    readonly property color colour: Colours.palette.m3secondary
     readonly property int padding: Config.bar.clock.background ? Tokens.padding.small : Tokens.padding.extraSmall
     readonly property var font: Tokens.font.body.builders.small.scale(1.15)
     readonly property string timeText: Config.bar.clock.showSeconds ? Time.format("HH:mm:ss") : Time.format("HH:mm")
@@ -20,7 +20,7 @@ StyledRect {
     implicitWidth: layout.implicitWidth + root.padding * 2
 
     color: Qt.alpha(Colours.tPalette.m3surfaceContainer, Config.bar.clock.background ? Colours.tPalette.m3surfaceContainer.a : 0)
-    radius: Tokens.rounding.full
+    radius: height / 2
 
     RowLayout {
         id: layout

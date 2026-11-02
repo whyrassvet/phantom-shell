@@ -51,7 +51,7 @@ StyledClippingRect {
     implicitWidth: workspaces.implicitWidth + Tokens.padding.extraSmall * 2
 
     color: Colours.tPalette.m3surfaceContainer
-    radius: Tokens.rounding.full
+    radius: height / 2
 
     Item {
         anchors.fill: parent
