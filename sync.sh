@@ -8,7 +8,7 @@ HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TOOLS=(rice-effects rice-run rice-busy hypr-set waybar-set waybar-preset waybar-reload waybar-autohide font-set desktop-set rice-settings
        rice-colors rice-welcome rice-wallpaper rice-rofi rice-notify rice-lock rice-fonts rice-hotcorner
        rice-desktop rice-stats rice-sysline rice-nowplaying rice-weather rice-cava rice-media rice-cursor rice-update rice-ws-watch rice-calendar rice-sound rice-sfx rice-services rice-battery rice-dashboard border-sync logout)
-CONFIG_DIRS=(hypr waybar waybar-presets swaync rofi matugen kitty fish fastfetch)    # folders from ~/.config to publish
+CONFIG_DIRS=(waybar waybar-presets swaync rofi matugen kitty fish fastfetch)    # hypr is maintained in the fork, never replaced from HOME
 SKIP_QS=(cache thumbs caelestia-bar)                    # never replace the vendored bar or follow its package symlinks
 # small images (bar icons) are kept; anything over 1 MB is skipped below
 EXCLUDE=(ui.json 'config.jsonc.save*' '*.bak*' '*.save*' '.first-backup' '*.qslog' '*.log'

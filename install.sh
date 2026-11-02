@@ -95,6 +95,8 @@ copy_tree() { # copy_tree SRC_DIR DST_DIR
   while IFS= read -r -d '' f; do put "$f" "$dst/${f#"$src"/}"; done \
     < <(find -L "$src" -type f ! -name '*.bak*' ! -name '.gitkeep' -print0)
 }
+# shellcheck source=install/lib/phantom-bar.sh
+. "$ROOT/install/lib/phantom-bar.sh"
 missing_cmds() {
   local c out=()
   for c in "${NEED_CMDS[@]}"; do command -v "$c" >/dev/null 2>&1 || out+=("$c"); done
@@ -470,7 +472,11 @@ step_apps() {
       rice-settings) n="Settings app" ;; rice-desktop) n="Desktop widgets, dock and hot corner" ;;
       rice-welcome) n="Welcome screen" ;; hyprquickpaper) n="Wallpaper picker" ;; *) n="$d" ;;
     esac
-    task "$n  ->  ~/.config/quickshell/$d" copy_tree "$ROOT/quickshell/$d" "$HOME/.config/quickshell/$d"
+    if [ "$d" = caelestia-bar ]; then
+      task "$n  ->  ~/.config/quickshell/$d" copy_phantom_bar "$ROOT/quickshell/$d" "$HOME/.config/quickshell/$d"
+    else
+      task "$n  ->  ~/.config/quickshell/$d" copy_tree "$ROOT/quickshell/$d" "$HOME/.config/quickshell/$d"
+    fi
   done
   if ! printf '%s' ":$PATH:" | grep -q ":$HOME/.local/bin:"; then
     warn "\$HOME/.local/bin is not in your PATH. Add it in your shell config (fish: fish_add_path \$HOME/.local/bin)"
