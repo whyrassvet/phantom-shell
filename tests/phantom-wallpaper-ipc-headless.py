@@ -6,6 +6,7 @@ import shutil
 import subprocess
 import tempfile
 import time
+from PIL import Image
 
 ROOT = Path(__file__).resolve().parent.parent
 STAGE = Path(os.environ["PHANTOM_TEST_STAGE"]).resolve()
@@ -51,14 +52,28 @@ with tempfile.TemporaryDirectory(prefix="phantom-wallpaper-ipc-", dir="/tmp/open
         interval: 6000; running: true
         onTriggered: Quickshell.execDetached(["sh", "-c", 'qs -p "$PHANTOM_BAR_CONFIG" ipc call wallpaper set "first queued"; qs -p "$PHANTOM_BAR_CONFIG" ipc call wallpaper set "last queued"'])
     }
+    Timer {
+        interval: 10000; running: true
+        onTriggered: Wallpapers.setRandom()
+    }
+    Timer {
+        interval: 14000; running: true
+        onTriggered: Wallpapers.setRandom()
+    }
 '''
     shell.write_text(source.replace(marker, marker + instrumentation))
-    for name in ("home/.config/quickshell/hyprquickpaper", "home/.cache", "runtime", "config", "cache", "state/phantom-shell/wallpaper", "data", "bin"):
+    for name in ("home/.config/quickshell/hyprquickpaper", "home/.cache", "home/.local/bin", "walls", "runtime", "config", "cache", "state/phantom-shell/wallpaper", "data", "bin"):
         (scratch / name).mkdir(parents=True, exist_ok=True)
     (scratch / "runtime").chmod(0o700)
     (scratch / "state/phantom-shell/wallpaper/path.txt").write_text("legacy\n")
     backend = scratch / "home/.config/quickshell/hyprquickpaper/commands.sh"
     backend.write_text('#!/bin/sh\n[ "$1" != fail ] || exit 7\nsleep 0.5\nprintf "%s\\n" "$1" > "$HOME/.cache/hyprquickpaper-current"\n')
+    shutil.copy2(ROOT / "bin/phantom-wallpaper-select", scratch / "home/.local/bin/phantom-wallpaper-select")
+    hyprctl = scratch / "bin/hyprctl"
+    hyprctl.write_text('#!/bin/sh\n[ "$1 $2" = "-j monitors" ] || exit 1\nprintf \'[{"width":1920,"height":1080}]\\n\'\n')
+    hyprctl.chmod(0o755)
+    random_wall = scratch / "walls/random choice.png"
+    Image.new("RGB", (1920, 1080)).save(random_wall)
     cli = scratch / "bin/caelestia"
     cli.write_text('#!/bin/sh\nprintf "unexpected cli\\n" >> "$HOME/cli-called"\nexit 1\n')
     cli.chmod(0o755)
@@ -73,7 +88,8 @@ with tempfile.TemporaryDirectory(prefix="phantom-wallpaper-ipc-", dir="/tmp/open
               "XDG_STATE_HOME": scratch / "state", "XDG_DATA_HOME": scratch / "data", "XDG_RUNTIME_DIR": scratch / "runtime",
               "PATH": f"{scratch / 'bin'}:{os.environ['PATH']}", "WLR_BACKENDS": "headless", "WLR_RENDERER": "pixman",
               "WLR_LIBINPUT_NO_DEVICES": "1", "QT_QPA_PLATFORM": "wayland", "QT_QUICK_BACKEND": "software",
-              "PHANTOM_BAR_CONFIG": bar, "PHANTOM_QML_ROOT": STAGE / "lib/qt6/qml", "TEST_WALL": wall}
+              "PHANTOM_BAR_CONFIG": bar, "PHANTOM_QML_ROOT": STAGE / "lib/qt6/qml", "TEST_WALL": wall,
+              "CAELESTIA_WALLPAPERS_DIR": scratch / "walls"}
     for key, value in values.items():
         args += ["--setenv", key, str(value)]
     for key in ("WAYLAND_DISPLAY", "DISPLAY", "DBUS_SESSION_BUS_ADDRESS", "HYPRLAND_INSTANCE_SIGNATURE", "LD_PRELOAD", "LD_LIBRARY_PATH", "QML_IMPORT_PATH", "QML2_IMPORT_PATH"):
@@ -94,6 +110,11 @@ with tempfile.TemporaryDirectory(prefix="phantom-wallpaper-ipc-", dir="/tmp/open
             wait_for(log, "IPC_CURRENT external", proc)
             (scratch / "home/.cache/hyprquickpaper-current").unlink()
             wait_for(log, "IPC_CURRENT legacy", proc, log.read_text(errors="replace").rfind("IPC_CURRENT external"))
+            wait_for(log, "IPC_CURRENT " + str(random_wall), proc)
+            random_wall.unlink()
+            wait_for(log, "Random wallpaper selection failed (exit 1)", proc)
+            assert (scratch / "home/.cache/hyprquickpaper-current").read_text().strip() == str(random_wall)
+            assert not (scratch / "home/cli-called").exists()
         finally:
             os.killpg(proc.pid, 15)
             proc.wait(timeout=10)

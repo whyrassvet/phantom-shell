@@ -34,7 +34,12 @@ Searcher {
     }
 
     function setRandom(): void {
-        Quickshell.execDetached(["caelestia", "wallpaper", "-r", ...smartArg]);
+        if (selectRandomProc.running) {
+            console.warn("Random wallpaper selection is already running");
+            return;
+        }
+        selectRandomProc.selection = "";
+        selectRandomProc.exec([`${Paths.home}/.local/bin/phantom-wallpaper-select`, Paths.wallsdir, "--current", actualCurrent]);
     }
 
     function setWallpaper(path: string): void {
@@ -139,6 +144,24 @@ Searcher {
                 root.pendingSetPath = "";
                 Qt.callLater(() => root.setWallpaper(next));
             }
+        }
+    }
+
+    Process {
+        id: selectRandomProc
+
+        property string selection
+
+        stdout: StdioCollector {
+            onStreamFinished: selectRandomProc.selection = text.trim()
+        }
+
+        onExited: code => {
+            if (code !== 0 || !selection) {
+                console.warn(`Random wallpaper selection failed (exit ${code})`);
+                return;
+            }
+            root.setWallpaper(selection);
         }
     }
 

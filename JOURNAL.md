@@ -4,6 +4,13 @@
 
 ---
 
+## 2026-11-02 — автономный выбор случайных обоев
+
+- Проектный `Wallpapers.setRandom()` подключён к ранее созданной `bin/phantom-wallpaper-select` и применению через shadows вместо `caelestia wallpaper -r`. Выбор учитывает размеры мониторов и исключает текущий файл при наличии альтернатив. Утилита и ранее созданный `tests/phantom-wallpaper-select.py` включены в Git, `python-pillow` добавлен в список Arch-пакетов; система и установленная копия не менялись. Копии `/home/rassvet/phantom-random-wallpaper-backup.UVpxCBYz/`.
+- Прошли `tests/phantom-wallpaper-select.py`, расширенный `tests/phantom-wallpaper-ipc-headless.py` (реальный выбор, фиктивный backend, отсутствие подходящих файлов), `tests/distro-support.py`, `tests/install-phantom-plugins.sh`, проверка синтаксиса и `git diff --check`. Headless не проверяет реальные `awww`/Matugen и внешний вид; полная установка без Caelestia не подтверждена. Предпросмотр, режим схемы и запись по-прежнему используют CLI.
+
+---
+
 ## 2026-11-02 — установка обоев через shadows вместо CLI
 
 - В проектном `quickshell/caelestia-bar/services/Wallpapers.qml` запрос IPC `wallpaper.set` переключён с `caelestia wallpaper -f` на сценарий shadows `~/.config/quickshell/hyprquickpaper/commands.sh`; используется выбранная пользователем тема shadows. `wallpaper.get` и сервис отслеживают общий `~/.cache/hyprquickpaper-current`, с fallback на прежний Phantom state. Пока сценарий занят, сохраняется последний ожидающий запрос; при ошибке нет оптимистического изменения пути. Установленные файлы и обои не менялись; копия `/home/rassvet/phantom-wallpaper-ipc-backup.ZyE3dXwN/`.
