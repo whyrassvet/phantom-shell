@@ -68,7 +68,7 @@ StyledRect {
                     const keyboard = entries.findIndex(e => e.id === "kbLayout");
                     if (mic >= 0 && keyboard >= 0) {
                         const item = entries.splice(mic, 1)[0];
-                        entries.splice(entries.findIndex(e => e.id === "kbLayout"), 0, item);
+                        entries.splice(entries.findIndex(e => e.id === "kbLayout") + 1, 0, item);
                     }
                     return entries;
                 }

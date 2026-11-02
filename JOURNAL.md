@@ -4,6 +4,14 @@
 
 ---
 
+## 2026-11-02 — шеврон трея и порядок значков
+
+- `components/Tray.qml`: смещение шеврона вниз на 2 px без изменения фона; `components/StatusIcons.qml`: раскладка перед микрофоном, противоположно предыдущему решению.
+- Бар загружен на eDP-1 и DP-3 (1920×40 и 2560×40); внешний вид и порядок проверены по `/tmp/opencode/phantom-tray-layout-edp.png` и `/tmp/opencode/phantom-tray-layout-dp.png`. Интерактивные проверки не проводились.
+- `/tmp/opencode/phantom-tray-layout-test.log`: загрузка без ошибок, прежние предупреждения Qt о потоках и StatusNotifierItem. Caelestia восстановлена; резервные копии: `/tmp/opencode/phantom-tray-layout-backup/`.
+
+---
+
 ## 2026-11-02 — проверка бара 40 px
 
 - Caelestia временно остановлена, тестовый бар запущен и визуально проверен; `hyprctl layers`: 1920×40 на eDP-1, 2560×40 на DP-3. Скриншоты: `/tmp/opencode/phantom-40-edp.png`, `/tmp/opencode/phantom-40-dp.png`.
