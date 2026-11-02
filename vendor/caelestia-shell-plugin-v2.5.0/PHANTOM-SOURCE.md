@@ -24,3 +24,15 @@ The smoke test additionally requires bubblewrap, a C++ compiler, pkg-config,
 Qt development libraries, and `/tmp/opencode`. It masks the system Caelestia
 QML module and checks that loaded Caelestia libraries come from the build tree.
 This test does not run the bar or prove full independence from Caelestia.
+
+To test an already staged private installation, pass its prefix and QML path:
+
+```sh
+bash tests/smoke-caelestia-plugin.sh "$STAGE" "$STAGE/lib/qt6/qml"
+```
+
+`bin/phantom-bar` looks for private plugins under
+`${XDG_DATA_HOME:-$HOME/.local/share}/phantom-shell/lib/qt6/qml` and refuses
+to start when the private modules or libraries are missing. The installer does
+not yet build or install these plugins, and this launcher is not yet wired into
+the session autostart. Do not remove the installed Caelestia package yet.

@@ -3,8 +3,9 @@
 set -euo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-build="$(realpath "${1:?Usage: bash tests/smoke-caelestia-plugin.sh BUILD_DIR}")"
-test -f "$build/qml/Caelestia/Config/qmldir"
+build="$(realpath "${1:?Usage: bash tests/smoke-caelestia-plugin.sh ROOT [QML_DIR]}")"
+qml="$(realpath "${2:-$build/qml}")"
+test -f "$qml/Caelestia/Config/qmldir"
 test -d /usr/lib/qt6/qml/Caelestia || {
   echo 'This sandbox test requires the system QML directory to mask.' >&2
   exit 1
@@ -22,5 +23,6 @@ bwrap --ro-bind / / --bind "$scratch/home" "$scratch/home" --dev /dev --proc /pr
   --tmpfs /usr/lib/qt6/qml/Caelestia \
   --setenv HOME "$scratch/home" --setenv XDG_CONFIG_HOME "$scratch/home/config" \
   --setenv XDG_CACHE_HOME "$scratch/home/cache" --setenv QT_QPA_PLATFORM offscreen \
-  --setenv PHANTOM_PLUGIN_BUILD "$build" --setenv QML_IMPORT_PATH "$build/qml" \
+  --unsetenv LD_LIBRARY_PATH --unsetenv LD_PRELOAD --unsetenv QML2_IMPORT_PATH \
+  --setenv PHANTOM_PLUGIN_BUILD "$build" --setenv QML_IMPORT_PATH "$qml" \
   "$scratch/smoke"

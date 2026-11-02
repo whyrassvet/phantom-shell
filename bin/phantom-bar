@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# Launch the bar with its private QML plugins, without changing the session environment.
+set -euo pipefail
+
+config="${PHANTOM_BAR_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/quickshell/caelestia-bar}"
+qml="${PHANTOM_QML_ROOT:-${XDG_DATA_HOME:-$HOME/.local/share}/phantom-shell/lib/qt6/qml}"
+
+if [ ! -f "$config/shell.qml" ]; then
+  printf 'phantom-bar: bar configuration not found: %s\n' "$config/shell.qml" >&2
+  exit 1
+fi
+for module in . Config Settings Components Services Models Images Blobs I18n; do
+  if [ ! -f "$qml/Caelestia/$module/qmldir" ]; then
+    printf 'phantom-bar: private QML module not found: %s\n' "$qml/Caelestia/$module" >&2
+    exit 1
+  fi
+done
+for library in core config settings components services models images blobs i18n; do
+  if [ ! -f "$qml/Caelestia/lib/libcaelestia-$library.so" ]; then
+    printf 'phantom-bar: private library not found: %s\n' "$qml/Caelestia/lib/libcaelestia-$library.so" >&2
+    exit 1
+  fi
+done
+if ! command -v qs >/dev/null 2>&1; then
+  printf 'phantom-bar: qs executable not found\n' >&2
+  exit 1
+fi
+
+export QML_IMPORT_PATH="$qml${QML_IMPORT_PATH:+:$QML_IMPORT_PATH}"
+export LD_LIBRARY_PATH="$qml/Caelestia/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+exec qs -p "$config"

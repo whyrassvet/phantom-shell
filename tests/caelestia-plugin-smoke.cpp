@@ -60,6 +60,6 @@ Item {}
         std::fprintf(stderr, "No Caelestia libraries were loaded\n");
         return 4;
     }
-    std::fprintf(stderr, "Loaded %d Caelestia libraries from the private build\n", found);
+    std::fprintf(stderr, "Loaded %d Caelestia libraries from the private tree\n", found);
     return 0;
 }
