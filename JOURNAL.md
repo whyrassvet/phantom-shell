@@ -4,6 +4,13 @@
 
 ---
 
+## 2026-11-02 — подготовка лаунчера приложений Caelestia
+
+- По поручению пользователя подготовлен отдельный центрированный лаунчер приложений с поиском и элементом приложения Caelestia v2.5.0, приватными плагинами и цветами бара: `bin/phantom-app-launcher`, `quickshell/caelestia-bar/launcher.qml`, `modules/launcher/`, `LAUNCHER-SOURCE.md`. Команды, калькулятор и обои upstream-лаунчера не портированы. Установленные файлы, текущая сессия и привязки Rofi не менялись; после проверки пользователь хочет запуск только одиночным Super.
+- `tests/phantom-app-launcher-headless.py` в изолированной среде нашёл и запустил фиктивный desktop-entry; проверены QML через `qmlformat`, синтаксис Bash/Python и `git diff --check`. Реальные центрирование, управление, отображение и работа на мониторах требуют визуальной проверки до переключения клавиш. Резервные копии документов `/tmp/opencode/phantom-app-launcher-backup/`. Обновлены `PROJECT.md`, `HANDOFF.md`, `JOURNAL.md`.
+
+---
+
 ## 2026-11-02 — обновление установленного приветствия
 
 - По разрешению пользователя установленный `~/.config/quickshell/rice-welcome/shell.qml` обновлён из проекта: Phantom Shell и временная версия `0.1.0-aplha`. Исходный установленный файл сохранён в `/home/rassvet/phantom-welcome-backup.i9Kj73Bc/shell.qml`.

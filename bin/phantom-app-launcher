@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+# Launch the standalone application launcher with the private QML plugins.
+set -euo pipefail
+
+config="${PHANTOM_BAR_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/quickshell/caelestia-bar}"
+store="${XDG_DATA_HOME:-$HOME/.local/share}/phantom-shell"
+if [ -L "$store/plugin-current" ] || [ -e "$store/plugin-current" ]; then
+  default_qml="$store/plugin-current/lib/qt6/qml"
+else
+  # Support the original, directly installed prefix.
+  default_qml="$store/lib/qt6/qml"
+fi
+qml="${PHANTOM_QML_ROOT:-$default_qml}"
+
+if [ ! -f "$config/launcher.qml" ]; then
+  printf 'phantom-app-launcher: configuration not found: %s\n' "$config/launcher.qml" >&2
+  exit 1
+fi
+for module in . Config Settings Components Services Models Images Blobs I18n; do
+  if [ ! -f "$qml/Caelestia/$module/qmldir" ]; then
+    printf 'phantom-app-launcher: private QML module not found: %s\n' "$qml/Caelestia/$module" >&2
+    exit 1
+  fi
+done
+for entry in '.:core' 'Config:config' 'Settings:settings' 'Components:components' 'Services:services' 'Models:models' 'Images:images' 'Blobs:blobs' 'I18n:i18n'; do
+  module="${entry%%:*}"
+  plugin="${entry#*:}"
+  if [ ! -f "$qml/Caelestia/$module/libcaelestia-${plugin}plugin.so" ]; then
+    printf 'phantom-app-launcher: private plugin not found: %s\n' "$qml/Caelestia/$module/libcaelestia-${plugin}plugin.so" >&2
+    exit 1
+  fi
+done
+for library in core config settings components services models images blobs i18n; do
+  if [ ! -f "$qml/Caelestia/lib/libcaelestia-$library.so" ]; then
+    printf 'phantom-app-launcher: private library not found: %s\n' "$qml/Caelestia/lib/libcaelestia-$library.so" >&2
+    exit 1
+  fi
+done
+if ! command -v qs >/dev/null 2>&1; then
+  printf 'phantom-app-launcher: qs executable not found\n' >&2
+  exit 1
+fi
+
+export QML_IMPORT_PATH="$qml${QML_IMPORT_PATH:+:$QML_IMPORT_PATH}"
+export LD_LIBRARY_PATH="$qml/Caelestia/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+mkdir -p "${XDG_STATE_HOME:-$HOME/.local/state}/phantom-shell"
+exec qs -p "$config/launcher.qml"
