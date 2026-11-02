@@ -105,6 +105,7 @@ StyledRect {
 
                 anchors.centerIn: parent
                 anchors.horizontalCenterOffset: -1
+                anchors.verticalCenterOffset: root.expanded ? 0 : 2
                 text: "chevron_left"
                 color: Colours.palette.m3onSurfaceVariant
                 fontStyle: Tokens.font.icon.medium

@@ -17,6 +17,7 @@ StyledRect {
     readonly property alias items: iconRow
 
     readonly property int spacing: Tokens.spacing.medium / 2
+    readonly property int edgePadding: Tokens.padding.small + 5
 
     // Index of the first/last entry that isn't collapsed, for edge margin gating
     readonly property int firstPresent: {
@@ -46,7 +47,7 @@ StyledRect {
 
     clip: true
     implicitHeight: BarConfig.innerThickness
-    implicitWidth: iconRow.implicitWidth + Tokens.padding.small * 2
+    implicitWidth: iconRow.implicitWidth + edgePadding * 2
 
     RowLayout {
         id: iconRow
@@ -54,7 +55,7 @@ StyledRect {
         anchors.top: parent.top
         anchors.bottom: parent.bottom
         anchors.left: parent.left
-        anchors.leftMargin: Tokens.padding.small
+        anchors.leftMargin: root.edgePadding
 
         spacing: 0
 
@@ -175,7 +176,7 @@ StyledRect {
         default property Item item
         property string name: modelData.id.toLowerCase()
 
-        Layout.leftMargin: Math.round(leftGap)
+        Layout.leftMargin: Math.round(leftGap) + (present && index !== root.firstPresent ? 3 : 0)
         Layout.rightMargin: Math.round(rightGap)
         Layout.alignment: Qt.AlignVCenter
 
