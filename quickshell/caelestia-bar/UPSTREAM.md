@@ -15,6 +15,8 @@ still use the upstream CLI and require replacement.
 and retains its built-in palette if the phantom-shell scheme is invalid or absent.
 Its built-in Material palette is neutral grayscale, except semantic error and
 success colours; an explicitly loaded scheme can still override these colours.
+Its default dark surfaces follow the current dark Caelestia scheme snapshot,
+without reading Caelestia's state at runtime.
 
 The bar module in `modules/bar/` was copied from the same installed version
 and subsequently modified for phantom-shell. Vendoring these directories alone

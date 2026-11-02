@@ -9,6 +9,8 @@ Local modification: `plugin/src/Caelestia/Config/common.cpp` uses the
 `phantom-shell` config directory instead of `caelestia`.
 `plugin/src/Caelestia/Config/barconfig.hpp` enables the compact tray, its
 background, the microphone indicator, and the keyboard layout by default.
+`plugin/src/Caelestia/Config/appearanceconfig.hpp` enables transparency and
+sets base opacity to 0.5 by default.
 
 These sources are a starting point for removing the runtime dependency on the
 installed `caelestia-shell` package. They are not yet wired into phantom-shell's

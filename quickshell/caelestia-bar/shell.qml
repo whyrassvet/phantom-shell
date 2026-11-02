@@ -131,16 +131,24 @@ ShellRoot {
                     height: pops.height * popoutWin.reveal
                     clip: true
 
-                    Rectangle {
+                    Shape {
+                        id: popoutBackground
+
                         width: parent.width
                         height: parent.height
-                        color: win.color
-                        radius: Tokens.rounding.extraLarge
+                        readonly property real corner: Math.min(revealArea.joinRadius, width / 2, height / 2)
 
-                        Rectangle {
-                            width: parent.width
-                            height: Math.min(parent.radius, parent.height)
-                            color: parent.color
+                        ShapePath {
+                            strokeWidth: 0
+                            fillColor: win.color
+                            startX: 0
+                            startY: 0
+                            PathLine { x: revealArea.width; y: 0 }
+                            PathLine { x: revealArea.width; y: revealArea.height - popoutBackground.corner }
+                            PathQuad { x: revealArea.width - popoutBackground.corner; y: revealArea.height; controlX: revealArea.width; controlY: revealArea.height }
+                            PathLine { x: popoutBackground.corner; y: revealArea.height }
+                            PathQuad { x: 0; y: revealArea.height - popoutBackground.corner; controlX: 0; controlY: revealArea.height }
+                            PathLine { x: 0; y: 0 }
                         }
                     }
 

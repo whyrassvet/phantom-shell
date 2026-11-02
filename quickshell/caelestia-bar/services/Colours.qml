@@ -36,6 +36,8 @@ Singleton {
 
     function alterColour(c: color, a: real, layer: int): color {
         const luminance = getLuminance(c);
+        if (luminance === 0)
+            return Qt.rgba(0, 0, 0, a);
 
         const offset = (!light || layer == 1 ? 1 : -layer / 2) * (light ? 0.2 : 0.3) * (1 - transparency.base) * (1 + wallLuminance * (light ? (layer == 1 ? 3 : 1) : 2.5));
         const scale = (luminance + offset) / luminance;
@@ -95,10 +97,10 @@ Singleton {
     function reloadHyprRules(): void {
         let rule, trEnabled;
         if (Hypr.usingLua) {
-            rule = `eval hl.layer_rule({ match = { namespace = "caelestia-bar" }, %1 = %2 })`;
+            rule = `eval hl.layer_rule({ match = { namespace = "caelestia-(bar|popouts)" }, %1 = %2 })`;
             trEnabled = transparency.enabled;
         } else {
-            rule = "keyword layerrule %1 %2, match:namespace caelestia-bar";
+            rule = "keyword layerrule %1 %2, match:namespace caelestia-(bar|popouts)";
             trEnabled = transparency.enabled ? 1 : 0;
         }
         Hypr.extras.batchMessage([rule.arg("blur").arg(trEnabled), rule.arg("ignore_alpha").arg(Math.max(0, transparency.base - 0.03))]);
@@ -244,23 +246,23 @@ Singleton {
         property color m3tertiary_paletteKeyColor: "#808080"
         property color m3neutral_paletteKeyColor: "#808080"
         property color m3neutral_variant_paletteKeyColor: "#808080"
-        property color m3background: "#141414"
+        property color m3background: "#030303"
         property color m3onBackground: "#e4e4e4"
-        property color m3surface: "#141414"
-        property color m3surfaceDim: "#141414"
-        property color m3surfaceBright: "#3a3a3a"
-        property color m3surfaceContainerLowest: "#0e0e0e"
-        property color m3surfaceContainerLow: "#1c1c1c"
-        property color m3surfaceContainer: "#202020"
-        property color m3surfaceContainerHigh: "#2b2b2b"
-        property color m3surfaceContainerHighest: "#363636"
-        property color m3onSurface: "#e4e4e4"
-        property color m3surfaceVariant: "#474747"
-        property color m3onSurfaceVariant: "#c6c6c6"
+        property color m3surface: "#030303"
+        property color m3surfaceDim: "#030303"
+        property color m3surfaceBright: "#0d0d0d"
+        property color m3surfaceContainerLowest: "#000000"
+        property color m3surfaceContainerLow: "#040404"
+        property color m3surfaceContainer: "#070707"
+        property color m3surfaceContainerHigh: "#090909"
+        property color m3surfaceContainerHighest: "#0b0b0b"
+        property color m3onSurface: "#e5e5e5"
+        property color m3surfaceVariant: "#0b0b0b"
+        property color m3onSurfaceVariant: "#ababab"
         property color m3inverseSurface: "#e4e4e4"
         property color m3inverseOnSurface: "#303030"
-        property color m3outline: "#919191"
-        property color m3outlineVariant: "#474747"
+        property color m3outline: "#757575"
+        property color m3outlineVariant: "#484848"
         property color m3shadow: "#000000"
         property color m3scrim: "#000000"
         property color m3surfaceTint: "#c6c6c6"
@@ -269,7 +271,7 @@ Singleton {
         property color m3primaryContainer: "#474747"
         property color m3onPrimaryContainer: "#e4e4e4"
         property color m3inversePrimary: "#606060"
-        property color m3secondary: "#c6c6c6"
+        property color m3secondary: "#9e9e9e"
         property color m3onSecondary: "#303030"
         property color m3secondaryContainer: "#474747"
         property color m3onSecondaryContainer: "#e4e4e4"

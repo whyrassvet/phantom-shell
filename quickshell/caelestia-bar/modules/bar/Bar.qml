@@ -195,7 +195,7 @@ RowLayout {
         readonly property string entryId: modelData.id
 
         Layout.leftMargin: index === 0 ? root.hPadding : 0
-        Layout.rightMargin: index === repeater.count - 1 ? root.hPadding : 0
+        Layout.rightMargin: index === repeater.count - 1 ? root.spacing : 0
         Layout.alignment: Qt.AlignVCenter
 
         implicitWidth: item?.implicitWidth ?? 0

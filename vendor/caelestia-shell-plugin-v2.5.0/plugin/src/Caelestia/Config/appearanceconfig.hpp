@@ -265,8 +265,8 @@ class AppearanceAnim : public settings::ObjectNode {
 class AppearanceTransparency : public settings::ObjectNode {
     CONFIG_NODE(AppearanceTransparency, settings::ObjectNode)
 
-    CONFIG_GLOBAL_PROPERTY(bool, enabled, false)
-    CONFIG_GLOBAL_PROPERTY(qreal, base, 0.85)
+    CONFIG_GLOBAL_PROPERTY(bool, enabled, true)
+    CONFIG_GLOBAL_PROPERTY(qreal, base, 0.5)
     CONFIG_GLOBAL_PROPERTY(qreal, layers, 0.4)
 };
 

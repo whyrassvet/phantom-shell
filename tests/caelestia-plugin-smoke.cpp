@@ -21,7 +21,12 @@ import Caelestia.Models
 import Caelestia.Images
 import Caelestia.Blobs
 import Caelestia.I18n
-Item { property bool configuredPersistent: GlobalConfig.bar.persistent }
+Item {
+    property bool configuredPersistent: GlobalConfig.bar.persistent
+    property bool transparencyEnabled: GlobalConfig.appearance.transparency.enabled
+    property real transparencyBase: GlobalConfig.appearance.transparency.base
+    property real transparencyLayers: GlobalConfig.appearance.transparency.layers
+}
 )QML", QUrl());
     QObject *object = component.create();
     if (!object) {
@@ -34,6 +39,13 @@ Item { property bool configuredPersistent: GlobalConfig.bar.persistent }
         std::fprintf(stderr, "Private config was not loaded (or Caelestia config was used)\n");
         delete object;
         return 5;
+    }
+    if (!object->property("transparencyEnabled").toBool() ||
+        object->property("transparencyBase").toDouble() != 0.5 ||
+        object->property("transparencyLayers").toDouble() != 0.4) {
+        std::fprintf(stderr, "Unexpected default transparency settings\n");
+        delete object;
+        return 6;
     }
 
     QFile maps(QStringLiteral("/proc/self/maps"));
