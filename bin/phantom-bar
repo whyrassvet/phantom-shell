@@ -3,7 +3,14 @@
 set -euo pipefail
 
 config="${PHANTOM_BAR_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/quickshell/caelestia-bar}"
-qml="${PHANTOM_QML_ROOT:-${XDG_DATA_HOME:-$HOME/.local/share}/phantom-shell/lib/qt6/qml}"
+store="${XDG_DATA_HOME:-$HOME/.local/share}/phantom-shell"
+if [ -L "$store/plugin-current" ] || [ -e "$store/plugin-current" ]; then
+  default_qml="$store/plugin-current/lib/qt6/qml"
+else
+  # Support the original, directly installed prefix.
+  default_qml="$store/lib/qt6/qml"
+fi
+qml="${PHANTOM_QML_ROOT:-$default_qml}"
 
 if [ ! -f "$config/shell.qml" ]; then
   printf 'phantom-bar: bar configuration not found: %s\n' "$config/shell.qml" >&2
