@@ -128,13 +128,12 @@ Upstream для сверки: `/home/rassvet/Projects/shadows-shell`
 - `StatusIcons.qml`, `BluetoothStatus.qml`, `LockStatus.qml`: строки вместо колонок.
 - `Power.qml`, `OsIcon.qml`: размеры от `BarConfig.innerThickness`; логотип запускает `BarConfig.launcherCommand`.
 - Толщина: `config/BarConfig.qml` (`thickness: 36`, `padding: 4`), вместо `Tokens.sizes.bar.innerWidth` (40).
-- `popouts/Wrapper.qml`: заглушка с API (`currentName`, `hasCurrent`, `currentCenter`, `close()`) — этап 2.
+- `popouts/Wrapper.qml`: slim-версия без `nexus`/`windowinfo`, `Content` + `PopoutState`, `currentCenter` по X, `close()` по Escape.
+- `shell.qml`: второе окно `popouts` (fullscreen, `Overlay`, mask), фон `Elevation` + `StyledRect`, позиционирование `x` с clamp, закрытие по уходу курсора (400 мс), `Hypr.activeToplevel`, fullscreen.
 
-### План этапа 2 (попоуты)
+### Модуль `modules/drawers` (заглушка)
 
-- `Wrapper.qml`: slim-версия без `qs.modules.nexus`/`windowinfo`, `Content` + `PopoutState`, `currentCenter` по X.
-- `ClipWrapper.qml`: clip по горизонтали, позиционирование под иконкой.
-- Проверить `qs.components.controls.Menu` (импортирует `modules/drawers` — сейчас предупреждение).
+`components/controls/Menu.qml` импортирует `qs.modules.drawers`, но не использует оттуда типы. В форке создан `modules/drawers/qmldir` с комментарием — предупреждение `Ignoring unresolvable import` ушло. При портировании меню/дроверов заменить реальным модулем.
 
 ---
 
@@ -146,7 +145,11 @@ Upstream для сверки: `/home/rassvet/Projects/shadows-shell`
   - Сделано 2026-11-02: высота 36 px (`config/BarConfig.qml`), окна `caelestia-bar` 1920x36 и 2560x36, fullscreen скрывает бар только на своём мониторе.
   - Отклонения от плана: `LazyListView` (вертикальный C++-список) заменён на `Row`/`Repeater`; `ActiveIndicator`, `GapMarkers`, `OccupiedBg` удалены, их роль выполняет подсветка в `Workspace.qml`; попоуты — заглушка `popouts/Wrapper.qml` с тем же API.
   - Не проверено вживую: колесо и клики (нет инструмента синтетического ввода).
-- [ ] **2. Попоуты.** Slim-`Wrapper`, позиционирование под иконкой по X, звук/сеть/BT/батарея/трей-меню/раскладка, hover. Логотип → `hyprlauncher`, питание → `~/.local/bin/logout`.
+- [x] **2. Попоуты.** Slim-`Wrapper`, позиционирование под иконкой по X, звук/сеть/BT/батарея/трей-меню/раскладка, hover.
+  - Сделано 2026-11-02: отдельное fullscreen-окно `caelestia-popouts` (`WlrLayer.Overlay`, `ExclusionMode.Ignore`, `exclusiveZone: -1`, `mask` по прямоугольнику попоута); собственный фон `Elevation` + `StyledRect` (в Caelestia фон рисуют `PanelBg`-блобы в окне drawers).
+  - Закрытие: уход курсора с бара и попоута (таймер 400 мс), смена `Hypr.activeToplevel`, fullscreen, `close()`/Escape внутри wrapper'а.
+  - Логотип → `BarConfig.launcherCommand` (`rofi -show drun`). Питание → `BarConfig.powerCommand`, если задан, иначе переключает `screenState.session` (панели сессии пока нет).
+  - Проверено вживую: hover по всем иконкам, переключение между иконками, трей-меню (Riff), клик внутри попоута, колесо (громкость/яркость), полный экран. Не проверено: `wirelesspassword` (нужна защищённая сеть) и отсоединённые панели (nexus/windowinfo не портированы).
 - [ ] **3. Интеграция в shadows.** `exec` вместо waybar, layer-правила `caelestia-bar` (blur), `rice-effects` (gaming), `waybar-*` скрипты отключить/заменить, `rice-settings` (скрыть Waybar/Bar layout), `install.sh`/`sync.sh`, README.
 - [ ] **4. Тема.** Шаблон matugen → `~/.local/state/caelestia/scheme.json`, post_hook на перезапуск бара. Проверка: смена обоев → цвета бара совпадают с рисом.
 - [ ] **5. Форк и публикация.** `gh repo create phantom-shell`, `origin` → свой репозиторий, `upstream` → `shadowww-dev/shadows-shell`, ветка `feat/caelestia-bar`, GPL-3, отдельная папка бара для безболезненных мержей апстрима.
@@ -165,9 +168,14 @@ Upstream для сверки: `/home/rassvet/Projects/shadows-shell`
   - Отступ y=10 — из-за эксклюзивных зон Caelestia (`caelestia-border-exclusion`); в конфиге shadows их не будет.
   - Спайк зарегистрировал StatusNotifierItems — трей на время теста перехватывается, для честных тестов останавливать Caelestia.
 
-**Сейчас:** этап 2 — попоуты (slim-`Wrapper` вместо заглушки).
+- **Этап 2 (попоуты) пройден:** отдельное окно `caelestia-popouts`, slim-`Wrapper` без `nexus`/`windowinfo`, фон попоута, закрытие по уходу курсора/смене фокуса/fullscreen. Проверено hover'ом и кликами (`ydotoold`, временный пользовательский демон, после теста остановлен).
+  - Звук, сеть, Bluetooth, батарея, раскладка, трей-меню — работают и позиционируются под своей иконкой с прижатием к краю экрана.
+  - `wirelesspassword` не проверен: в окружении нет защищённой сети для теста; для него окно попоутов запрашивает `WlrKeyboardFocus.OnDemand`.
+  - Клик по иконкам статуса не открывает/не закрывает попоут (как в Caelestia: открытие по hover).
 
-**Дальше:** звук/сеть/BT/батарея/трей-меню/раскладка, позиционирование под иконкой по X.
+**Сейчас:** этап 3 — интеграция в shadows-shell (waybar → бар).
+
+**Дальше:** `exec` вместо waybar в `hyprland.lua`, layer-правила/blur, отключение `waybar-*` скриптов, `install.sh`/`sync.sh`, README.
 
 ---
 

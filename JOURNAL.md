@@ -4,6 +4,40 @@
 
 ---
 
+## 2026-11-02 — этап 2: попоуты
+
+**Сделано:**
+- `popouts/Wrapper.qml` переписан: slim-версия без `qs.modules.nexus`/`qs.modules.windowinfo`, `PopoutState` + `Content`, `currentCenter` по X, `close()` по Escape. Отсоединённые панели (nexus/windowinfo) отключены: `detach()` просто закрывает попоут.
+- `shell.qml`: второе окно `StyledWindow` (`caelestia-popouts`) — fullscreen, `WlrLayer.Overlay`, `ExclusionMode.Ignore`, `exclusiveZone: -1`; `mask: Region` по прямоугольнику попоута (ввод только внутри панели, остальное проходит сквозь); `visible: pops.hasCurrent`.
+- Позиционирование: `y = BarConfig.thickness + BarConfig.padding`, `x = clamp(currentCenter - width/2, padding, screenWidth - width - padding)`.
+- Фон попоута: `Elevation` (level 2) + `StyledRect` с `Colours.tPalette.m3surface`, radius `Tokens.rounding.extraLarge`. В Caelestia фон рисуют `PanelBg`-блобы в окне drawers — их нет, поэтому простой прямоугольник.
+- Закрытие: таймер 400 мс после ухода курсора с бара и попоута (`HoverHandler` в окне попоутов), смена `Hypr.activeToplevel`, fullscreen на мониторе, `close()`.
+- `BarWrapper.qml`: `MouseArea` (`acceptedButtons: Qt.NoButton`, `hoverEnabled`) — hover → `checkPopout(x)`, wheel → `handleWheel(x, delta)`.
+- `config/BarConfig.qml`: `powerCommand` (пусто = переключение `screenState.session`); `Power.qml` при заданной команде запускает её.
+- `modules/drawers/qmldir` — заглушка, убирает `Ignoring unresolvable import ... modules/drawers` от `components/controls/Menu.qml`.
+
+**Проверки (реальный ввод через `ydotoold`, демон запускался пользователем и после теста остановлен):**
+- Загрузка: в логе только INFO, ни одного WARN/ERROR.
+- Hover по иконкам звука/раскладки/сети/BT/батареи на eDP-1 и DP-3 → попоут под иконкой, прижатие к правому краю экрана.
+- Переход с одной иконки на другую — содержимое меняется; уход на рабочий стол — попоут закрывается через 400 мс; курсор внутри попоута — остаётся открытым.
+- Клик по кнопке «Rescan networks» внутри попоута срабатывает (mask/input region корректны).
+- Трей (Riff): первый hover раскрывает, hover по иконке соседнего элемента открывает меню (Show/Hide, Play/Pause, Quit).
+- Колесо: левая половина бара — громкость (0.79↔0.90), правая — яркость (100%→90%).
+- Логотип: клик запускает `rofi -show drun`.
+- Fullscreen (`hl.dsp.window.fullscreen()` на kitty): бар своего монитора и попоут исчезают, второй монитор не затронут; после выхода всё возвращается.
+- Скриншоты: `/tmp/opencode/final-popout.png`, `hover-network3.png`, `dp3-kb3.png`, `tray-menu2.png`, `click-after.png`.
+
+**Проблемы/наблюдения:**
+- `ydotool mousemove --absolute` не работает без отключения ускорения мыши; для тестов использовались относительные перемещения в цикле до нужной точки (`hyprctl cursorpos` как обратная связь).
+- При раскрытии трея иконки сдвигаются влево (ширина трея растёт, spacer сжимается) — при наведении на пункт меню это надо учитывать.
+- `wirelesspassword` не проверен: в окружении нет защищённой сети, на которой можно безопасно проверить ввод пароля. Окну попоутов для него выставляется `WlrKeyboardFocus.OnDemand`.
+- В `Content.qml` один делегат статуса логируется как `undefined` — это микрофон (`name: "audio"`, ширина 0 при выключенном индикаторе), не ошибка.
+- Питание без `powerCommand` включает `screenState.session`, но панели сессии в форке нет — кнопка визуально ничего не делает до портирования drawers/session.
+
+**Дальше:** этап 3 — интеграция в shadows-shell (waybar → бар).
+
+---
+
 ## 2026-11-02 — этап 1: горизонтальный бар
 
 **Сделано:**

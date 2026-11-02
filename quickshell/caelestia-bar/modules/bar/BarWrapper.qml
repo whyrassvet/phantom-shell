@@ -54,4 +54,15 @@ Item {
             fullscreen: root.fullscreen
         }
     }
+
+    MouseArea {
+        anchors.fill: parent
+        hoverEnabled: true
+        acceptedButtons: Qt.NoButton
+
+        onEntered: root.isHovered = true
+        onExited: root.isHovered = false
+        onPositionChanged: mouse => root.checkPopout(mouse.x)
+        onWheel: wheel => root.handleWheel(wheel.x, wheel.angleDelta)
+    }
 }

@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import Caelestia.Config
 import qs.components
 import qs.config
@@ -19,7 +20,13 @@ Item {
         implicitWidth: root.buttonSize
         implicitHeight: root.buttonSize
         radius: Tokens.rounding.full
-        onClicked: root.screenState.session = !root.screenState.session
+        onClicked: {
+            if (BarConfig.powerCommand) {
+                Quickshell.execDetached(["sh", "-c", BarConfig.powerCommand]);
+                return;
+            }
+            root.screenState.session = !root.screenState.session;
+        }
     }
 
     MaterialIcon {
