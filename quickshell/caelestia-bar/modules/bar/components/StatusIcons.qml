@@ -108,6 +108,7 @@ StyledRect {
                         name: "audio" // Mic opens audio popout
 
                         MaterialIcon {
+                            y: 2
                             animate: true
                             text: Icons.getMicVolumeIcon(Audio.sourceVolume, Audio.sourceMuted)
                             color: root.colour
