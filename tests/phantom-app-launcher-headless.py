@@ -36,8 +36,26 @@ with tempfile.TemporaryDirectory(prefix="phantom-app-launcher-", dir="/tmp/openc
     qml.write_text(source.replace(needle, needle + '''
     property color testSurface: Colours.palette.m3surface
     onTestSurfaceChanged: console.log("PHANTOM_APP_SURFACE", testSurface.toString())
+    Connections {
+        target: launcherState
+        function onLauncherChanged() { console.log("PHANTOM_APP_OPEN", launcherState.launcher); }
+    }
+    Timer {
+        interval: 500; running: true
+        onTriggered: Quickshell.execDetached([Quickshell.env("PHANTOM_TEST_LAUNCHER")])
+    }
+    Timer { interval: 1000; running: true; onTriggered: search.text = "stale query" }
+    Timer {
+        interval: 1500; running: true
+        onTriggered: Quickshell.execDetached(["qs", "-p", Quickshell.env("PHANTOM_BAR_CONFIG") + "/launcher.qml", "ipc", "call", "phantomLauncher", "close"])
+    }
     Timer {
         interval: 2000; running: true
+        onTriggered: Quickshell.execDetached([Quickshell.env("PHANTOM_TEST_LAUNCHER")])
+    }
+    Timer { interval: 2500; running: true; onTriggered: console.log("PHANTOM_APP_QUERY", search.text === "" ? "cleared" : "stale") }
+    Timer {
+        interval: 3000; running: true
         onTriggered: {
             const results = Apps.search("Phantom Test App");
             console.log("PHANTOM_APP_SEARCH", results.length, results[0]?.name ?? "missing");
@@ -56,13 +74,14 @@ with tempfile.TemporaryDirectory(prefix="phantom-app-launcher-", dir="/tmp/openc
               "XDG_RUNTIME_DIR": scratch / "runtime", "WLR_BACKENDS": "headless",
               "WLR_RENDERER": "pixman", "WLR_LIBINPUT_NO_DEVICES": "1",
               "QT_QPA_PLATFORM": "wayland", "QT_QUICK_BACKEND": "software",
-              "PHANTOM_BAR_CONFIG": bar, "PHANTOM_QML_ROOT": STAGE / "lib/qt6/qml"}
+              "PHANTOM_BAR_CONFIG": bar, "PHANTOM_QML_ROOT": STAGE / "lib/qt6/qml",
+              "PHANTOM_TEST_LAUNCHER": ROOT / "bin/phantom-app-launcher"}
     for key, value in values.items():
         args += ["--setenv", key, str(value)]
     for key in ("WAYLAND_DISPLAY", "DISPLAY", "DBUS_SESSION_BUS_ADDRESS", "HYPRLAND_INSTANCE_SIGNATURE",
                 "LD_PRELOAD", "LD_LIBRARY_PATH", "QML_IMPORT_PATH", "QML2_IMPORT_PATH"):
         args += ["--unsetenv", key]
-    args += ["cage", "--", str(ROOT / "bin/phantom-app-launcher")]
+    args += ["cage", "--", str(ROOT / "bin/phantom-app-launcher"), "--run"]
     log = scratch / "log"
     with log.open("w") as output:
         proc = subprocess.Popen(args, stdout=output, stderr=subprocess.STDOUT, start_new_session=True)
@@ -71,7 +90,9 @@ with tempfile.TemporaryDirectory(prefix="phantom-app-launcher-", dir="/tmp/openc
             while time.monotonic() < deadline and not (scratch / "launched").exists() and proc.poll() is None:
                 time.sleep(0.1)
             text = log.read_text(errors="replace")
-            if not (scratch / "launched").exists() or "PHANTOM_APP_SEARCH 1 Phantom Test App" not in text or "PHANTOM_APP_SURFACE #123456" not in text:
+            if (not (scratch / "launched").exists() or "PHANTOM_APP_SEARCH 1 Phantom Test App" not in text
+                    or "PHANTOM_APP_SURFACE #123456" not in text or text.count("PHANTOM_APP_OPEN true") != 2
+                    or "PHANTOM_APP_OPEN false" not in text or "PHANTOM_APP_QUERY cleared" not in text):
                 raise RuntimeError(log.read_text(errors="replace"))
             palette.write_text(scheme("#654321"))
             deadline = time.monotonic() + 10
@@ -84,4 +105,4 @@ with tempfile.TemporaryDirectory(prefix="phantom-app-launcher-", dir="/tmp/openc
             if proc.poll() is None:
                 os.killpg(proc.pid, 15)
             proc.wait(timeout=10)
-    print("Isolated application search, desktop-entry launch and live palette reload passed")
+    print("Isolated launcher IPC open/close/reopen, search reset, app launch and palette reload passed")

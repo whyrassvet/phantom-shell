@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Launch the standalone application launcher with the private QML plugins.
+# Start the private launcher in the background and open it via IPC.
 set -euo pipefail
 
 config="${PHANTOM_BAR_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/quickshell/caelestia-bar}"
@@ -44,4 +44,31 @@ fi
 export QML_IMPORT_PATH="$qml${QML_IMPORT_PATH:+:$QML_IMPORT_PATH}"
 export LD_LIBRARY_PATH="$qml/Caelestia/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 mkdir -p "${XDG_STATE_HOME:-$HOME/.local/state}/phantom-shell"
-exec qs -p "$config/launcher.qml"
+case "${1:---open}" in
+  --run) exec qs -n -p "$config/launcher.qml" ;;
+  --open|--start) mode="${1:---open}" ;;
+  *) printf 'usage: phantom-app-launcher [--start|--open]\n' >&2; exit 2 ;;
+esac
+
+if [ -z "${XDG_RUNTIME_DIR:-}" ]; then
+  printf 'phantom-app-launcher: XDG_RUNTIME_DIR is not set\n' >&2
+  exit 1
+fi
+exec 9>"$XDG_RUNTIME_DIR/phantom-app-launcher.lock"
+flock -x 9
+ipc() { qs -p "$config/launcher.qml" ipc call phantomLauncher "$1"; }
+if ! ipc ping >/dev/null 2>&1; then
+  qs -n -d -p "$config/launcher.qml" 9>&-
+  ready=false
+  for ((i=0; i<100; i++)); do
+    if ipc ping >/dev/null 2>&1; then ready=true; break; fi
+    sleep 0.1
+  done
+  if [ "$ready" != true ]; then
+    printf 'phantom-app-launcher: background process did not become ready\n' >&2
+    exit 1
+  fi
+fi
+if [ "$mode" = --open ]; then
+  ipc open >/dev/null
+fi

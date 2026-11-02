@@ -54,6 +54,7 @@ local menu        = "hyprlauncher"
 -- Or execute your favorite apps at launch like this:
 --
 hl.on("hyprland.start", function ()
+    hl.exec_cmd("$HOME/.local/bin/phantom-app-launcher --start")
     hl.exec_cmd("waybar")
    hl.exec_cmd("awww-daemon")
    hl.exec_cmd("systemctl --user start swaync.service")

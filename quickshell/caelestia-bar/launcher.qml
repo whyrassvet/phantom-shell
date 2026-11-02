@@ -5,6 +5,7 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import Quickshell
 import Quickshell.Hyprland
+import Quickshell.Io
 import Quickshell.Wayland
 import Caelestia.Config
 import qs.components
@@ -22,13 +23,29 @@ ShellRoot {
 
     QtObject {
         id: launcherState
-        property bool launcher: true
-        onLauncherChanged: if (!launcher) Qt.quit()
+        property bool launcher: false
+        onLauncherChanged: {
+            if (launcher) {
+                window.screen = Quickshell.screens.find(s => s.name === Hyprland.focusedMonitor?.name) ?? Quickshell.screens[0] ?? null;
+                Qt.callLater(() => search.forceActiveFocus());
+            } else {
+                search.text = "";
+            }
+        }
+    }
+
+    IpcHandler {
+        target: "phantomLauncher"
+        function ping(): string { return "ready"; }
+        function open(): void { launcherState.launcher = true; }
+        function close(): void { launcherState.launcher = false; }
+        function isOpen(): bool { return launcherState.launcher; }
     }
 
     PanelWindow {
         id: window
 
+        visible: launcherState.launcher
         screen: Quickshell.screens.find(s => s.name === Hyprland.focusedMonitor?.name) ?? Quickshell.screens[0] ?? null
         implicitWidth: Math.min(630, screen?.width ?? 630)
         implicitHeight: Math.min(580, screen?.height ?? 580)
@@ -80,7 +97,6 @@ ShellRoot {
                     Keys.onUpPressed: list.decrementCurrentIndex()
                     Keys.onDownPressed: list.incrementCurrentIndex()
                     Keys.onEscapePressed: launcherState.launcher = false
-                    Component.onCompleted: forceActiveFocus()
                 }
             }
         }
