@@ -1,23 +1,24 @@
 import QtQuick
+import Quickshell
 import Caelestia.Config
 import qs.components
 import qs.components.effects
+import qs.config
 import qs.services
 import qs.utils
 
 Item {
     id: root
 
-    implicitWidth: Math.round(Tokens.font.body.large.pointSize * 1.2)
-    implicitHeight: Math.round(Tokens.font.body.large.pointSize * 1.2)
+    readonly property int iconSize: Math.round(BarConfig.innerThickness * 0.65)
+
+    implicitWidth: BarConfig.innerThickness
+    implicitHeight: BarConfig.innerThickness
 
     MouseArea {
         anchors.fill: parent
         cursorShape: Qt.PointingHandCursor
-        onClicked: {
-            const screenState = ShellState.forActive();
-            screenState.launcher = !screenState.launcher;
-        }
+        onClicked: Quickshell.execDetached(BarConfig.launcherCommand.split(" "))
     }
 
     Loader {
@@ -30,8 +31,8 @@ Item {
         id: caelestiaLogo
 
         Logo {
-            implicitWidth: Math.round(Tokens.font.body.large.pointSize * 1.6)
-            implicitHeight: Math.round(Tokens.font.body.large.pointSize * 1.6)
+            implicitWidth: root.iconSize
+            implicitHeight: root.iconSize
         }
     }
 
@@ -40,7 +41,7 @@ Item {
 
         ColouredIcon {
             source: SysInfo.osLogo
-            implicitSize: Math.round(Tokens.font.body.large.pointSize * 1.2)
+            implicitSize: root.iconSize
             colour: Colours.palette.m3tertiary
         }
     }

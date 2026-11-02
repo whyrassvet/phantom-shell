@@ -4,6 +4,36 @@
 
 ---
 
+## 2026-11-02 — этап 1: горизонтальный бар
+
+**Сделано:**
+- Вендорен `modules/bar` (32 файла) в `quickshell/caelestia-bar`, коммит `7edc9ba` (без изменений, GPL-3).
+- Симлинки `components`, `services`, `utils`, `assets` → `/etc/xdg/quickshell/caelestia/*`.
+- `config/BarConfig.qml` — singleton: `thickness: 36`, `padding: 4`, `launcherCommand`.
+- `shell.qml` — `PanelWindow` сверху на каждый монитор, `exclusiveZone`, скрытие в fullscreen (по монитору, с учётом special workspace).
+- Переписаны: `Bar.qml`, `BarWrapper.qml`, `Clock.qml`, `ActiveWindow.qml`, `StatusIcons.qml`, `Tray.qml`, `Power.qml`, `OsIcon.qml`, `status/BluetoothStatus.qml`, `status/LockStatus.qml`, `workspaces/{Workspaces,Workspace,SpecialWorkspaces}.qml`.
+- Удалены `workspaces/{ActiveIndicator,GapMarkers,OccupiedBg}.qml` — функциональность в `Workspace.qml` (подсветка активного, фон занятых, иконки окон).
+- `popouts/Wrapper.qml` — заглушка с API для этапа 2.
+- Логотип запускает `rofi -show drun` (hyprlauncher не установлен).
+
+**Проверки:**
+- `qs -p ~/Projects/phantom-shell/quickshell/caelestia-bar`: конфиг загружается, ошибок нет.
+- `hyprctl layers`: `caelestia-bar` 1920x36 (eDP-1) и 2560x36 (DP-3), y=0.
+- Fullscreen на DP-3 (`hl.dsp.window.fullscreen()`): бар DP-3 исчезает, бар eDP-1 остаётся; после выхода — оба на месте.
+- Скриншоты: `/tmp/opencode/bar-h1.png`, `bar-dp3.png`, `bar-ws2.png`.
+- Трей: шеврон раскрытия появляется (SystemTray items перехвачены), Caelestia на время теста остановлена.
+
+**Проблемы/наблюдения:**
+- `pkill -f 'qs -c caelestia'` убивает и собственную оболочку команды (паттерн есть в её cmdline). Использовать `pkill -f '^qs -c caelestia'`.
+- `LazyListView` из `Caelestia.Components` — вертикальный C++-список без `orientation`, поэтому воркспейсы переведены на `Row`+`Repeater`.
+- Предупреждение `Ignoring unresolvable import .../modules/drawers from components/controls/Menu.qml` — `Menu` пока не используется, разобрать на этапе 2.
+- Колесо и клики не проверены: нет инструмента синтетического ввода.
+- Caelestia сейчас остановлена, бар запущен отдельным `qs -p`; вернуть: `caelestia shell -d`.
+
+**Дальше:** этап 2 — slim-`Wrapper`, попоуты, позиционирование по X.
+
+---
+
 ## 2026-11-02 — git-базовая линия
 
 **Сделано:**

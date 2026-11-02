@@ -1,6 +1,7 @@
 import QtQuick
 import Caelestia.Config
 import qs.components
+import qs.config
 import qs.services
 
 Item {
@@ -8,15 +9,15 @@ Item {
 
     required property ScreenState screenState
 
-    implicitWidth: icon.implicitHeight + Tokens.padding.small
-    implicitHeight: icon.implicitHeight
+    readonly property int buttonSize: Math.round(BarConfig.innerThickness * 0.85)
+
+    implicitWidth: buttonSize
+    implicitHeight: BarConfig.innerThickness
 
     StateLayer {
-        // Cursed workaround to make the height larger than the parent
-        anchors.fill: undefined
         anchors.centerIn: parent
-        implicitWidth: implicitHeight
-        implicitHeight: icon.implicitHeight + Tokens.padding.small
+        implicitWidth: root.buttonSize
+        implicitHeight: root.buttonSize
         radius: Tokens.rounding.full
         onClicked: root.screenState.session = !root.screenState.session
     }

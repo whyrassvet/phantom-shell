@@ -92,8 +92,10 @@ Upstream для сверки: `/home/rassvet/Projects/shadows-shell`
 ├── JOURNAL.md                         # append-only журнал выполненного
 ├── AGENTS.md                          # правила для OpenCode
 ├── quickshell/caelestia-bar/          # новый quickshell-конфиг, отдельный процесс qs -c caelestia-bar
-│   ├── shell.qml                      # glue: PanelWindow на монитор, hover/wheel, fullscreen
+│   ├── shell.qml                      # PanelWindow на монитор, fullscreen, exclusiveZone
+│   ├── config/BarConfig.qml           # singleton: толщина 36, padding 4, команда лаунчера
 │   ├── modules/bar/                   # вендоренный модуль Caelestia под горизонталь (GPL-3)
+│   ├── components/ services/ utils/ assets/  # симлинки на /etc/xdg/quickshell/caelestia/*
 │   ├── LICENSE                        # GPL-3 + копирайт Caelestia
 │   └── README.md
 ├── bin/caelestia-bar                  # start/stop/restart (по образцу bin/rice-desktop)
@@ -112,20 +114,27 @@ Upstream для сверки: `/home/rassvet/Projects/shadows-shell`
 - Бар — **отдельный процесс** `qs -c caelestia-bar` (изоляция от `rice-desktop`, независимый рестарт).
 - Тема: matugen-шаблон пишет `~/.local/state/caelestia/scheme.json`, `Colours` сам перечитывает.
 
-### План переделки под горизонталь (~19 файлов)
+### Что переделано под горизонталь (факт)
 
-- `Bar.qml`: `ColumnLayout` → `RowLayout`, отступы по краям, `vPadding` → `hPadding`.
-- `BarWrapper.qml`: вертикальная полоса → горизонтальная, анимация `implicitWidth` → `implicitHeight`, `exclusiveZone` по высоте.
-- `Workspaces.qml`: `ListView` → `orientation: Horizontal`, `layoutHeight` → `layoutWidth`.
-- `Workspace.qml`: `ColumnLayout` → `RowLayout`, индикатор + иконки окон в строку.
-- `ActiveIndicator.qml`, `GapMarkers.qml`, `OccupiedBg.qml`, `SpecialWorkspaces.qml`: геометрия X/Y.
-- `ActiveWindow.qml`: убрать повёрнутый текст, горизонтальный заголовок с `elide`, ограничение по ширине.
-- `Clock.qml`: одна строка `HH:MM` (+ дата/иконка по конфигу) вместо стопки.
-- `Tray.qml` / `TrayItem.qml`: `Column` → `Row`, компактное раскрытие вправо.
-- `StatusIcons.qml`: колонка → строка.
-- `Power.qml`, `OsIcon.qml`: правки размеров + перепривязка действий.
-- `popouts/Wrapper.qml` (slim), `ClipWrapper.qml`, `Content.qml`: позиционирование по X (под иконкой), `currentCenter` меняет смысл Y → X.
-- Высота: заменить `Tokens.sizes.bar.innerWidth` (7 использований) на свой параметр `Bar.height` (34–36 px, в конфиг).
+- `Bar.qml`: `RowLayout`, `hPadding`, `checkPopout`/`handleWheel` по X, колесо: левая половина — громкость, правая — яркость.
+- `BarWrapper.qml`: горизонтальная полоса, `implicitHeight` = толщина, `exclusiveZone` по высоте, `visible` вместо анимации ширины.
+- `Workspaces.qml`: `LazyListView` заменён на `Row` + `Repeater`; логика `wsIds` сохранена.
+- `Workspace.qml`: индикатор + иконки окон в строку, активный воркспейс — заливка `m3primary`.
+- `ActiveIndicator.qml`, `GapMarkers.qml`, `OccupiedBg.qml`: **удалены**, функциональность свёрнута в `Workspace.qml`.
+- `SpecialWorkspaces.qml`: `Row` вместо прокручиваемого списка, клик переключает special.
+- `ActiveWindow.qml`: без повёрнутого текста, `elide` по `maxWidth`.
+- `Clock.qml`: одна строка `HH:mm` (+ дата/иконка/секунды по конфигу).
+- `Tray.qml`: `Row`, компактное раскрытие вправо, `nonAnimWidth`.
+- `StatusIcons.qml`, `BluetoothStatus.qml`, `LockStatus.qml`: строки вместо колонок.
+- `Power.qml`, `OsIcon.qml`: размеры от `BarConfig.innerThickness`; логотип запускает `BarConfig.launcherCommand`.
+- Толщина: `config/BarConfig.qml` (`thickness: 36`, `padding: 4`), вместо `Tokens.sizes.bar.innerWidth` (40).
+- `popouts/Wrapper.qml`: заглушка с API (`currentName`, `hasCurrent`, `currentCenter`, `close()`) — этап 2.
+
+### План этапа 2 (попоуты)
+
+- `Wrapper.qml`: slim-версия без `qs.modules.nexus`/`windowinfo`, `Content` + `PopoutState`, `currentCenter` по X.
+- `ClipWrapper.qml`: clip по горизонтали, позиционирование под иконкой.
+- Проверить `qs.components.controls.Menu` (импортирует `modules/drawers` — сейчас предупреждение).
 
 ---
 
@@ -133,7 +142,10 @@ Upstream для сверки: `/home/rassvet/Projects/shadows-shell`
 
 - [x] **−1. Каталоги и клоны.** `/home/rassvet/Projects/shadows-shell` (upstream V2.97), `/home/rassvet/Projects/phantom-shell` (копия, `origin` → `upstream`). Документы созданы.
 - [x] **0. Спайк** (15–30 мин). Конфиг в `/tmp/opencode/caelestia-bar`, симлинки, минимальный `shell.qml` с `BarWrapper` (пока вертикальным). Проверить: резолвится ли `qs.*` через симлинки, стартует ли `Caelestia.Config` вне шелла Caelestia, рисуется ли бар, нет ли ошибок в логе. Если симлинки не работают — план Б: вендорить `services`/`components`/`utils`.
-- [ ] **1. Горизонтальный бар без попоутов.** `BarWrapper` сверху, `RowLayout`, воркспейсы/часы/заголовок/трей/статус в строку, `exclusiveZone` по высоте, скрытие в fullscreen. Проверка на `eDP-1` + `DP-3`, колесо (громкость слева, яркость справа), перезапуск.
+- [x] **1. Горизонтальный бар без попоутов.** `BarWrapper` сверху, `RowLayout`, воркспейсы/часы/заголовок/трей/статус в строку, `exclusiveZone` по высоте, скрытие в fullscreen. Проверка на `eDP-1` + `DP-3`, колесо (громкость слева, яркость справа), перезапуск.
+  - Сделано 2026-11-02: высота 36 px (`config/BarConfig.qml`), окна `caelestia-bar` 1920x36 и 2560x36, fullscreen скрывает бар только на своём мониторе.
+  - Отклонения от плана: `LazyListView` (вертикальный C++-список) заменён на `Row`/`Repeater`; `ActiveIndicator`, `GapMarkers`, `OccupiedBg` удалены, их роль выполняет подсветка в `Workspace.qml`; попоуты — заглушка `popouts/Wrapper.qml` с тем же API.
+  - Не проверено вживую: колесо и клики (нет инструмента синтетического ввода).
 - [ ] **2. Попоуты.** Slim-`Wrapper`, позиционирование под иконкой по X, звук/сеть/BT/батарея/трей-меню/раскладка, hover. Логотип → `hyprlauncher`, питание → `~/.local/bin/logout`.
 - [ ] **3. Интеграция в shadows.** `exec` вместо waybar, layer-правила `caelestia-bar` (blur), `rice-effects` (gaming), `waybar-*` скрипты отключить/заменить, `rice-settings` (скрыть Waybar/Bar layout), `install.sh`/`sync.sh`, README.
 - [ ] **4. Тема.** Шаблон matugen → `~/.local/state/caelestia/scheme.json`, post_hook на перезапуск бара. Проверка: смена обоев → цвета бара совпадают с рисом.
@@ -153,9 +165,9 @@ Upstream для сверки: `/home/rassvet/Projects/shadows-shell`
   - Отступ y=10 — из-за эксклюзивных зон Caelestia (`caelestia-border-exclusion`); в конфиге shadows их не будет.
   - Спайк зарегистрировал StatusNotifierItems — трей на время теста перехватывается, для честных тестов останавливать Caelestia.
 
-**Сейчас:** этап 1 — горизонтальный бар без попоутов.
+**Сейчас:** этап 2 — попоуты (slim-`Wrapper` вместо заглушки).
 
-**Дальше:** этап 2 (попоуты).
+**Дальше:** звук/сеть/BT/батарея/трей-меню/раскладка, позиционирование под иконкой по X.
 
 ---
 
