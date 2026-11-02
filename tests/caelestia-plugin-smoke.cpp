@@ -21,13 +21,19 @@ import Caelestia.Models
 import Caelestia.Images
 import Caelestia.Blobs
 import Caelestia.I18n
-Item {}
+Item { property bool configuredPersistent: GlobalConfig.bar.persistent }
 )QML", QUrl());
     QObject *object = component.create();
     if (!object) {
         for (const auto &error : component.errors())
             std::fprintf(stderr, "%s\n", qPrintable(error.toString()));
         return 1;
+    }
+    const auto persistent = object->property("configuredPersistent");
+    if (!persistent.isValid() || persistent.toBool()) {
+        std::fprintf(stderr, "Private config was not loaded (or Caelestia config was used)\n");
+        delete object;
+        return 5;
     }
 
     QFile maps(QStringLiteral("/proc/self/maps"));

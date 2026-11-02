@@ -15,6 +15,9 @@ command -v pkg-config >/dev/null
 test -d /tmp/opencode
 scratch="$(mktemp -d /tmp/opencode/phantom-plugin-smoke.XXXXXX)"
 mkdir -p "$scratch/home"
+mkdir -p "$scratch/home/config/phantom-shell" "$scratch/home/config/caelestia"
+printf '%s\n' '{"bar":{"persistent":false}}' > "$scratch/home/config/phantom-shell/shell.json"
+printf '%s\n' '{"bar":{"persistent":true}}' > "$scratch/home/config/caelestia/shell.json"
 
 "${CXX:-c++}" -fPIC -pie -std=c++17 "$root/tests/caelestia-plugin-smoke.cpp" \
   -o "$scratch/smoke" $(pkg-config --cflags --libs Qt6Core Qt6Gui Qt6Qml)

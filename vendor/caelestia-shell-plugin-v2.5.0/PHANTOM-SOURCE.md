@@ -1,9 +1,12 @@
 # Caelestia shell plugin source
 
-This directory contains the unmodified upstream top-level `CMakeLists.txt`,
+This directory contains the upstream top-level `CMakeLists.txt`,
 `plugin/` tree and `LICENSE` from [caelestia-dots/shell](https://github.com/caelestia-dots/shell),
 tag `v2.5.0`, commit `d999d4878ee4cec134168e60d913714566a8cfa6`.
 The upstream code is licensed under GPL-3.0-only; see `LICENSE`.
+
+Local modification: `plugin/src/Caelestia/Config/common.cpp` uses the
+`phantom-shell` config directory instead of `caelestia`.
 
 These sources are a starting point for removing the runtime dependency on the
 installed `caelestia-shell` package. They are not yet wired into phantom-shell's
