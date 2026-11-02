@@ -21,11 +21,11 @@ INSTALLED = DIR + "/version"
 CACHE = HOME + "/.cache/rice"
 STATE = CACHE + "/update.json"
 NOTIFIED = CACHE + "/update-notified"
-RAW = "https://raw.githubusercontent.com/shadowww-dev/shadows-shell/main/VERSION"
+RAW = "https://raw.githubusercontent.com/whyrassvet/phantom-shell/main/VERSION"
 FIRST_WAIT = 45            # seconds after login
 EVERY = 15 * 60            # GitHub is asked every 15 minutes
 TICK = 30                  # a check from the About tab of the dashboard is noticed within this many seconds
-APP = "DarkShadow's Shell"
+APP = "Phantom Shell"
 ICON = HOME + "/.local/share/rice/icon.png"
 
 
@@ -36,7 +36,7 @@ def repo():
             return r
     except OSError:
         pass
-    r = HOME + "/shadows-shell"
+    r = HOME + "/phantom-shell"
     return r if os.path.exists(r + "/install.sh") else None
 
 
@@ -247,7 +247,7 @@ def run(args):
     r = repo()
     if not r:
         print("Could not find your copy of the repo. Clone it again:")
-        print("  git clone https://github.com/shadowww-dev/shadows-shell ~/shadows-shell")
+        print("  git clone https://github.com/whyrassvet/phantom-shell ~/phantom-shell")
         input("Press Enter to close")
         sys.exit(1)
     os.chdir(r)

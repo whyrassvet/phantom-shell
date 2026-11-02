@@ -74,10 +74,11 @@ Some components and interactions still need testing, including a clean installat
 
 **Arch Linux and Arch-based distributions only.** The installer requires a normal user account and asks for `sudo` when needed. It can install packages, build private plugins, replace configuration files and affect a running session. Review `install.sh` first and test in a VM; do not use this as a production install guide yet.
 
-From a local copy of **this Phantom Shell repository**:
+Clone **this Phantom Shell repository**:
 
 ```bash
-cd /path/to/phantom-shell
+git clone https://github.com/whyrassvet/phantom-shell.git
+cd phantom-shell
 ./install.sh --dry-run
 ./install.sh
 ```
@@ -90,7 +91,7 @@ The interactive installer offers installation choices; replaced files are backed
 | `--no-packages` | Skip package installation; dependencies must already be available. |
 | `--restore` | Restore files from the newest installer backup. |
 
-The existing [installation notes](docs/INSTALL.md) are inherited and still point to shadows-shell; do **not** use their clone URL to install Phantom. A dedicated repository URL and final installation instructions will be added before release.
+See the [installation notes](docs/INSTALL.md). Final installation instructions and clean-install verification remain work in progress.
 
 ---
 

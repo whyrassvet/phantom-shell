@@ -186,7 +186,7 @@ Item {
                         } else if (!ab.checking) { ab.checking = true; upProc.running = true }
                     }
                 }
-                Btn { visible: rice.width > 260; icon: "code"; glyph: ab.d.md(0xF02A4); text: "GitHub"; onClicked: ab.open("https://github.com/shadowww-dev/shadows-shell") }
+                Btn { visible: rice.width > 260; icon: "code"; glyph: ab.d.md(0xF02A4); text: "GitHub"; onClicked: ab.open("https://github.com/whyrassvet/phantom-shell") }
             }
         }
     }
