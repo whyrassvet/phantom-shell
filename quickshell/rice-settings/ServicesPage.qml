@@ -308,7 +308,7 @@ Item {
             T {
                 width: parent.width
                 kind: "reading"
-                text: "Type the name of an installed font family and press Enter. Applies to the settings window, desktop widgets, Waybar (main + icons) and kitty (monospace)."
+                text: "Type the name of an installed font family and press Enter. Applies to the settings window, desktop widgets and kitty (monospace)."
                 color: "#8a8a8a"
                 font.pixelSize: 12
                 wrapMode: Text.WordWrap

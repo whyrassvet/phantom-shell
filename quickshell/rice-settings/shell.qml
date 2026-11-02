@@ -61,7 +61,7 @@ FloatingWindow {
             const sl = slots[i]
             if (sl.idx === undefined) continue
             const pg = win.pages[sl.idx]
-            if (!pg) continue
+            if (!pg || pg.hidden) continue
             out.push({ page: sl.idx, label: pg.name, section: "", desc: "Page", pageName: pg.name, item: null, kind: "page" })
             const ctx = { section: "" }
             const walk = function(it) {
@@ -154,13 +154,9 @@ FloatingWindow {
                 ' SequentialAnimation on opacity { running: true; NumberAnimation { to: 1; duration: 220 } PauseAnimation { duration: 500 } NumberAnimation { to: 0.35; duration: 260 } NumberAnimation { to: 1; duration: 260 } PauseAnimation { duration: 500 } NumberAnimation { to: 0; duration: 600 } ScriptAction { script: destroy() } } }', it, "searchFlash")
         }
     }
-    readonly property string presetTool: home + "/.local/bin/waybar-preset"
     property int page: 0
-    property var presets: []
-    property var st: ({})
     property string status: ""
     property string colorMode: "auto"
-    property alias stateTimer: stateTimer
     property var dst: ({ widgets: {}, clock: {}, dock: {}, lock: {} })
     property string osName: "Linux"
     property var osIds: ["linux"]
@@ -232,8 +228,8 @@ FloatingWindow {
     readonly property var pages: [
         { name: "Home", icon: "\uf015" },
         { name: "Sfx & sounds", icon: "\uf028" },
-        { name: "Waybar", icon: "\uf0c9" },
-        { name: "Bar layout", icon: "\uf0db" },
+        { name: "Bar", icon: "\uf0c9" },
+        { name: "Bar layout", icon: "\uf0db", hidden: true },
         { name: "Hyprland", icon: "\uf108" },
         { name: "Dashboard", icon: "\uf009" },
         { name: "Rofi", icon: "\uf002" },
@@ -286,47 +282,12 @@ FloatingWindow {
         hrun([k === "enabled" ? "anim-enabled" : "anim-speed", k === "enabled" ? (v ? "on" : "off") : v], "Applied")
     }
 
-    function setSt(key, value) {
-        const s = Object.assign({}, st)
-        s[key] = value
-        st = s
-    }
-
-    function run(args) {
-        Quickshell.execDetached(["bash", "-c", "\"$HOME/.local/bin/waybar-set\" \"$@\" && \"$HOME/.local/bin/waybar-reload\"", "_"].concat(args.map(a => String(a))))
-        status = "Applied"
-        stateTimer.restart()
-    }
-
-    function toggleModule(name, on) {
-        setSt(name, on)
-        run(["toggle", name, on ? "on" : "off"])
-    }
-
     function setColorMode(m) {
         colorMode = m
         Quickshell.execDetached(["bash", "-c", "\"$HOME/.local/bin/rice-colors\" mode \"$1\"", "_", m])
         let nm = m
         for (let i = 0; i < schemes.length; i++) if (schemes[i].key === m) nm = schemes[i].name
         status = "Colors: " + nm + " (applying...)"
-    }
-
-    Process {
-        id: lister
-        command: ["bash", "-c", "ls -1 \"$HOME/.config/waybar-presets\" 2>/dev/null | grep -v '^_'"]
-        running: true
-        stdout: StdioCollector {
-            onStreamFinished: win.presets = text.split("\n").map(s => s.trim()).filter(s => s.length > 0)
-        }
-    }
-
-    Process {
-        id: stateProc
-        command: ["bash", "-c", "\"$HOME/.local/bin/waybar-set\" state"]
-        running: true
-        stdout: StdioCollector {
-            onStreamFinished: { try { win.st = JSON.parse(text) } catch (e) { } }
-        }
     }
 
     property var schemes: []
@@ -365,12 +326,6 @@ FloatingWindow {
     }
 
     Timer { id: hrefresh; interval: 800; onTriggered: hstate.running = true }
-
-    Timer {
-        id: stateTimer
-        interval: 900
-        onTriggered: { lister.running = true; stateProc.running = true }
-    }
 
     Rectangle {
         id: card
@@ -641,7 +596,7 @@ FloatingWindow {
             }
             // keep the selected category visible
             function reveal() {
-                const top = win.page * 56, bottom = top + 46
+                const top = (win.page > 3 ? win.page - 1 : win.page) * 56, bottom = top + 46
                 if (top < contentY) contentY = top
                 else if (bottom > contentY + height) contentY = Math.min(Math.max(0, contentHeight - height), bottom + 8 - height)
             }
@@ -650,7 +605,7 @@ FloatingWindow {
             // the selection glides to the new category and stretches a little on the way (Material 3)
             Rectangle {
                 id: navSel
-                property real target: win.page * 56
+                property real target: (win.page > 3 ? win.page - 1 : win.page) * 56
                 y: target
                 width: 206
                 height: 46
@@ -676,6 +631,7 @@ FloatingWindow {
                     delegate: Rectangle {
                         width: parent.width
                         height: 46
+                        visible: !modelData.hidden
                         radius: 14
                         color: win.page !== index && navMouse.containsMouse ? "#1a1a1a" : "transparent"
                         Behavior on color { ColorAnimation { duration: 150 } }
@@ -712,8 +668,7 @@ FloatingWindow {
 
             PageSlot { idx: 0; cur: win.page; HomePage { id: homePage; anchors.fill: parent; ctl: win } }
             PageSlot { idx: 1; cur: win.page; SoundsPage { anchors.fill: parent; ctl: win } }
-            PageSlot { idx: 2; cur: win.page; WaybarPage { anchors.fill: parent; ctl: win } }
-            PageSlot { idx: 3; cur: win.page; BarLayoutPage { anchors.fill: parent; ctl: win } }
+            PageSlot { idx: 2; cur: win.page; T { anchors.centerIn: parent; text: "Work in progress"; font.pixelSize: 20 } }
             PageSlot { idx: 4; cur: win.page; HyprlandPage { anchors.fill: parent; ctl: win } }
             PageSlot { idx: 5; cur: win.page; DashboardPage { anchors.fill: parent; ctl: win } }
             PageSlot { idx: 6; cur: win.page; RofiPage { anchors.fill: parent; ctl: win } }

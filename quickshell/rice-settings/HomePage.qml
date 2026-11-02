@@ -20,7 +20,7 @@ Item {
         "SUPER + W opens the wallpaper menu. The Auto theme follows your new wallpaper.",
         "Drag the desktop widgets anywhere, their position is saved.",
         "Pick a scheme in Theme to recolor the bar, borders, notifications and lock screen.",
-        "Try the One island bar style in Waybar for a floating look.",
+        "Bar settings are a work in progress.",
         "Idle & Lockscreen decides when the screen locks and when the computer sleeps.",
         "Click your picture in the sidebar to change it. It is also shown on the lock screen.",
         "Touch the bottom-right corner of the screen for quick toggles, apps and wallpapers.",
@@ -32,7 +32,7 @@ Item {
         "Rofi can open as a full-width bar at the bottom of the screen.",
         "Lock screen clocks come in Big, Stacked and Minimal. Preview them in Idle & Lockscreen.",
         "Run rice-notify test in a terminal to see a sample notification.",
-        "Everything here is also a command: waybar-set, rice-hotcorner, rice-lock, rice-notify."
+        "Many settings are also commands: rice-hotcorner, rice-lock, rice-notify."
     ]
     function greeting() {
         const h = now.getHours()
@@ -283,7 +283,7 @@ Item {
                         { i: "\uf03e", t: "Wallpaper", d: "Pick a new one", p: -1 },
                         { i: "\uf0f3", t: "Notifications", d: "Popups & panel", p: 9 },
                         { i: "\uf023", t: "Lock screen", d: "Idle & lock", p: 10 },
-                        { i: "\uf0c9", t: "Waybar", d: "Bar layout & style", p: 2 },
+                        { i: "\uf0c9", t: "Bar", d: "Work in progress", p: 2 },
                         { i: "\uf002", t: "Rofi", d: "App launcher", p: 6 }
                     ]
                     delegate: Rectangle {
@@ -326,22 +326,6 @@ Item {
                 }
             }
 
-            T { kind: "title"; text: "Bar & Screen"; font.pixelSize: 16; font.bold: true; topPadding: 12 }
-
-            SettingRow {
-                label: "Bar transparency"
-                desc: "Translucent bar with blur; off makes it solid"
-                Tog {
-                    anchors.right: parent.right
-                    anchors.rightMargin: 16
-                    anchors.verticalCenter: parent.verticalCenter
-                    checked: page.ctl.st.transparent === true
-                    onToggled: function(v) {
-                        page.ctl.setSt("transparent", v)
-                        page.ctl.run(["transparency", v ? "on" : "off"])
-                    }
-                }
-            }
         }
     }
 }

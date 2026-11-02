@@ -3,7 +3,6 @@
 [templates.waybar]
 input_path = '~/.config/matugen/templates/waybar.css'
 output_path = '~/.config/waybar/colors.css'
-post_hook = 'setsid -f $HOME/.local/bin/waybar-reload'
 
 [templates.kitty]
 input_path = '~/.config/matugen/templates/kitty.conf'
