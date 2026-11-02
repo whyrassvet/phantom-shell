@@ -13,6 +13,8 @@ when the wallpaper state file is missing or empty. Explicit wallpaper operations
 still use the upstream CLI and require replacement.
 `services/Colours.qml` targets the bar layer instead of the Caelestia drawers,
 and retains its built-in palette if the phantom-shell scheme is invalid or absent.
+Its built-in Material palette is neutral grayscale, except semantic error and
+success colours; an explicitly loaded scheme can still override these colours.
 
 The bar module in `modules/bar/` was copied from the same installed version
 and subsequently modified for phantom-shell. Vendoring these directories alone

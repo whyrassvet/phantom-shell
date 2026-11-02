@@ -112,6 +112,15 @@ StyledRect {
                             color: root.colour
                             fontStyle: Tokens.font.icon.medium
                             fill: 1
+
+                            MouseArea {
+                                anchors.fill: parent
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: {
+                                    if (Audio.source?.ready && Audio.source?.audio)
+                                        Audio.source.audio.muted = !Audio.sourceMuted;
+                                }
+                            }
                         }
                     }
                 }

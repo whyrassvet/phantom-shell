@@ -19,8 +19,6 @@ RowLayout {
     required property BarPopouts.Wrapper popouts
     required property bool fullscreen
     readonly property int hPadding: BarConfig.padding
-    readonly property var entries: children.filter(c => c.entryId)
-    readonly property int activeIndex: entries.findIndex(c => c.entryId === "activeWindow")
 
     function closeTray(): void {
         if (!Config.bar.tray.compact)
@@ -35,9 +33,6 @@ RowLayout {
 
     function checkPopout(x: real): void {
         let ch = childAt(x, height / 2) as EntryWrapper;
-        if (ch?.entryId === "activeWindow" && (x < ch.x + ch.item.x || x > ch.x + ch.item.x + ch.item.width))
-            ch = null;
-
         if (ch?.entryId !== "tray")
             closeTray();
 
@@ -72,10 +67,8 @@ RowLayout {
                 popouts.hasCurrent = false;
                 tray.expanded = true;
             }
-        } else if (id === "activeWindow" && Config.bar.popouts.activeWindow && Config.bar.activeWindow.showOnHover) {
-            popouts.currentName = id.toLowerCase();
-            popouts.currentCenter = (ch.item as Item).mapToItem(root, (ch.item as Item).implicitWidth / 2, 0).x ?? 0;
-            popouts.hasCurrent = true;
+        } else {
+            popouts.hasCurrent = false;
         }
     }
 
@@ -111,18 +104,30 @@ RowLayout {
         id: repeater
 
         model: ScriptModel {
-            values: root.Config.bar.entries.values.filter(e => e.enabled)
+            values: {
+                const result = [];
+                let hasClock = false;
+                for (const entry of root.Config.bar.entries.values) {
+                    if (entry.id === "activeWindow") {
+                        if (!hasClock) {
+                            result.push({id: "clock"});
+                            hasClock = true;
+                        }
+                    } else if (entry.enabled && entry.id !== "clock" && entry.id !== "spacer") {
+                        result.push({id: entry.id});
+                    }
+                }
+                if (!hasClock) {
+                    const right = result.findIndex(e => ["tray", "statusIcons", "power"].includes(e.id));
+                    result.splice(right < 0 ? result.length : right, 0, {id: "clock"});
+                }
+                return result;
+            }
         }
 
         DelegateChooser {
             role: "id"
 
-            DelegateChoice {
-                roleValue: "spacer"
-                delegate: EntryWrapper {
-                    Layout.fillWidth: root.activeIndex < 0
-                }
-            }
             DelegateChoice {
                 roleValue: "logo"
                 delegate: EntryWrapper {
@@ -142,21 +147,6 @@ RowLayout {
                 }
             }
             DelegateChoice {
-                roleValue: "activeWindow"
-                delegate: EntryWrapper {
-                    id: activeEntry
-                    Layout.fillWidth: true
-                    Layout.minimumWidth: 0
-                    ActiveWindow {
-                        objectName: "taskbarActiveWindow"
-                        bar: root
-                        monitor: Brightness.getMonitorForScreen(root.screen)
-                        width: implicitWidth
-                        x: root.width / 2 - activeEntry.x - width / 2
-                    }
-                }
-            }
-            DelegateChoice {
                 roleValue: "tray"
                 delegate: EntryWrapper {
                     Tray {
@@ -167,8 +157,14 @@ RowLayout {
             DelegateChoice {
                 roleValue: "clock"
                 delegate: EntryWrapper {
+                    id: clockEntry
+                    Layout.fillWidth: true
+                    Layout.minimumWidth: 0
+                    clip: true
                     Clock {
                         objectName: "taskbarClock"
+                        width: implicitWidth
+                        x: root.width / 2 - clockEntry.x - width / 2
                     }
                 }
             }

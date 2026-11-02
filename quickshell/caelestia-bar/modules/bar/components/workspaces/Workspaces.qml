@@ -72,7 +72,7 @@ StyledClippingRect {
 
                 Workspace {
                     activeWsId: root.activeWsId
-                    ws: Config.bar.workspaces.showUnoccupied ? root.groupOffset + index + 1 : modelData
+                    ws: Config.bar.workspaces.showUnoccupied ? root.groupOffset + modelData : modelData
                     monitor: root.monitor
 
                     displayType: Config.bar.workspaces.displayType

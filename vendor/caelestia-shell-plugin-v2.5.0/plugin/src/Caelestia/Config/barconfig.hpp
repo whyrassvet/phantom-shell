@@ -87,9 +87,9 @@ CONFIG_LIST_TYPE(BarTrayIconSub, BarTrayIconSubList)
 class BarTray : public settings::ObjectNode {
     CONFIG_NODE(BarTray, settings::ObjectNode)
 
-    CONFIG_PROPERTY(bool, background, false)
+    CONFIG_PROPERTY(bool, background, true)
     CONFIG_PROPERTY(bool, recolour, false)
-    CONFIG_PROPERTY(bool, compact, false)
+    CONFIG_PROPERTY(bool, compact, true)
     CONFIG_GLOBAL_LIST(BarTrayIconSubList, iconSubs, {})
     CONFIG_GLOBAL_PROPERTY(QStringList, hiddenIcons, {})
 };
@@ -119,8 +119,8 @@ class BarConfig : public settings::ObjectNode {
         DEFAULT_ARG({
             LIST_ENTRY(lockStatus, true),
             LIST_ENTRY(audio, false),
-            LIST_ENTRY(microphone, false),
-            LIST_ENTRY(kbLayout, false),
+            LIST_ENTRY(microphone, true),
+            LIST_ENTRY(kbLayout, true),
             LIST_ENTRY(network, true),
             LIST_ENTRY(bluetooth, true),
             LIST_ENTRY(battery, true),
