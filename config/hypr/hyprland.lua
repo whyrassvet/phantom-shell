@@ -154,16 +154,20 @@ hl.config({
   hl.curve("overshot", { type = "bezier", points = { { 0.05, 0.9 }, { 0.1, 1.08 } } })
   hl.curve("linearish", { type = "bezier", points = { { 0.3, 0.0 }, { 0.7, 1.0 } } })
   hl.curve("easeOutQuint", { type = "bezier", points = { { 0.23, 1 }, { 0.32, 1 } } })
+  hl.curve("caelestiaSpecialWorkSwitch", { type = "bezier", points = { { 0.05, 0.7 }, { 0.1, 1 } } })
+  hl.curve("caelestiaEmphasizedAccel", { type = "bezier", points = { { 0.3, 0 }, { 0.8, 0.15 } } })
+  hl.curve("caelestiaEmphasizedDecel", { type = "bezier", points = { { 0.05, 0.7 }, { 0.1, 1 } } })
+  hl.curve("caelestiaStandard", { type = "bezier", points = { { 0.2, 0 }, { 0, 1 } } })
 
   -- WINDOWS
   hl.animation({ leaf = "windows", enabled = true, speed = 4, bezier = "smooth", style = "popin 95%" })
-  hl.animation({ leaf = "windowsIn", enabled = true, speed = 4, bezier = "smooth", style = "popin 85%" })
-  hl.animation({ leaf = "windowsOut", enabled = true, speed = 3, bezier = "quick", style = "popin 90%" })
-  hl.animation({ leaf = "windowsMove", enabled = true, speed = 3, bezier = "quick" })
+  hl.animation({ leaf = "windowsIn", enabled = true, speed = 5, bezier = "caelestiaEmphasizedDecel" })
+  hl.animation({ leaf = "windowsOut", enabled = true, speed = 3, bezier = "caelestiaEmphasizedAccel" })
+  hl.animation({ leaf = "windowsMove", enabled = true, speed = 6, bezier = "caelestiaStandard" })
 
   -- WORKSPACES
-  hl.animation({ leaf = "workspaces", enabled = true, speed = 5, bezier = "smooth", style = "slidefade 20%" })
-  hl.animation({ leaf = "specialWorkspace", enabled = true, speed = 3, bezier = "smooth", style = "slidefadevert 5%" })
+  hl.animation({ leaf = "workspaces", enabled = true, speed = 5, bezier = "caelestiaStandard" })
+  hl.animation({ leaf = "specialWorkspace", enabled = true, speed = 4, bezier = "caelestiaSpecialWorkSwitch", style = "slidefadevert 15%" })
 
   -- LAYERS
   hl.animation({ leaf = "layers", enabled = true, speed = 3, bezier = "quick", style = "fade" })
@@ -274,10 +278,13 @@ local closeWindowBind = hl.bind(mainMod .. " + C", hl.dsp.window.close())
 -- closeWindowBind:set_enabled(false)
 hl.bind(mainMod .. " + M", hl.dsp.exec_cmd("command -v hyprshutdown >/dev/null 2>&1 && hyprshutdown || hyprctl dispatch 'hl.dsp.exit()'"))
 hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(fileManager))
-hl.bind(mainMod .. " + V", hl.dsp.window.float({ action = "toggle" }))
+hl.bind(mainMod .. " + T", hl.dsp.window.float({ action = "toggle" }))
+hl.bind(mainMod .. " + F", hl.dsp.window.fullscreen({ mode = "fullscreen" }))
 hl.bind(mainMod .. " + R", hl.dsp.exec_cmd(menu))
 hl.bind(mainMod .. " + P", hl.dsp.window.pseudo())
 hl.bind(mainMod .. " + J", hl.dsp.layout("togglesplit"))    -- dwindle only
+hl.bind(mainMod .. " + SHIFT + B", hl.dsp.window.move({ workspace = "e+0" }))
+hl.bind(mainMod .. " + SHIFT + A", hl.dsp.window.move({ workspace = "special:magic" }))
 
 -- Move focus with mainMod + arrow keys
 hl.bind(mainMod .. " + left",  hl.dsp.focus({ direction = "left" }))
