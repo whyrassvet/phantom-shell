@@ -426,6 +426,14 @@ hl.layer_rule({
     ignore_alpha = 0.1,
 })
 
+-- Phantom bar runs as its own layer; retain Waybar rules until migration is complete.
+hl.layer_rule({
+    name  = "caelestia-bar-blur",
+    match = { namespace = "caelestia-bar" },
+    blur = true,
+    ignore_alpha = 0.1,
+})
+
 hl.window_rule({
     name  = "rice-settings",
     match = { title = "^Rice Settings$" },
@@ -453,6 +461,12 @@ hl.layer_rule({
 hl.layer_rule({
     name  = "waybar-slide",
     match = { namespace = "waybar" },
+    animation = "slide top",
+})
+
+hl.layer_rule({
+    name  = "caelestia-bar-slide",
+    match = { namespace = "caelestia-bar" },
     animation = "slide top",
 })
 

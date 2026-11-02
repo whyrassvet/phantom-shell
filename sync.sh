@@ -9,7 +9,7 @@ TOOLS=(rice-effects rice-run rice-busy hypr-set waybar-set waybar-preset waybar-
        rice-colors rice-welcome rice-wallpaper rice-rofi rice-notify rice-lock rice-fonts rice-hotcorner
        rice-desktop rice-stats rice-sysline rice-nowplaying rice-weather rice-cava rice-media rice-cursor rice-update rice-ws-watch rice-calendar rice-sound rice-sfx rice-services rice-battery rice-dashboard border-sync logout)
 CONFIG_DIRS=(hypr waybar waybar-presets swaync rofi matugen kitty fish fastfetch)    # folders from ~/.config to publish
-SKIP_QS=(cache thumbs)                                  # quickshell folders that are not apps
+SKIP_QS=(cache thumbs caelestia-bar)                    # never replace the vendored bar or follow its package symlinks
 # small images (bar icons) are kept; anything over 1 MB is skipped below
 EXCLUDE=(ui.json 'config.jsonc.save*' '*.bak*' '*.save*' '.first-backup' '*.qslog' '*.log'
          'rice-gaming.lua' 'rice-lock.conf' 'hyprland.lua.save' 'fish_variables' 'fish_history' 'darkshadows.fish'
