@@ -18,4 +18,10 @@ jobs:
             if head -n1 "$f" | grep -q python; then python3 -m py_compile "$f"; fi
           done
       - name: Installer dry run
-        run: SHADOWS_ALLOW_ROOT=1 ./install.sh --yes --dry-run
+        run: |
+          printf 'ID=arch\nNAME="Arch Linux"\n' > "$RUNNER_TEMP/arch-os-release"
+          OS_RELEASE="$RUNNER_TEMP/arch-os-release" SHADOWS_ALLOW_ROOT=1 ./install.sh --yes --dry-run
+      - name: Distribution detection and rejection
+        run: |
+          mkdir -p /tmp/opencode
+          python3 tests/distro-support.py

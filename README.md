@@ -11,7 +11,6 @@
 <p align="center">
   <img src="https://img.shields.io/badge/Arch_Linux-supported-1793D1?style=for-the-badge&logo=archlinux&logoColor=white" alt="Arch Linux">
   <img src="https://img.shields.io/badge/CachyOS-new-08A283?style=for-the-badge&logo=cachyos&logoColor=white" alt="CachyOS">
-  <img src="https://img.shields.io/badge/Fedora-new-51A2DA?style=for-the-badge&logo=fedora&logoColor=white" alt="Fedora">
 </p>
 <p align="center">
   <img src="https://img.shields.io/badge/Hyprland-0.55+-58E1FF?style=flat-square" alt="Hyprland">
@@ -49,23 +48,14 @@ The bar, the dashboard, the welcome window and Settings show **your distro's log
 | **Arch Linux** | supported | `./install.sh` |
 | **CachyOS** | new in V2.70 | `./install.sh` (Arch based: its repositories and `paru` are used) |
 | **EndeavourOS, Garuda** | Arch route | `./install.sh` |
-| **Fedora, Nobara** | new in V2.60 | `./install.sh` (COPR for Hyprland and Quickshell) |
-| **Bazzite, Silverblue** | commands only | the installer prints the `rpm-ostree` steps |
 | **Manjaro** | may not work | its packages are held back, Hyprland can be older than 0.55 |
 
-CachyOS and Fedora support is new: if something does not install, open an issue with the installer log and it gets fixed fast.
+Only Arch Linux and Arch-based distributions are supported by the installer.
 
 ## Install in one minute
 **Arch Linux / CachyOS / EndeavourOS**
 ```bash
 sudo pacman -S --needed git base-devel
-git clone https://github.com/shadowww-dev/shadows-shell && cd shadows-shell
-./install.sh
-```
-
-**Fedora / Nobara**
-```bash
-sudo dnf install -y git
 git clone https://github.com/shadowww-dev/shadows-shell && cd shadows-shell
 ./install.sh
 ```
@@ -78,7 +68,7 @@ git clone https://github.com/shadowww-dev/shadows-shell && cd shadows-shell
 | **Waybar** | layout editor (move modules between left, center and right), saved presets, position top or bottom, bar height, opacity |
 | **Bar styles** | Flat, Floating, Islands, **One island**; group styles None, Pills, Segmented |
 | **Autohide** | bar slides in when the pointer touches the screen edge |
-| **Distro logo** | the logo of your distro (Arch, CachyOS, Fedora, Nobara, EndeavourOS ...) in the bar, the dashboard, the welcome window and Settings, picked automatically |
+| **Distro logo** | the logo of your distro (Arch, CachyOS, EndeavourOS ...) in the bar, the dashboard, the welcome window and Settings, picked automatically |
 | **Hot corner** | touch a screen corner for a panel with Keep Awake, screen recording, screenshots, quick toggles (Wi-Fi, Bluetooth, Do Not Disturb, Gaming mode, microphone, Settings) and now playing; sections, toggles, corner, look and animation are set in Settings > Hot corners |
 | **Desktop widgets** | frosted glass over your blurred wallpaper (or plain cards), auto-hide while windows are open; clock, calendar, weather, music, resources (CPU, RAM, GPU), user card, battery and a see-through audio visualizer (Bars, Mirror, Wave, Dots); a widget editor on the desktop to add, move, resize and style them |
 | **Dashboard** | slides up from the bottom of the screen (SUPER + ALT + D or push the pointer against the bottom edge): Dashboard (weather, calendar, usage, music), Wallpaper (big wallpaper cards, search, random), Performance (CPU, GPU, storage, network, memory, battery), About (your computer, distro, updates); cards you can remove, add, resize and move, looks Shadow, Graphite, Aurora and Frost |
@@ -98,7 +88,7 @@ git clone https://github.com/shadowww-dev/shadows-shell && cd shadows-shell
 | **Welcome intro** | once after installing: night falls over the desktop, a few words, the moon logo draws itself in, "Take a look" opens it up again and Settings starts a short tour (it lights up one part at a time). Play it again with `rice-welcome show`, only the tour: `rice-welcome tour` |
 | **Performance & gaming** | one switch turns off all blur and transparency (Hyprland, kitty, Waybar, rofi, notifications, dashboard, hot corner, dock, widgets); Gaming mode with options to keep blur, animations, shadows or gaps, Do Not Disturb (Settings > Services) |
 | **Your settings everywhere** | `./sync.sh` saves your Settings choices to `settings/`, `./install.sh` puts them on your other computers (files you changed there are kept) |
-| **Installer** | interactive (Install, Update, Choose, Restore), backs up everything, supports Arch, CachyOS and Fedora, warns when Hyprland is too old |
+| **Installer** | interactive (Install, Update, Choose, Restore), backs up everything, supports Arch Linux and Arch-based distributions, warns when Hyprland is too old |
 
 ## Keybinds
 `SUPER` is the main modifier.
@@ -144,15 +134,6 @@ cd shadows-shell
 ./install.sh
 ```
 The installer updates your system, installs every package (Hyprland, Quickshell, Waybar, swaync, rofi, kitty, fish, Nautilus, fonts, Papirus icons, Bibata cursor, btop, cava, fastfetch, cmatrix, peaclock and more), uses the AUR helper you have (`paru` comes with CachyOS, or it offers `yay`) for the few AUR packages, copies the configs and sets everything up. At the end it warns you when your Hyprland is older than 0.55. Then log out and pick Hyprland.
-
-### Fedora (and Nobara)
-```bash
-sudo dnf install -y git
-git clone https://github.com/shadowww-dev/shadows-shell
-cd shadows-shell
-./install.sh
-```
-The installer turns on two COPR repositories (`nett00n/hyprland` for the newest Hyprland, its tools and Quickshell, `scottames/awww` for the wallpaper daemon), installs the rest from Fedora, and downloads what Fedora does not package (Nerd Font icons, Bibata cursor). Packages your Fedora does not have are listed and skipped. Fedora Atomic (Bazzite, Silverblue) gets the `rpm-ostree` commands to run instead.
 
 ### Options
 | Flag | What it does |

@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 # DarkShadow's Shell installer.
-# Works for any user (everything uses $HOME / $USER). Arch- and Fedora-based distros get
-# package installation support; other distributions get a list of what to install.
+# Installs on Arch Linux and Arch-based distributions for the current user.
 set -Euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -43,6 +42,11 @@ done
 
 if [ "$(id -u)" = 0 ] && [ -z "${SHADOWS_ALLOW_ROOT:-}" ]; then
   fail "Run this as your normal user, not root. It installs into your home folder and asks for sudo when needed."
+  exit 1
+fi
+
+if [ "$FAMILY" != arch ]; then
+  fail "$DISTRO_NAME is not supported. This installer requires Arch Linux or an Arch-based distribution."
   exit 1
 fi
 
@@ -140,38 +144,6 @@ pkg_load() {
   done <"$PKG_SPLIT"
 }
 
-# fedora_check: writes the names of the FEDORA_PKGS your repositories have (one per line)
-fedora_check() {
-  local names=() p
-  for p in "${FEDORA_PKGS[@]}"; do IFS='|' read -r -a alts <<<"$p"; names+=("${alts[@]}"); done
-  dnf repoquery -q --qf '%{name}\n' "${names[@]}" 2>/dev/null | sort -u >"$PKG_SPLIT"
-  return 0
-}
-# fedora_pick "a|b": the first name your repositories have (nothing when none)
-fedora_pick() {
-  local a
-  IFS='|' read -r -a alts <<<"$1"
-  for a in "${alts[@]}"; do grep -qx "$a" "$PKG_SPLIT" 2>/dev/null && { echo "$a"; return 0; }; done
-  return 0
-}
-
-# matugen from its GitHub releases (Fedora 43 and older have no package): ~/.local/bin/matugen
-matugen_download() {
-  local arch url d
-  arch="$(uname -m)"
-  url="$(curl -fsSL --max-time 20 https://api.github.com/repos/InioX/matugen/releases/latest 2>/dev/null |
-         grep -oE '"browser_download_url": *"[^"]+"' | grep -oE 'https://[^"]+' |
-         grep -iE "${arch}.*\.tar\.gz$" | head -1)"
-  [ -n "$url" ] || return 1
-  d="$(mktemp -d)"
-  if curl -fsSL --max-time 120 -o "$d/m.tar.gz" "$url" && tar -xzf "$d/m.tar.gz" -C "$d" 2>/dev/null; then
-    local bin; bin="$(find "$d" -type f -name matugen | head -1)"
-    if [ -n "$bin" ]; then mkdir -p "$HOME/.local/bin"; install -m 755 "$bin" "$HOME/.local/bin/matugen"; rm -rf "$d"; return 0; fi
-  fi
-  rm -rf "$d"
-  return 1
-}
-
 # the installed Hyprland is older than the Lua config needs: prints its version, nothing when it is fine or missing
 hypr_too_old() {
   command -v Hyprland >/dev/null 2>&1 || return 0
@@ -190,7 +162,6 @@ flavor_notes() {
     endeavouros) note "EndeavourOS: plain Arch with yay or paru, everything is installed from the Arch repositories and the AUR." ;;
     garuda)      note "Garuda: Arch based, paru is used for the AUR packages." ;;
     manjaro)     warn "Manjaro holds packages back for weeks. Hyprland may be older than 0.55 (the Lua config needs 0.55): CachyOS or EndeavourOS work better." ;;
-    nobara)      note "Nobara: Fedora based, the Fedora steps below are used." ;;
   esac
 }
 
@@ -257,55 +228,6 @@ step_packages() {
         task "Turning on the Bluetooth service" sudo systemctl enable --now bluetooth.service
       fi
       ;;
-    fedora)
-      if [ "$FEDORA_ATOMIC" = 1 ]; then
-        warn "$DISTRO_NAME is an atomic (image based) Fedora: packages are layered with rpm-ostree."
-        note "Run these, reboot, then ./install.sh again:"
-        local c; for c in "${FEDORA_COPRS[@]}"; do note "  sudo wget -P /etc/yum.repos.d/ https://copr.fedorainfracloud.org/coprs/$c/repo/fedora-\$(rpm -E %fedora)/${c%%/*}-${c##*/}-fedora-\$(rpm -E %fedora).repo"; done
-        local first=() p; for p in "${FEDORA_PKGS[@]}"; do first+=("${p%%|*}"); done
-        note "  rpm-ostree install ${first[*]}"
-        return 0
-      fi
-      sudo_keepalive || return 0
-      if [ "$DRY_RUN" = 1 ]; then
-        info "would enable COPR ${FEDORA_COPRS[*]} and install ${#FEDORA_PKGS[@]} packages: ${FEDORA_PKGS[*]//|/ or }"; return 0
-      fi
-      task "COPR support for dnf" sudo dnf install -y 'dnf-command(copr)'
-      local c
-      for c in "${FEDORA_COPRS[@]}"; do task "Enabling COPR $c" sudo dnf copr enable -y "$c"; done
-      task "Checking which packages your Fedora has" fedora_check
-      local have=() absent=() p n
-      for p in "${FEDORA_PKGS[@]}"; do
-        n="$(fedora_pick "$p")"
-        if [ -n "$n" ]; then have+=("$n"); else absent+=("${p//|/ or }"); fi
-      done
-      # repoquery did not work at all: just try everything (first names)
-      if [ "${#have[@]}" = 0 ]; then have=(); for p in "${FEDORA_PKGS[@]}"; do have+=("${p%%|*}"); done; absent=(); fi
-      note "${#have[@]} packages to install${absent[0]:+, not in your repositories: ${absent[*]}}"
-      if ! task "Installing ${#have[@]} packages: desktop, shell, tools and fonts" sudo dnf install -y --skip-unavailable "${have[@]}"; then
-        warn "Installing them together failed, trying one by one"
-        local failed=()
-        for p in "${have[@]}"; do
-          rpm -q "$p" >/dev/null 2>&1 && continue
-          task "  $p" sudo dnf install -y "$p" || failed+=("$p")
-        done
-        [ "${#failed[@]}" -gt 0 ] && warn "Could not install: ${failed[*]} (see $LOG)"
-      fi
-      if ! command -v matugen >/dev/null 2>&1; then
-        if task "matugen (theme colors) from its GitHub releases" matugen_download; then ok "matugen is in ~/.local/bin"
-        else warn "matugen could not be installed: colors from the wallpaper will not change (cargo install matugen works too)"; fi
-      fi
-      # power modes, unless TLP or auto-cpufreq already manage power
-      if rpm -q power-profiles-daemon >/dev/null 2>&1 && ! rpm -q tlp >/dev/null 2>&1 && ! rpm -q auto-cpufreq >/dev/null 2>&1; then
-        task "Turning on power modes (power-profiles-daemon)" sudo systemctl enable --now power-profiles-daemon.service
-      fi
-      rpm -q bluez >/dev/null 2>&1 && task "Turning on the Bluetooth service" sudo systemctl enable --now bluetooth.service
-      ;;
-    *)
-      warn "$DISTRO_NAME is not supported for automatic packages."
-      note "Install these with your package manager, then run ./install.sh again:"
-      note "${NEED_CMDS[*]}"
-      ;;
   esac
 }
 
@@ -326,7 +248,7 @@ set_look() {
     gsettings set org.gnome.desktop.interface cursor-theme "$theme" || true
     gsettings set org.gnome.desktop.interface cursor-size 24 || true
   fi
-  # Bibata is not packaged everywhere (Fedora): download it for this user when it is missing
+  # Download Bibata for this user when it is missing.
   if [ ! -d "/usr/share/icons/$theme" ] && [ ! -d "$HOME/.local/share/icons/$theme" ] && [ ! -d "$HOME/.icons/$theme" ]; then
     mkdir -p "$HOME/.local/share/icons"
     curl -fsSL -m 120 "https://github.com/ful1e5/Bibata_Cursor/releases/latest/download/$theme.tar.xz" |
@@ -595,7 +517,6 @@ fi
 if [ "$MODE" = update ]; then
   WANT=(1 0 0 1 1)
   [ "$SKIP_PKGS" = 1 ] && WANT[0]=0
-  [ "$FAMILY" = arch ] || [ "$FAMILY" = fedora ] || WANT[0]=0
   if [ "$ASSUME_YES" != 1 ] && confirm "Also replace your config files (Hyprland, Waybar, ...) with the new ones? Your current ones are backed up."; then
     WANT[2]=1
   fi
@@ -671,7 +592,6 @@ if [ -n "$old_hypr" ] && [ "$DRY_RUN" != 1 ]; then
   warn "Hyprland $old_hypr is older than 0.55. The config is written in Lua and needs 0.55 or newer."
   case "$FAMILY" in
     arch)   note "Update it: sudo pacman -Syu hyprland (Manjaro: the new version can take a while to arrive)" ;;
-    fedora) note "Update it: sudo dnf upgrade --refresh hyprland (the nett00n/hyprland COPR carries the newest)" ;;
   esac
 fi
 if [ "$IN_HYPR" = 1 ] && [ "$DRY_RUN" != 1 ]; then

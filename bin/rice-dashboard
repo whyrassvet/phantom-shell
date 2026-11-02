@@ -413,12 +413,6 @@ def packages(distro_id):
     if shutil.which("pacman"):
         n = sh(["pacman", "-Qq"], 6)
         return "%d (pacman)" % len(n.splitlines()) if n else ""
-    if shutil.which("dpkg-query"):
-        n = sh(["dpkg-query", "-f", ".\n", "-W"], 6)
-        return "%d (dpkg)" % len(n.splitlines()) if n else ""
-    if shutil.which("rpm"):
-        n = sh(["rpm", "-qa"], 8)
-        return "%d (rpm)" % len(n.splitlines()) if n else ""
     return ""
 
 
