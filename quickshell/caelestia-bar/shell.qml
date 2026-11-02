@@ -61,7 +61,7 @@ ShellRoot {
                 exclusiveZone: bar.exclusiveZone
                 implicitHeight: BarConfig.thickness
                 visible: bar.shouldBeVisible
-                color: Colours.tPalette.m3surface
+                color: Effects.flat ? Colours.palette.m3surface : Colours.tPalette.m3surface
 
                 Bar.BarWrapper {
                     id: bar
