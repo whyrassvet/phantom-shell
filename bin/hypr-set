@@ -176,7 +176,7 @@ def getopt(key, typ):
     except Exception:
         return None
     v = None
-    for f in ("int", "float", "str"):
+    for f in ("bool", "int", "float", "str"):
         if f in j:
             v = j[f]
             break
