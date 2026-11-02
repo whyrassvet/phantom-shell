@@ -19,6 +19,8 @@ RowLayout {
     required property BarPopouts.Wrapper popouts
     required property bool fullscreen
     readonly property int hPadding: BarConfig.padding
+    readonly property var entries: children.filter(c => c.entryId)
+    readonly property int activeIndex: entries.findIndex(c => c.entryId === "activeWindow")
 
     function closeTray(): void {
         if (!Config.bar.tray.compact)
@@ -32,7 +34,9 @@ RowLayout {
     }
 
     function checkPopout(x: real): void {
-        const ch = childAt(x, height / 2) as EntryWrapper;
+        let ch = childAt(x, height / 2) as EntryWrapper;
+        if (ch?.entryId === "activeWindow" && (x < ch.x + ch.item.x || x > ch.x + ch.item.x + ch.item.width))
+            ch = null;
 
         if (ch?.entryId !== "tray")
             closeTray();
@@ -43,8 +47,6 @@ RowLayout {
         }
 
         const id = ch.entryId;
-        const left = ch.x;
-
         if (id === "statusIcons" && Config.bar.popouts.statusIcons) {
             const items = (ch.item as StatusIcons).items;
             const icon = items.childAt(items.mapFromItem(root, x, root.height / 2).x, items.height / 2);
@@ -56,8 +58,9 @@ RowLayout {
         } else if (id === "tray" && Config.bar.popouts.tray) {
             const tray = ch.item as Tray;
             if (!Config.bar.tray.compact || (tray.expanded && !tray.expandIcon.contains(tray.expandIcon.mapFromItem(root, x, root.height / 2)))) {
-                const index = Math.floor(((x - left - tray.padding * 2 + tray.spacing) / tray.layout.implicitWidth) * tray.items.count);
-                const trayItem = tray.items.itemAt(index);
+                const point = tray.layout.mapFromItem(root, x, root.height / 2);
+                const trayItem = tray.layout.childAt(point.x, point.y);
+                const index = Array.from({length: tray.items.count}, (_, i) => i).find(i => tray.items.itemAt(i) === trayItem);
                 if (trayItem) {
                     popouts.currentName = `traymenu${index}`;
                     popouts.currentCenter = Qt.binding(() => trayItem.mapToItem(root, trayItem.implicitWidth / 2, 0).x);
@@ -117,7 +120,7 @@ RowLayout {
             DelegateChoice {
                 roleValue: "spacer"
                 delegate: EntryWrapper {
-                    Layout.fillWidth: true
+                    Layout.fillWidth: root.activeIndex < 0
                 }
             }
             DelegateChoice {
@@ -141,10 +144,15 @@ RowLayout {
             DelegateChoice {
                 roleValue: "activeWindow"
                 delegate: EntryWrapper {
+                    id: activeEntry
+                    Layout.fillWidth: true
+                    Layout.minimumWidth: 0
                     ActiveWindow {
                         objectName: "taskbarActiveWindow"
                         bar: root
                         monitor: Brightness.getMonitorForScreen(root.screen)
+                        width: implicitWidth
+                        x: root.width / 2 - activeEntry.x - width / 2
                     }
                 }
             }

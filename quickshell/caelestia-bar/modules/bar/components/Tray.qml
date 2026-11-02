@@ -23,10 +23,9 @@ StyledRect {
     readonly property real nonAnimWidth: {
         if (!Config.bar.tray.compact)
             return layout.implicitWidth + padding * 2;
-        const pad = (Config.bar.tray.background ? Tokens.padding.extraSmall : 0) + padding;
         if (expanded)
-            return expandIcon.implicitWidth + layout.implicitWidth + spacing + pad;
-        return Math.max(Config.bar.tray.background ? height : 0, expandIcon.implicitWidth + pad);
+            return padding + layout.implicitWidth + spacing + height;
+        return items.count > 0 ? height : 0;
     }
 
     clip: true
@@ -92,6 +91,8 @@ StyledRect {
 
         anchors.verticalCenter: parent.verticalCenter
         anchors.right: parent.right
+        width: root.height
+        height: root.height
 
         active: Config.bar.tray.compact && items.count > 0
 

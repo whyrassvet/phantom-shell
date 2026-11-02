@@ -62,7 +62,16 @@ StyledRect {
             model: ScriptModel {
                 id: model
 
-                values: root.Config.bar.statusIcons.values.filter(e => e.enabled)
+                values: {
+                    const entries = root.Config.bar.statusIcons.values.filter(e => e.enabled);
+                    const mic = entries.findIndex(e => e.id === "microphone");
+                    const keyboard = entries.findIndex(e => e.id === "kbLayout");
+                    if (mic >= 0 && keyboard >= 0) {
+                        const item = entries.splice(mic, 1)[0];
+                        entries.splice(entries.findIndex(e => e.id === "kbLayout"), 0, item);
+                    }
+                    return entries;
+                }
             }
 
             DelegateChooser {

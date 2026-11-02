@@ -78,30 +78,10 @@ Item {
             Loader {
                 anchors.centerIn: parent
 
-                sourceComponent: {
-                    if (root.displayType === BarWorkspaceDisplay.Icons)
-                        return iconComponent;
-                    if (root.displayType === BarWorkspaceDisplay.Text)
-                        return textComponent;
-                    return shapeComponent;
-                }
+                sourceComponent: textComponent
             }
         }
 
-        Repeater {
-            model: root.hasWindows ? root.toplevels.slice(0, Config.bar.workspaces.maxWindowIcons) : []
-
-            MaterialIcon {
-                required property var modelData
-
-                anchors.verticalCenter: parent ? parent.verticalCenter : undefined
-
-                grade: 0
-                text: Icons.getAppCategoryIcon(modelData.lastIpcObject.class, "terminal")
-                color: root.focused ? Colours.palette.m3onPrimary : root.onOtherMonitor ? Colours.palette.m3outlineVariant : Colours.palette.m3onSurfaceVariant
-                fontStyle: Tokens.font.icon.small
-            }
-        }
     }
 
     Component {
@@ -130,33 +110,7 @@ Item {
 
         StyledText {
             animate: true
-            text: {
-                if (root.focused) {
-                    const active = root.activeLabel;
-                    if (active)
-                        return active;
-                }
-
-                if (root.focused || root.isOccupied) {
-                    const occupied = root.occupiedLabel;
-                    if (occupied)
-                        return occupied;
-                }
-
-                const custom = root.label;
-                if (custom)
-                    return custom;
-
-                const ws = Hypr.workspaces.values.find(w => w.id === root.ws);
-                const wsName = !ws || ws.name == root.ws ? root.ws : Hypr.trimWsName(ws.name)[0];
-
-                const capitalisation = Config.bar.workspaces.capitalisation;
-                if (capitalisation === BarWorkspaceCapitalisation.Upper)
-                    return String(wsName).toUpperCase();
-                else if (capitalisation === BarWorkspaceCapitalisation.Lower)
-                    return String(wsName).toLowerCase();
-                return wsName;
-            }
+            text: root.ws > 0 ? String(root.ws) : Hypr.trimWsName(Hypr.workspaces.values.find(w => w.id === root.ws)?.name ?? "")
             color: root.fgColour
             verticalAlignment: Qt.AlignVCenter
             font.family: Tokens.font.workspaces

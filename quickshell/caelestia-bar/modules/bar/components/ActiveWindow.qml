@@ -30,10 +30,7 @@ Item {
     }
 
     readonly property int maxWidth: {
-        const otherModules = bar.children.filter(c => c.entryId && c.item !== this && c.entryId !== "spacer");
-        const otherWidth = otherModules.reduce((acc, curr) => acc + (curr.item.nonAnimWidth ?? curr.width), 0);
-        // Length - 2 cause repeater counts as a child
-        return Math.max(0, bar.width - otherWidth - bar.spacing * (bar.children.length - 1) - bar.hPadding * 2);
+        return Math.max(0, 2 * Math.min(bar.width / 2 - parent.x, parent.x + parent.width - bar.width / 2));
     }
 
     clip: true
@@ -70,6 +67,7 @@ Item {
         id: layout
 
         anchors.left: parent.left
+        anchors.right: parent.right
         anchors.verticalCenter: parent.verticalCenter
         spacing: Tokens.spacing.small
 
@@ -83,11 +81,17 @@ Item {
         }
 
         StyledText {
+            Layout.fillWidth: true
             Layout.maximumWidth: Math.max(0, root.maxWidth - icon.implicitWidth - layout.spacing)
             text: root.windowTitle
             font: Tokens.font.body.builders.small.letterSpacing(0.4).build()
             color: root.colour
             elide: Text.ElideRight
+        }
+
+        Item {
+            implicitWidth: icon.implicitWidth
+            implicitHeight: 1
         }
     }
 }
