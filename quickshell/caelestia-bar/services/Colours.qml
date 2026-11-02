@@ -27,6 +27,8 @@ Singleton {
 
     property bool cooldownPending
     property real lastBaseTransparency
+    property string shadowsSchemeData
+    property string savedSchemeData
 
     function getLuminance(c: color): real {
         if (c.r == 0 && c.g == 0 && c.b == 0)
@@ -61,18 +63,18 @@ Singleton {
         return Qt.hsla(c.hslHue, c.hslSaturation, 0.1, 1);
     }
 
-    function load(data: string, isPreview: bool): void {
+    function load(data: string, isPreview: bool): bool {
         const colours = isPreview ? preview : current;
         let scheme;
         try {
             scheme = JSON.parse(data);
         } catch (error) {
             console.warn("Ignoring invalid phantom-shell colour scheme:", error);
-            return;
+            return false;
         }
         if (!scheme || typeof scheme.colours !== "object" || !scheme.colours || Array.isArray(scheme.colours)) {
             console.warn("Ignoring invalid phantom-shell colour scheme: missing colours object");
-            return;
+            return false;
         }
 
         if (!isPreview) {
@@ -85,9 +87,17 @@ Singleton {
 
         for (const [name, colour] of Object.entries(scheme.colours)) {
             const propName = name.startsWith("term") ? name : `m3${name}`;
-            if (colours.hasOwnProperty(propName) && typeof colour === "string" && /^(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(colour))
-                colours[propName] = `#${colour}`;
+            if (colours.hasOwnProperty(propName) && typeof colour === "string" && /^#?(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(colour))
+                colours[propName] = colour.startsWith("#") ? colour : `#${colour}`;
         }
+        return true;
+    }
+
+    function reloadActiveScheme(): void {
+        if (shadowsSchemeData && load(shadowsSchemeData, false))
+            return;
+        if (savedSchemeData)
+            load(savedSchemeData, false);
     }
 
     function setMode(mode: string): void {
@@ -130,7 +140,30 @@ Singleton {
         watchChanges: true
         printErrors: false
         onFileChanged: reload()
-        onLoaded: root.load(text(), false)
+        onLoaded: {
+            root.savedSchemeData = text();
+            root.reloadActiveScheme();
+        }
+        onLoadFailed: {
+            root.savedSchemeData = "";
+            root.reloadActiveScheme();
+        }
+    }
+
+    // shadows-shell installs its Matugen config in ~/.config/matugen.
+    FileView {
+        path: `${Paths.home}/.config/matugen/phantom-bar.json`
+        watchChanges: true
+        printErrors: false
+        onFileChanged: reload()
+        onLoaded: {
+            root.shadowsSchemeData = text();
+            root.reloadActiveScheme();
+        }
+        onLoadFailed: {
+            root.shadowsSchemeData = "";
+            root.reloadActiveScheme();
+        }
     }
 
     ImageAnalyser {

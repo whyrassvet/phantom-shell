@@ -1,5 +1,9 @@
 [config]
 
+[templates.phantom-bar]
+input_path = '~/.config/matugen/templates/phantom-bar.json'
+output_path = '~/.config/matugen/phantom-bar.json'
+
 [templates.waybar]
 input_path = '~/.config/matugen/templates/waybar.css'
 output_path = '~/.config/waybar/colors.css'
@@ -32,4 +36,3 @@ post_hook = 'pkill -USR1 -x peaclock || true'
 input_path = '~/.config/matugen/templates/border-colors.txt'
 output_path = '~/.config/hypr/border-colors.txt'
 post_hook = '$HOME/.local/bin/border-sync'
-
