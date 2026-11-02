@@ -442,6 +442,13 @@ hl.layer_rule({
     ignore_alpha = 0.1,
 })
 
+hl.layer_rule({
+    name  = "phantom-launcher-blur",
+    match = { namespace = "phantom-app-launcher" },
+    blur = true,
+    ignore_alpha = 0.1,
+})
+
 hl.window_rule({
     name  = "rice-settings",
     match = { title = "^Rice Settings$" },

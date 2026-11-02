@@ -107,10 +107,10 @@ Singleton {
     function reloadHyprRules(): void {
         let rule, trEnabled;
         if (Hypr.usingLua) {
-            rule = `eval hl.layer_rule({ match = { namespace = "caelestia-(bar|popouts)" }, %1 = %2 })`;
+            rule = `eval hl.layer_rule({ match = { namespace = "(caelestia-(bar|popouts)|phantom-app-launcher)" }, %1 = %2 })`;
             trEnabled = transparency.enabled;
         } else {
-            rule = "keyword layerrule %1 %2, match:namespace caelestia-(bar|popouts)";
+            rule = "keyword layerrule %1 %2, match:namespace (caelestia-(bar|popouts)|phantom-app-launcher)";
             trEnabled = transparency.enabled ? 1 : 0;
         }
         Hypr.extras.batchMessage([rule.arg("blur").arg(trEnabled), rule.arg("ignore_alpha").arg(Math.max(0, transparency.base - 0.03))]);

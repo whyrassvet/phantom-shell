@@ -31,6 +31,11 @@ with tempfile.TemporaryDirectory(prefix="phantom-app-launcher-", dir="/tmp/openc
     )
     qml = bar / "launcher.qml"
     source = qml.read_text()
+    background = "            color: Effects.flat ? Colours.palette.m3surface : Colours.tPalette.m3surface"
+    assert source.count(background) == 1
+    source = source.replace(background, background + '''
+            onColorChanged: console.log("PHANTOM_APP_ALPHA", Effects.flat, color.a)
+            Component.onCompleted: console.log("PHANTOM_APP_ALPHA", Effects.flat, color.a)''')
     needle = "    id: root\n"
     assert source.count(needle) == 1
     qml.write_text(source.replace(needle, needle + '''
@@ -101,8 +106,26 @@ with tempfile.TemporaryDirectory(prefix="phantom-app-launcher-", dir="/tmp/openc
             text = log.read_text(errors="replace")
             if "PHANTOM_APP_SURFACE #654321" not in text or any(error in text for error in ("TypeError:", "ReferenceError:", "Unable to assign", "is not a type")):
                 raise RuntimeError(text)
+            if "PHANTOM_APP_ALPHA false 0.5" not in text:
+                raise RuntimeError(text)
+            flat = scratch / "home/.cache/rice/flat"
+            flat.parent.mkdir(parents=True)
+            flat.write_text("1")
+            deadline = time.monotonic() + 10
+            while time.monotonic() < deadline and "PHANTOM_APP_ALPHA true 1" not in log.read_text(errors="replace") and proc.poll() is None:
+                time.sleep(0.1)
+            text = log.read_text(errors="replace")
+            if "PHANTOM_APP_ALPHA true 1" not in text:
+                raise RuntimeError(text)
+            offset = len(text)
+            flat.unlink()
+            deadline = time.monotonic() + 10
+            while time.monotonic() < deadline and "PHANTOM_APP_ALPHA false 0.5" not in log.read_text(errors="replace")[offset:] and proc.poll() is None:
+                time.sleep(0.1)
+            if "PHANTOM_APP_ALPHA false 0.5" not in log.read_text(errors="replace")[offset:]:
+                raise RuntimeError(log.read_text(errors="replace"))
         finally:
             if proc.poll() is None:
                 os.killpg(proc.pid, 15)
             proc.wait(timeout=10)
-    print("Isolated launcher IPC open/close/reopen, search reset, app launch and palette reload passed")
+    print("Isolated launcher IPC, app launch, palette reload and flat-mode transparency passed")

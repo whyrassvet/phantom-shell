@@ -58,7 +58,7 @@ ShellRoot {
         Rectangle {
             anchors.fill: parent
             radius: Tokens.rounding.extraLarge
-            color: Colours.palette.m3surface
+            color: Effects.flat ? Colours.palette.m3surface : Colours.tPalette.m3surface
 
             Column {
                 anchors.fill: parent
