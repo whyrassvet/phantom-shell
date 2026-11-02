@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Replace "random" with: fade, wipe, grow, outer, wave, center, any, random
+set -e
 
 img="$1"
 [[ -f "$img" ]] || { echo "commands.sh: not a file: $img" >&2; exit 1; }
@@ -12,13 +13,13 @@ src="$HOME/.cache/quickshell/thumbs/$(basename "$img")"
 sat=$(convert -define jpeg:size=200x200 "$src" -resize 100x100! -colorspace HSL -channel G -separate +channel -format "%[fx:mean*100]" info:)
 lum=$(convert -define jpeg:size=200x200 "$src" -resize 100x100! -colorspace Gray -format "%[fx:mean*100]" info:)
 
-mode="$(cat "$HOME/.config/rice/color-mode" 2>/dev/null)"
+mode="$(cat "$HOME/.config/rice/color-mode" 2>/dev/null || true)"
 scheme=""
 case "$mode" in
   grey) sat=0; lum=50 ;;
   navy) sat=0; lum=0 ;;
   ""|auto) ;;
-  *) scheme="$("$HOME/.local/bin/rice-colors" scheme "$mode" 2>/dev/null)" ;;
+  *) scheme="$("$HOME/.local/bin/rice-colors" scheme "$mode" 2>/dev/null || true)" ;;
 esac
 
 if [ -n "$scheme" ]; then
@@ -37,6 +38,7 @@ else
   cmd=(matugen image "$src" --source-color-index 0 -q)
 fi
 
+mkdir -p "$HOME/.config/waybar"
 printf '@define-color ws_active %s;\n' "$ws" > "$HOME/.config/waybar/ws-active.css"
 "${cmd[@]}"
 
