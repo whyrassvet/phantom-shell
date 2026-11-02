@@ -141,6 +141,6 @@ Phantom Shell stands on the work of two projects:
 - [**Shadow's Shell**](https://github.com/shadowww-dev/shadows-shell) — the foundation for the desktop, settings and overall shell.
 - [**Caelestia Shell**](https://github.com/caelestia-dots/shell) — the source of the adapted bar, launcher components and private plugins.
 
-See [bar upstream notes](quickshell/caelestia-bar/UPSTREAM.md), [launcher source notes](quickshell/caelestia-bar/LAUNCHER-SOURCE.md) and [plugin source notes](vendor/caelestia-shell-plugin-v2.5.0/PHANTOM-SOURCE.md) for provenance and local changes. Licensing and attribution for the combined distribution still need review before publication.
+The combined software work is distributed under **GPL-3.0-only**; original MIT and other third-party notices remain applicable to their respective components. See [licensing and third-party notices](LICENSES/README.md) for details and the remaining asset review before publication.
 
 <p align="center"><sub>PHANTOM SHELL &nbsp;✦&nbsp; MADE FOR THE SPACE BETWEEN WINDOWS</sub></p>
