@@ -559,7 +559,7 @@ title "Plan"
 [ "${WANT[0]}" = 1 ] && info "Install packages for $DISTRO_NAME"
 [ "${WANT[1]}" = 1 ] && info "Install fonts"
 [ "${WANT[2]}" = 1 ] && info "Copy config files into ~/.config"
-[ "${WANT[3]}" = 1 ] && info "Install the Settings app, widgets and helper scripts"
+[ "${WANT[3]}" = 1 ] && info "Build private Phantom plugins and install the Settings app, widgets and helper scripts"
 [ "${WANT[4]:-0}" = 1 ] && have_settings && info "Use your saved settings (Waybar look, dashboard, widgets, lock screen...)"
 info "Finish setup (theme, lock screen, notifications, hot corner)"
 note "Files that get replaced are saved in ${BK/#$HOME/~}"
@@ -568,6 +568,12 @@ confirm "Start?" || { warn "Cancelled."; exit 0; }
 STEP_TOTAL=$(( WANT[0] + WANT[1] + WANT[2] + WANT[3] + 1 ))
 n=0
 if [ "${WANT[0]}" = 1 ]; then n=$((n + 1)); step "$n" "Packages" "Everything the desktop needs, from your package manager"; step_packages; fi
+if [ "${WANT[3]}" = 1 ]; then
+  if ! task "Build and activate private Phantom plugins" install_phantom_plugins; then
+    fail "Private plugin installation failed; stopping before installing configs or apps. Check the log and active version."
+    exit 1
+  fi
+fi
 if [ "${WANT[2]}" = 1 ] || [ "${WANT[3]}" = 1 ]; then
   if ! task "Create personal Phantom Hyprland files if absent" ensure_phantom_user_configs; then
     fail "Could not prepare personal Hyprland files; stopping before installing configs or apps."

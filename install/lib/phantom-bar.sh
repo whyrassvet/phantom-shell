@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 # Sourced by install.sh. Copy the vendored bar without following symlinks.
+install_phantom_plugins() {
+  local store="${XDG_DATA_HOME:-$HOME/.local/share}/phantom-shell"
+  bash "$ROOT/install/install-phantom-plugins.sh" "$store"
+}
+
 copy_phantom_bar() {
   local src="$1" dst="$2" name f dir
   [ -d "$src" ] || { echo "Bar source not found: $src" >&2; return 1; }

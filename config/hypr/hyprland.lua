@@ -16,7 +16,6 @@
 -- Create your files separately and then require them like this:
 -- require("myColors")
 
-
 -- Optional personal files are outside the installed project config and are never overwritten.
 local phantomConfigHome = os.getenv("XDG_CONFIG_HOME")
 if not phantomConfigHome or phantomConfigHome == "" then
@@ -74,8 +73,8 @@ local menu        = phantomVars.menu or "hyprlauncher"
 -- Or execute your favorite apps at launch like this:
 --
 hl.on("hyprland.start", function ()
+    hl.exec_cmd("$HOME/.local/bin/phantom-bar")
     hl.exec_cmd("$HOME/.local/bin/phantom-app-launcher --start")
-    hl.exec_cmd("waybar")
    hl.exec_cmd("awww-daemon")
    hl.exec_cmd("systemctl --user start swaync.service")
    hl.exec_cmd("hypridle")
