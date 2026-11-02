@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Exercise the Caelestia application search and a safe desktop-entry launch."""
 import os
+import json
 import shutil
 import subprocess
 import tempfile
@@ -17,6 +18,11 @@ with tempfile.TemporaryDirectory(prefix="phantom-app-launcher-", dir="/tmp/openc
     for name in ("home", "runtime", "config", "cache", "state", "data/applications", "bin"):
         (scratch / name).mkdir(parents=True, exist_ok=True)
     (scratch / "runtime").chmod(0o700)
+    palette = scratch / "home/.config/matugen/phantom-bar.json"
+    palette.parent.mkdir(parents=True)
+    def scheme(surface):
+        return json.dumps({"name": "test", "mode": "dark", "colours": {"surface": surface}})
+    palette.write_text(scheme("#123456"))
     app = scratch / "bin/test-app"
     app.write_text(f"#!/bin/sh\nprintf launched > '{scratch / 'launched'}'\n")
     app.chmod(0o755)
@@ -28,6 +34,8 @@ with tempfile.TemporaryDirectory(prefix="phantom-app-launcher-", dir="/tmp/openc
     needle = "    id: root\n"
     assert source.count(needle) == 1
     qml.write_text(source.replace(needle, needle + '''
+    property color testSurface: Colours.palette.m3surface
+    onTestSurfaceChanged: console.log("PHANTOM_APP_SURFACE", testSurface.toString())
     Timer {
         interval: 2000; running: true
         onTriggered: {
@@ -62,13 +70,18 @@ with tempfile.TemporaryDirectory(prefix="phantom-app-launcher-", dir="/tmp/openc
             deadline = time.monotonic() + 15
             while time.monotonic() < deadline and not (scratch / "launched").exists() and proc.poll() is None:
                 time.sleep(0.1)
-            if not (scratch / "launched").exists() or "PHANTOM_APP_SEARCH 1 Phantom Test App" not in log.read_text(errors="replace"):
-                raise RuntimeError(log.read_text(errors="replace"))
             text = log.read_text(errors="replace")
-            if any(error in text for error in ("TypeError:", "ReferenceError:", "Unable to assign", "is not a type")):
+            if not (scratch / "launched").exists() or "PHANTOM_APP_SEARCH 1 Phantom Test App" not in text or "PHANTOM_APP_SURFACE #123456" not in text:
+                raise RuntimeError(log.read_text(errors="replace"))
+            palette.write_text(scheme("#654321"))
+            deadline = time.monotonic() + 10
+            while time.monotonic() < deadline and "PHANTOM_APP_SURFACE #654321" not in log.read_text(errors="replace") and proc.poll() is None:
+                time.sleep(0.1)
+            text = log.read_text(errors="replace")
+            if "PHANTOM_APP_SURFACE #654321" not in text or any(error in text for error in ("TypeError:", "ReferenceError:", "Unable to assign", "is not a type")):
                 raise RuntimeError(text)
         finally:
             if proc.poll() is None:
                 os.killpg(proc.pid, 15)
             proc.wait(timeout=10)
-    print("Isolated application search and desktop-entry launch passed")
+    print("Isolated application search, desktop-entry launch and live palette reload passed")

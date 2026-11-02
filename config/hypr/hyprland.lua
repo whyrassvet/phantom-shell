@@ -266,6 +266,7 @@ hl.device({
 
 local mainMod = "SUPER" -- Sets "Windows" key as main modifier
 
+hl.bind("SUPER + SUPER_L", hl.dsp.exec_cmd("$HOME/.local/bin/phantom-app-launcher"), { release = true })
 -- Example binds, see https://wiki.hypr.land/Configuring/Basics/Binds/ for more
 hl.bind(mainMod .. " + Q", hl.dsp.exec_cmd(terminal))
 local closeWindowBind = hl.bind(mainMod .. " + C", hl.dsp.window.close())
@@ -306,7 +307,6 @@ hl.bind(mainMod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })
 -- Laptop multimedia keys for volume and LCD brightness
 hl.bind("ALT + bracketright", hl.dsp.exec_cmd("pamixer -i 5"))
 hl.bind("ALT + bracketleft", hl.dsp.exec_cmd("pamixer -d 5"))
-hl.bind("ALT + Space", hl.dsp.exec_cmd("rofi -show drun"))
 -- Requires playerctl
 hl.bind("XF86AudioNext",  hl.dsp.exec_cmd("playerctl next"),       { locked = true })
 hl.bind("XF86AudioPause", hl.dsp.exec_cmd("playerctl play-pause"), { locked = true })

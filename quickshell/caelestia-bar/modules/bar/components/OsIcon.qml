@@ -15,12 +15,6 @@ Item {
     implicitWidth: BarConfig.innerThickness
     implicitHeight: BarConfig.innerThickness
 
-    MouseArea {
-        anchors.fill: parent
-        cursorShape: Qt.PointingHandCursor
-        onClicked: Quickshell.execDetached(BarConfig.launcherCommand.split(" "))
-    }
-
     Loader {
         asynchronous: true
         anchors.centerIn: parent

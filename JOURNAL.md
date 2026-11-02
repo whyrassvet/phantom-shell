@@ -4,6 +4,13 @@
 
 ---
 
+## 2026-11-02 — переключение клавиш лаунчера и проверка темы
+
+- Пользователь подтвердил работу лаунчера и разрешил переключение. В `~/.config/phantom-shell/hyprland-user.lua` и проектном `config/hypr/hyprland.lua` Super запускает `phantom-app-launcher`; Super+D и Alt+Space отвязаны, проектная привязка Alt+Space удалена. Клик Rofi по логотипу отключён в проектном и установленном `modules/bar/components/OsIcon.qml`. Копии `/home/rassvet/phantom-launcher-bind-backup.mTzI8bi3/`.
+- Лаунчер уже использует тот же `Colours.qml` и палитру Matugen, что и бар. Расширенный `tests/phantom-app-launcher-headless.py` подтвердил начальный цвет и его обновление, поиск и запуск тестового desktop-entry. Проверены QML, Lua, `git diff --check`; Hyprland перезагружен, `hyprctl configerrors` пуст, в списке привязок остался одиночный Super, Super+D и Alt+Space отсутствуют. Пользовательская проверка новой клавиши и визуальной смены темы ещё нужна.
+
+---
+
 ## 2026-11-02 — запуск лаунчера для визуальной проверки
 
 - По разрешению пользователя установлены `~/.local/bin/phantom-app-launcher` и `launcher.qml`, `LAUNCHER-SOURCE.md`, `modules/launcher/` в `~/.config/quickshell/caelestia-bar/`; все эти пути до установки отсутствовали. Проектные и установленные кодовые файлы совпадают. Привязки и существующие конфиги не менялись.
