@@ -34,7 +34,7 @@ StyledRect {
     implicitHeight: BarConfig.innerThickness
     implicitWidth: nonAnimWidth
 
-    color: Qt.alpha(Colours.tPalette.m3surfaceContainer, (Config.bar.tray.background && items.count > 0) ? Colours.tPalette.m3surfaceContainer.a : 0)
+    color: Qt.alpha(Colours.tPalette.m3surfaceContainer, (Config.bar.tray.background && items.count > 0) ? Math.max(0.65, Colours.tPalette.m3surfaceContainer.a) : 0)
     radius: height / 2
 
     Row {

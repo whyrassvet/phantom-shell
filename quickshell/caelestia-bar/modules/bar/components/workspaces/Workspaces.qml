@@ -50,7 +50,7 @@ StyledClippingRect {
     implicitHeight: BarConfig.innerThickness
     implicitWidth: workspaces.implicitWidth + Tokens.padding.extraSmall * 2
 
-    color: Colours.tPalette.m3surfaceContainer
+    color: Qt.alpha(Colours.tPalette.m3surfaceContainer, Math.max(0.65, Colours.tPalette.m3surfaceContainer.a))
     radius: height / 2
 
     Item {
