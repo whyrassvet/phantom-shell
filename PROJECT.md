@@ -173,7 +173,7 @@ Upstream для сверки: `/home/rassvet/Projects/shadows-shell`
   - `wirelesspassword` не проверен: в окружении нет защищённой сети для теста; для него окно попоутов запрашивает `WlrKeyboardFocus.OnDemand`.
   - Клик по иконкам статуса не открывает/не закрывает попоут (как в Caelestia: открытие по hover).
 
-**Сейчас:** этап 3 — интеграция в shadows-shell (waybar → бар).
+**Сейчас:** этап 3 — интеграция в shadows-shell (waybar → бар). Отдельный бар после тестов остановлен, сессия работает на Caelestia (`caelestia shell -d`); запуск бара: `qs -p ~/Projects/phantom-shell/quickshell/caelestia-bar` (предварительно остановить Caelestia).
 
 **Дальше:** `exec` вместо waybar в `hyprland.lua`, layer-правила/blur, отключение `waybar-*` скриптов, `install.sh`/`sync.sh`, README.
 

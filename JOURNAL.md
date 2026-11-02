@@ -34,6 +34,8 @@
 - В `Content.qml` один делегат статуса логируется как `undefined` — это микрофон (`name: "audio"`, ширина 0 при выключенном индикаторе), не ошибка.
 - Питание без `powerCommand` включает `screenState.session`, но панели сессии в форке нет — кнопка визуально ничего не делает до портирования drawers/session.
 
+**После тестов:** отдельный бар остановлен, Caelestia возвращена (`caelestia shell -d`, слои `caelestia-background`, `caelestia-drawers` на месте).
+
 **Дальше:** этап 3 — интеграция в shadows-shell (waybar → бар).
 
 ---
