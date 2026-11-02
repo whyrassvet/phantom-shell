@@ -4,6 +4,13 @@
 
 ---
 
+## 2026-11-02 — установка обоев через shadows вместо CLI
+
+- В проектном `quickshell/caelestia-bar/services/Wallpapers.qml` запрос IPC `wallpaper.set` переключён с `caelestia wallpaper -f` на сценарий shadows `~/.config/quickshell/hyprquickpaper/commands.sh`; используется выбранная пользователем тема shadows. `wallpaper.get` и сервис отслеживают общий `~/.cache/hyprquickpaper-current`, с fallback на прежний Phantom state. Пока сценарий занят, сохраняется последний ожидающий запрос; при ошибке нет оптимистического изменения пути. Установленные файлы и обои не менялись; копия `/home/rassvet/phantom-wallpaper-ipc-backup.ZyE3dXwN/`.
+- `tests/phantom-wallpaper-ipc-headless.py` в изолированном Quickshell с подставным backend и без доступа к пакетным QML проверил настоящие IPC set/get, путь с пробелами, ошибку, очередь, внешнее изменение и fallback; `tests/wallpaper-apply-errors.py`, `qmlformat` и `git diff --check` прошли. Подставной backend не проверяет реальные `awww`/Matugen, визуальную смену обоев или чистую установку. Случайный выбор, предпросмотр, схема и запись ещё требуют замены CLI; уже применённые обои не откатываются при позднем сбое темы.
+
+---
+
 ## 2026-11-02 — ошибки применения темы обоев
 
 - В проектном `quickshell/hyprquickpaper/commands.sh` включено прекращение при ошибке применения обоев, анализа изображения или Matugen; отсутствие файла выбора темы и неизвестная схема сохраняют прежний fallback. Создание каталога для `ws-active.css` больше не зависит от наличия Waybar. Установленный сценарий и текущие обои не менялись; резервная копия `/home/rassvet/phantom-wallpaper-backup.3XqquwCL/commands.sh`.

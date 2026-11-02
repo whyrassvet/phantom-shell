@@ -12,6 +12,7 @@ Searcher {
     id: root
 
     readonly property string currentNamePath: `${Paths.state}/wallpaper/path.txt`
+    readonly property string shadowsCurrentPath: `${Paths.home}/.cache/hyprquickpaper-current`
     readonly property list<string> smartArg: GlobalConfig.services.smartScheme ? [] : ["--no-smart"]
     readonly property string fallback: Quickshell.shellPath("assets/wallpaper.webp")
 
@@ -19,6 +20,9 @@ Searcher {
     readonly property string current: showPreview ? previewPath : actualCurrent
     property string previewPath
     property string actualCurrent
+    property string shadowsCurrent
+    property string legacyCurrent
+    property string pendingSetPath
     property bool previewColourLock
     property bool pendingPreviewClear
 
@@ -34,8 +38,20 @@ Searcher {
     }
 
     function setWallpaper(path: string): void {
-        actualCurrent = path;
-        Quickshell.execDetached(["caelestia", "wallpaper", "-f", path, ...smartArg]);
+        if (!path) {
+            console.warn("Cannot set an empty wallpaper path");
+            return;
+        }
+        if (setWallpaperProc.running) {
+            pendingSetPath = path;
+            return;
+        }
+        setWallpaperProc.exec(["bash", `${Paths.home}/.config/quickshell/hyprquickpaper/commands.sh`, path]);
+    }
+
+    function updateCurrent(): void {
+        actualCurrent = shadowsCurrent || legacyCurrent || fallback;
+        previewColourLock = false;
     }
 
     function preview(path: string): void {
@@ -88,15 +104,41 @@ Searcher {
         printErrors: false
         onFileChanged: reload()
         onLoaded: {
-            let wall = text().trim();
-            if (!wall)
-                wall = root.fallback;
-            root.actualCurrent = wall;
-            root.previewColourLock = false;
+            root.legacyCurrent = text().trim();
+            root.updateCurrent();
         }
         onLoadFailed: {
-            root.actualCurrent = root.fallback;
-            root.previewColourLock = false;
+            root.legacyCurrent = "";
+            root.updateCurrent();
+        }
+    }
+
+    FileView {
+        path: root.shadowsCurrentPath
+        watchChanges: true
+        printErrors: false
+        onFileChanged: reload()
+        onLoaded: {
+            root.shadowsCurrent = text().trim();
+            root.updateCurrent();
+        }
+        onLoadFailed: {
+            root.shadowsCurrent = "";
+            root.updateCurrent();
+        }
+    }
+
+    Process {
+        id: setWallpaperProc
+
+        onExited: code => {
+            if (code !== 0)
+                console.warn(`Wallpaper application failed (exit ${code})`);
+            if (root.pendingSetPath) {
+                const next = root.pendingSetPath;
+                root.pendingSetPath = "";
+                Qt.callLater(() => root.setWallpaper(next));
+            }
         }
     }
 
