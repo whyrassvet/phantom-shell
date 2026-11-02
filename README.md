@@ -9,7 +9,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/STATUS-IN_DEVELOPMENT-555963?style=for-the-badge&labelColor=191a1f" alt="In development">
-  <img src="https://img.shields.io/badge/PLATFORM-ARCH_LINUX-777b85?style=for-the-badge&labelColor=191a1f" alt="Arch Linux and derivatives">
+  <img src="https://img.shields.io/badge/PLATFORM-CACHYOS-777b85?style=for-the-badge&labelColor=191a1f" alt="CachyOS">
   <img src="https://img.shields.io/badge/BUILT_WITH-QUICKSHELL-b1b4bd?style=for-the-badge&labelColor=191a1f" alt="Built with Quickshell">
 </p>
 
@@ -18,6 +18,7 @@
   <a href="#features">Features</a> &nbsp;·&nbsp;
   <a href="#installation">Installation</a> &nbsp;·&nbsp;
   <a href="#keybinds">Keybinds</a> &nbsp;·&nbsp;
+  <a href="ROADMAP.md">Roadmap</a> &nbsp;·&nbsp;
   <a href="#credits">Credits</a>
 </p>
 
@@ -65,7 +66,7 @@
 
 **Made for Hyprland** — window controls, workspaces and personal overrides are part of the setup. See [personal configuration](docs/PHANTOM-USER-CONFIG.md) for customization.
 
-Some components and interactions still need testing, including a clean installation, all popouts and protected Wi-Fi. See [PROJECT.md](PROJECT.md) for the current state.
+Some components and interactions still need testing, including a clean installation, all popouts and protected Wi-Fi. See the [roadmap](ROADMAP.md) for what's planned.
 
 ---
 
