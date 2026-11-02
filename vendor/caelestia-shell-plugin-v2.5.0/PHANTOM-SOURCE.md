@@ -15,8 +15,12 @@ An isolated compilation can be configured with:
 cmake -S vendor/caelestia-shell-plugin-v2.5.0 -B /tmp/opencode/phantom-caelestia-plugin-build \
   -DENABLE_MODULES=plugin -DVERSION=2.5.0
 cmake --build /tmp/opencode/phantom-caelestia-plugin-build --parallel 2
+bash tests/smoke-caelestia-plugin.sh /tmp/opencode/phantom-caelestia-plugin-build
 ```
 
 The plugin requires Qt development modules and system development libraries;
 consult `plugin/CMakeLists.txt` and the nested CMake files for the exact list.
-Compilation alone does not prove that phantom-shell can run without Caelestia.
+The smoke test additionally requires bubblewrap, a C++ compiler, pkg-config,
+Qt development libraries, and `/tmp/opencode`. It masks the system Caelestia
+QML module and checks that loaded Caelestia libraries come from the build tree.
+This test does not run the bar or prove full independence from Caelestia.
