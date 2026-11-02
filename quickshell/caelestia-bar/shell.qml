@@ -18,6 +18,12 @@ import qs.modules.bar.popouts as BarPopouts
 ShellRoot {
     id: root
 
+    // Match the upstream shell: Google Sans Flex is bundled, not assumed to
+    // be installed globally. Font tokens continue to honour user settings.
+    FontLoader {
+        source: Quickshell.shellPath("assets/google-sans-flex/GoogleSansFlex-VariableFont_GRAD,ROND,opsz,slnt,wdth,wght.ttf")
+    }
+
     Variants {
         model: Quickshell.screens
 
@@ -83,7 +89,9 @@ ShellRoot {
 
                 property real reveal: pops.hasCurrent ? 1 : 0
 
-                visible: pops.hasCurrent || reveal > 0
+                // Keep the transparent surface mapped so the compositor does
+                // not slide a fullscreen layer in on the first popout.
+                visible: true
                 color: "transparent"
 
                 Behavior on reveal {
