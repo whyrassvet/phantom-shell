@@ -23,7 +23,7 @@ class SettingsWithoutWaybar(unittest.TestCase):
     def test_matugen_does_not_restart_waybar(self):
         config = tomllib.loads((ROOT / "config/matugen/config.toml").read_text())
         self.assertNotIn("post_hook", config["templates"]["waybar"])
-        self.assertIn("phantom-bar", config["templates"])
+        self.assertIn("output_path", config["templates"]["waybar"])
 
     def test_font_changes_do_not_launch_waybar(self):
         with tempfile.TemporaryDirectory() as tmp:
