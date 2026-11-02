@@ -55,6 +55,7 @@ ShellRoot {
                 exclusiveZone: bar.exclusiveZone
                 implicitHeight: BarConfig.thickness
                 visible: bar.shouldBeVisible
+                color: Colours.tPalette.m3surface
 
                 Bar.BarWrapper {
                     id: bar
@@ -124,8 +125,8 @@ ShellRoot {
 
                     Rectangle {
                         width: parent.width
-                        height: pops.height
-                        color: Colours.tPalette.m3surface
+                        height: parent.height
+                        color: win.color
                         radius: Tokens.rounding.extraLarge
 
                         Rectangle {
@@ -139,10 +140,11 @@ ShellRoot {
                         id: pops
 
                         screen: scope.modelData
-                        offsetScale: hasCurrent ? 1 : 0
+                        offsetScale: 1 - popoutWin.reveal
 
                         width: implicitWidth
                         height: implicitHeight
+                        y: -(1 - popoutWin.reveal) * height
                     }
                 }
 
@@ -156,13 +158,21 @@ ShellRoot {
 
                     ShapePath {
                         strokeWidth: 0
-                        fillColor: Colours.tPalette.m3surface
+                        fillColor: win.color
                         startX: 0
                         startY: 0
                         PathQuad { x: revealArea.joinRadius; y: revealArea.joinRadius; controlX: revealArea.joinRadius; controlY: 0 }
+                        PathLine { x: revealArea.joinRadius; y: 0 }
+                        PathLine { x: 0; y: 0 }
+                    }
+                    ShapePath {
+                        strokeWidth: 0
+                        fillColor: win.color
+                        startX: revealArea.width + revealArea.joinRadius
+                        startY: 0
                         PathLine { x: revealArea.width + revealArea.joinRadius; y: revealArea.joinRadius }
                         PathQuad { x: revealArea.width + 2 * revealArea.joinRadius; y: 0; controlX: revealArea.width + revealArea.joinRadius; controlY: 0 }
-                        PathLine { x: 0; y: 0 }
+                        PathLine { x: revealArea.width + revealArea.joinRadius; y: 0 }
                     }
                 }
 

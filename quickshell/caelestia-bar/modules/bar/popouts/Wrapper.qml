@@ -19,6 +19,8 @@ Item {
     readonly property alias content: content
     readonly property real nonAnimWidth: content.implicitWidth
     readonly property real nonAnimHeight: content.implicitHeight
+    property real lastWidth: 0
+    property real lastHeight: 0
     readonly property Item current: (content.item as Content)?.current ?? null
     readonly property bool isDetached: false
 
@@ -45,8 +47,17 @@ Item {
         detachedMode = "";
     }
 
-    implicitWidth: hasCurrent ? nonAnimWidth : 0
-    implicitHeight: hasCurrent ? nonAnimHeight : 0
+    onNonAnimWidthChanged: {
+        if (hasCurrent && nonAnimWidth > 0)
+            lastWidth = nonAnimWidth;
+    }
+    onNonAnimHeightChanged: {
+        if (hasCurrent && nonAnimHeight > 0)
+            lastHeight = nonAnimHeight;
+    }
+
+    implicitWidth: hasCurrent && nonAnimWidth > 0 ? nonAnimWidth : lastWidth
+    implicitHeight: hasCurrent && nonAnimHeight > 0 ? nonAnimHeight : lastHeight
 
     focus: hasCurrent
     Keys.onEscapePressed: close()
