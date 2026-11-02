@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="500" viewBox="0 0 1280 500" role="img" aria-labelledby="title desc">
+<title id="title">Phantom Shell</title><desc id="desc">Dark starry banner with crescent moon and Phantom Shell branding</desc>
+<defs>
+ <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#0c0d14"/><stop offset="1" stop-color="#050507"/></linearGradient>
+ <radialGradient id="glow"><stop stop-color="#353747" stop-opacity=".85"/><stop offset=".5" stop-color="#20212e" stop-opacity=".45"/><stop offset="1" stop-color="#090a10" stop-opacity="0"/></radialGradient>
+ <linearGradient id="text" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#f7f7fc"/><stop offset="1" stop-color="#cdd0de"/></linearGradient>
+ <linearGradient id="line"><stop stop-color="#8f91a2" stop-opacity="0"/><stop offset=".5" stop-color="#8f91a2" stop-opacity=".38"/><stop offset="1" stop-color="#8f91a2" stop-opacity="0"/></linearGradient>
+ <clipPath id="round"><rect width="1280" height="500" rx="20"/></clipPath>
+ <g id="spark"><path d="M0 -8 L1.7 -1.7 L8 0 L1.7 1.7 L0 8 L-1.7 1.7 L-8 0 L-1.7 -1.7Z" fill="#e7e8f0"/></g>
+</defs>
+<g clip-path="url(#round)"><rect width="1280" height="500" fill="url(#bg)"/><ellipse cx="640" cy="165" rx="445" ry="290" fill="url(#glow)"/>
+<g fill="#c4c7d6">
+<circle cx="1081" cy="220" r="0.7" opacity="0.88"/>
+<circle cx="605" cy="97" r="1.25" opacity="0.74"/>
+<circle cx="581" cy="64" r="0.45" opacity="0.49"/>
+<circle cx="871" cy="137" r="1" opacity="0.79"/>
+<circle cx="834" cy="78" r="1" opacity="0.38"/>
+<circle cx="414" cy="85" r="1.25" opacity="0.64"/>
+<circle cx="442" cy="177" r="1" opacity="0.42"/>
+<circle cx="153" cy="166" r="0.85" opacity="0.40"/>
+<circle cx="982" cy="335" r="1" opacity="0.43"/>
+<circle cx="1048" cy="479" r="0.7" opacity="0.36"/>
+<circle cx="117" cy="467" r="1.25" opacity="0.55"/>
+<circle cx="989" cy="199" r="1" opacity="0.78"/>
+<circle cx="842" cy="130" r="0.45" opacity="0.66"/>
+<circle cx="748" cy="37" r="0.7" opacity="0.39"/>
+<circle cx="576" cy="106" r="1.25" opacity="0.68"/>
+<circle cx="1149" cy="280" r="1" opacity="0.85"/>
+<circle cx="641" cy="477" r="0.7" opacity="0.53"/>
+<circle cx="692" cy="56" r="1" opacity="0.67"/>
+<circle cx="570" cy="179" r="0.45" opacity="0.38"/>
+<circle cx="724" cy="17" r="0.85" opacity="0.76"/>
+<circle cx="982" cy="332" r="0.45" opacity="0.75"/>
+<circle cx="646" cy="140" r="0.45" opacity="0.76"/>
+<circle cx="1005" cy="18" r="1" opacity="0.66"/>
+<circle cx="295" cy="214" r="0.85" opacity="0.75"/>
+<circle cx="1220" cy="426" r="0.85" opacity="0.45"/>
+<circle cx="526" cy="85" r="1.25" opacity="0.41"/>
+<circle cx="446" cy="33" r="1" opacity="0.52"/>
+<circle cx="659" cy="33" r="0.6" opacity="0.86"/>
+<circle cx="202" cy="361" r="0.7" opacity="0.81"/>
+<circle cx="165" cy="285" r="0.45" opacity="0.65"/>
+<circle cx="507" cy="123" r="1" opacity="0.88"/>
+<circle cx="1191" cy="91" r="0.7" opacity="0.38"/>
+<circle cx="1008" cy="308" r="0.85" opacity="0.80"/>
+<circle cx="923" cy="47" r="0.85" opacity="0.76"/>
+<circle cx="398" cy="194" r="1" opacity="0.37"/>
+<circle cx="1195" cy="298" r="1" opacity="0.58"/>
+<circle cx="358" cy="484" r="1" opacity="0.48"/>
+<circle cx="653" cy="196" r="0.6" opacity="0.90"/>
+<circle cx="444" cy="163" r="0.85" opacity="0.55"/>
+<circle cx="1223" cy="55" r="1" opacity="0.41"/>
+<circle cx="33" cy="106" r="1" opacity="0.84"/>
+<circle cx="1145" cy="399" r="0.6" opacity="0.60"/>
+<circle cx="1044" cy="78" r="1" opacity="0.65"/>
+<circle cx="939" cy="14" r="0.7" opacity="0.49"/>
+<circle cx="28" cy="431" r="0.85" opacity="0.54"/>
+<circle cx="685" cy="116" r="0.45" opacity="0.50"/>
+<circle cx="1072" cy="349" r="1.25" opacity="0.36"/>
+<circle cx="243" cy="249" r="1.25" opacity="0.85"/>
+<circle cx="1265" cy="112" r="0.45" opacity="0.78"/>
+<circle cx="65" cy="241" r="1" opacity="0.80"/>
+<circle cx="73" cy="443" r="0.85" opacity="0.79"/>
+<circle cx="888" cy="37" r="1.25" opacity="0.65"/>
+<circle cx="549" cy="145" r="0.7" opacity="0.54"/>
+<circle cx="1125" cy="305" r="0.85" opacity="0.57"/>
+<circle cx="27" cy="277" r="0.7" opacity="0.39"/>
+<circle cx="80" cy="328" r="1.25" opacity="0.83"/>
+<circle cx="678" cy="172" r="0.45" opacity="0.53"/>
+<circle cx="1114" cy="436" r="0.6" opacity="0.86"/>
+<circle cx="267" cy="138" r="0.6" opacity="0.39"/>
+<circle cx="873" cy="166" r="1.25" opacity="0.46"/>
+<circle cx="760" cy="73" r="0.6" opacity="0.63"/>
+<circle cx="1183" cy="85" r="0.7" opacity="0.40"/>
+<circle cx="1083" cy="317" r="0.6" opacity="0.71"/>
+<circle cx="304" cy="92" r="1" opacity="0.64"/>
+<circle cx="588" cy="485" r="0.85" opacity="0.39"/>
+<circle cx="495" cy="94" r="1.25" opacity="0.43"/>
+<circle cx="1132" cy="172" r="1" opacity="0.77"/>
+<circle cx="1039" cy="417" r="0.6" opacity="0.51"/>
+<circle cx="403" cy="198" r="0.45" opacity="0.70"/>
+<circle cx="169" cy="228" r="0.45" opacity="0.84"/>
+<circle cx="786" cy="132" r="0.6" opacity="0.39"/>
+<circle cx="619" cy="45" r="0.7" opacity="0.54"/>
+<circle cx="959" cy="172" r="0.6" opacity="0.88"/>
+<circle cx="556" cy="165" r="0.85" opacity="0.82"/>
+<circle cx="1189" cy="271" r="1.25" opacity="0.43"/>
+<circle cx="225" cy="426" r="1.25" opacity="0.69"/>
+<circle cx="539" cy="129" r="0.6" opacity="0.47"/>
+<circle cx="905" cy="200" r="0.7" opacity="0.87"/>
+<circle cx="642" cy="215" r="1.25" opacity="0.46"/>
+<circle cx="658" cy="14" r="0.45" opacity="0.83"/>
+<circle cx="1204" cy="38" r="0.7" opacity="0.72"/>
+<circle cx="1019" cy="214" r="0.85" opacity="0.69"/>
+<circle cx="861" cy="117" r="0.6" opacity="0.46"/>
+<circle cx="413" cy="125" r="1.25" opacity="0.81"/>
+<circle cx="158" cy="241" r="1.25" opacity="0.46"/>
+<circle cx="1037" cy="408" r="0.6" opacity="0.87"/>
+<circle cx="1003" cy="385" r="0.85" opacity="0.80"/>
+<circle cx="191" cy="75" r="0.6" opacity="0.83"/>
+<circle cx="818" cy="124" r="1.25" opacity="0.57"/>
+<use href="#spark" transform="translate(150 70) scale(1)"/>
+<use href="#spark" transform="translate(430 60) scale(0.6)"/>
+<use href="#spark" transform="translate(860 49) scale(0.8)"/>
+<use href="#spark" transform="translate(1120 95) scale(1.2)"/>
+<use href="#spark" transform="translate(1075 260) scale(0.9)"/>
+<use href="#spark" transform="translate(210 300) scale(0.75)"/>
+<use href="#spark" transform="translate(80 380) scale(0.7)"/>
+<use href="#spark" transform="translate(1200 370) scale(0.7)"/>
+<use href="#spark" transform="translate(520 210) scale(0.55)"/>
+<use href="#spark" transform="translate(760 215) scale(0.6)"/>
+<use href="#spark" transform="translate(692 142) scale(0.65)"/>
+</g>
+<!-- Crescent is a fully editable vector path -->
+<path d="M642 90 A58 58 0 1 0 690 178 A50 50 0 0 1 642 90Z" fill="#e2e4ef"/>
+<text x="640" y="296" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="67" font-weight="700" letter-spacing="-2.2" fill="url(#text)">Phantom Shell</text>
+<text x="640" y="334" text-anchor="middle" font-family="DejaVu Sans Mono,monospace" font-size="13" letter-spacing="5" fill="#aeb2c4">QUICKSHELL · WIDGETS · DASHBOARD</text>
+<rect x="425" y="372" width="430" height="1" fill="url(#line)"/>
+<text x="640" y="405" text-anchor="middle" font-family="DejaVu Sans Mono,monospace" font-size="11" letter-spacing="4" fill="#898d9f">SUPPORTED DISTROS</text>
+<text x="640" y="433" text-anchor="middle" font-family="DejaVu Sans Mono,monospace" font-size="16" letter-spacing="1.2" fill="#d6d7e0">CachyOS · Arch Linux · Arch-based Distro</text>
+<text x="640" y="462" text-anchor="middle" font-family="DejaVu Sans Mono,monospace" font-size="13" letter-spacing="2.4" fill="#9094a7">built for Hyprland</text>
+</g><rect x=".5" y=".5" width="1279" height="499" rx="19.5" fill="none" stroke="#343542" stroke-opacity=".7"/>
+</svg>

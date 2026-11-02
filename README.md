@@ -1,173 +1,145 @@
 <p align="center">
-  <img src="assets/banner-dark.svg" alt="DarkShadow's Shell" width="100%">
+  <img src="assets/phantom-shell-banner.svg" alt="Phantom Shell" width="100%">
 </p>
 
 <p align="center">
-  <b>A Hyprland rice with its own Quickshell settings app, Waybar, desktop widgets, a dashboard and a dock.</b><br>
-  Everything is set with sliders and switches in one app. No config editing.<br>
-  Made by <a href="https://www.tiktok.com/@shadoww.dev">shadoww.dev</a>
+  <b>A quieter kind of desktop.</b><br>
+  A Hyprland shell shaped by shadows, glass and a little moonlight.
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Arch_Linux-supported-1793D1?style=for-the-badge&logo=archlinux&logoColor=white" alt="Arch Linux">
-  <img src="https://img.shields.io/badge/CachyOS-new-08A283?style=for-the-badge&logo=cachyos&logoColor=white" alt="CachyOS">
-</p>
-<p align="center">
-  <img src="https://img.shields.io/badge/Hyprland-0.55+-58E1FF?style=flat-square" alt="Hyprland">
-  <img src="https://img.shields.io/badge/Quickshell-QML-8B7BFF?style=flat-square" alt="Quickshell">
-  <img src="https://img.shields.io/github/stars/shadowww-dev/shadows-shell?style=flat-square&color=f5c542" alt="Stars">
-  <img src="https://img.shields.io/github/last-commit/shadowww-dev/shadows-shell?style=flat-square" alt="Last commit">
+  <img src="https://img.shields.io/badge/STATUS-IN_DEVELOPMENT-555963?style=for-the-badge&labelColor=191a1f" alt="In development">
+  <img src="https://img.shields.io/badge/PLATFORM-ARCH_LINUX-777b85?style=for-the-badge&labelColor=191a1f" alt="Arch Linux and derivatives">
+  <img src="https://img.shields.io/badge/BUILT_WITH-QUICKSHELL-b1b4bd?style=for-the-badge&labelColor=191a1f" alt="Built with Quickshell">
 </p>
 
 <p align="center">
-  <a href="#install-in-one-minute">Install</a> ·
-  <a href="#supported-systems">Systems</a> ·
-  <a href="#features">Features</a> ·
-  <a href="#keybinds">Keybinds</a> ·
-  <a href="docs/INSTALL.md">Docs</a> ·
-  <a href="docs/CUSTOMIZE.md">Customize</a>
+  <a href="#the-desktop">Desktop</a> &nbsp;·&nbsp;
+  <a href="#features">Features</a> &nbsp;·&nbsp;
+  <a href="#installation">Installation</a> &nbsp;·&nbsp;
+  <a href="#keybinds">Keybinds</a> &nbsp;·&nbsp;
+  <a href="#credits">Credits</a>
 </p>
 
 ---
 
-Personal Hyprland overrides: [docs/PHANTOM-USER-CONFIG.md](docs/PHANTOM-USER-CONFIG.md).
+> [!IMPORTANT]
+> Phantom Shell is a work in progress, not a finished release. A clean installation and the complete shell have not yet been accepted. Try it in a virtual machine first, and back up your configuration before installing.
 
-## Screenshots
+## The desktop
+
+### Screenshots
+
 <p align="center">
-  <img src="assets/screenshot.png" alt="DarkShadow's Shell: desktop with widgets" width="100%">
+  <img src="assets/screenshot.png" alt="Legacy shadows-shell desktop screenshot" width="100%">
+  <br><sub>Desktop · legacy screenshot, to be replaced with Phantom Shell</sub>
 </p>
 <p align="center">
-  <img src="assets/screenshot-home.png" alt="The Settings app (SUPER + U) over the desktop widgets" width="100%"><br>
-  <sub>The Settings app (<code>SUPER + U</code>) with desktop widgets, calendar and audio visualizer</sub>
+  <img src="assets/screenshot-home.png" alt="Legacy shadows-shell settings and desktop widgets screenshot" width="100%">
+  <br><sub>Settings &amp; widgets · legacy screenshot, to be replaced</sub>
 </p>
-<!-- more screenshots: put the files in assets/ and add them here -->
 
-## Supported systems
-The bar, the dashboard, the welcome window and Settings show **your distro's logo** automatically.
+### Video preview
 
-| System | Status | How |
-| --- | --- | --- |
-| **Arch Linux** | supported | `./install.sh` |
-| **CachyOS** | new in V2.70 | `./install.sh` (Arch based: its repositories and `paru` are used) |
-| **EndeavourOS, Garuda** | Arch route | `./install.sh` |
-| **Manjaro** | may not work | its packages are held back, Hyprland can be older than 0.55 |
+> **A look at Phantom Shell — coming soon.**
+>
+> The video and its thumbnail will go here.
 
-Only Arch Linux and Arch-based distributions are supported by the installer.
+<!-- Replace this placeholder with a linked thumbnail when the video is available:
+[![Watch the Phantom Shell preview](assets/video-preview.png)](VIDEO_URL)
+-->
 
-## Install in one minute
-**Arch Linux / CachyOS / EndeavourOS**
-```bash
-sudo pacman -S --needed git base-devel
-git clone https://github.com/shadowww-dev/shadows-shell && cd shadows-shell
-./install.sh
-```
+---
 
 ## Features
-**Settings app** (`SUPER+U`), fifteen pages and a search: Home, Sfx & sounds, Waybar, Bar layout, Hyprland, Dashboard, Rofi, Theme, Cursors, Notifications, Idle & Lockscreen, Desktop, Hot corners, Interface, Services.
 
-| Area | What you get |
-| --- | --- |
-| **Waybar** | layout editor (move modules between left, center and right), saved presets, position top or bottom, bar height, opacity |
-| **Bar styles** | Flat, Floating, Islands, **One island**; group styles None, Pills, Segmented |
-| **Autohide** | bar slides in when the pointer touches the screen edge |
-| **Distro logo** | the logo of your distro (Arch, CachyOS, EndeavourOS ...) in the bar, the dashboard, the welcome window and Settings, picked automatically |
-| **Hot corner** | touch a screen corner for a panel with Keep Awake, screen recording, screenshots, quick toggles (Wi-Fi, Bluetooth, Do Not Disturb, Gaming mode, microphone, Settings) and now playing; sections, toggles, corner, look and animation are set in Settings > Hot corners |
-| **Desktop widgets** | frosted glass over your blurred wallpaper (or plain cards), auto-hide while windows are open; clock, calendar, weather, music, resources (CPU, RAM, GPU), user card, battery and a see-through audio visualizer (Bars, Mirror, Wave, Dots); a widget editor on the desktop to add, move, resize and style them |
-| **Dashboard** | slides up from the bottom of the screen (SUPER + ALT + D or push the pointer against the bottom edge): Dashboard (weather, calendar, usage, music), Wallpaper (big wallpaper cards, search, random), Performance (CPU, GPU, storage, network, memory, battery), About (your computer, distro, updates); cards you can remove, add, resize and move, looks Shadow, Graphite, Aurora and Frost |
-| **Bar layout** | drag and drop Waybar modules between left, center and right, reorder the system icons, Battery module |
-| **Dock** | pinned apps, hover to reveal, media player, tinted icons |
-| **Hyprland** | gaps, borders, rounding, blur, shadows and animations from sliders, no config editing |
-| **Theme** | 21 color schemes: Auto and Grey from your wallpaper, six monochrome (Mono, Slate, Stone, Steel, Ash, Ink) and thirteen colors (Navy, Ocean, Sky, Teal, Mint, Forest, Lime, Gold, Sunset, Ember, Rose, Orchid, Violet). They recolor Waybar, borders, notifications and the lock screen |
-| **Notification center** | Deck: switches (Wi-Fi, Bluetooth, Do Not Disturb, night light, keep awake), power modes, notifications, media, volume and brightness, power buttons; floating or against the edge, left or right, any size, blur and transparency |
-| **Notifications** | swaync popups and panel: position, layout, widgets (title, Do Not Disturb, media, volume, quick buttons), size, timeout, icon size, Glass / Solid / Outline look, opacity, radius, blur, live preview and a test button |
-| **Sfx & sounds** | interface sounds in the shell's own parts (clicks, switches, sliders, typing), seven packs (Tap, Soft, Pluck, Keys, Crystal, Bubble, Retro), volume, each sound on or off, quiet music for the welcome; ten notification sounds (Glass, Droplet, Chime, Bubble, Marimba, Aurora, Ping, Harp, Keys, Ripple) or Off |
-| **Search** | "Search anything!" in Settings finds every setting ("bar position", "blur", "clock font") and jumps to it |
-| **Updates** | a notification when a new version is out ("Update is Available!"), version and Update now button in the About tab of the dashboard, `rice-update` in a terminal |
-| **Idle & Lockscreen** | lock, screen-off and sleep timers; lock screen with Big / Stacked / Minimal clock in seven fonts (white hours, grey minutes), center or left layout, greeting, avatar, Pill / Box / Line password field, power buttons, screenshot / wallpaper / color background and media, resources, weather and notification lines |
-| **Rofi** | 5 themes (Shadow, Graphite, Midnight, Rose, Paper), layouts list / grid / full-width bar, position top, center or bottom, width, rows, corner radius, transparency, blur, font size, icons |
-| **Cursors** | Bibata, Hyprcursor themes (Rose Pine) and packs you can download in Settings: Catppuccin, Phinger; live preview |
-| **Fonts** | one place to set the main and icon fonts |
-| **Welcome intro** | once after installing: night falls over the desktop, a few words, the moon logo draws itself in, "Take a look" opens it up again and Settings starts a short tour (it lights up one part at a time). Play it again with `rice-welcome show`, only the tour: `rice-welcome tour` |
-| **Performance & gaming** | one switch turns off all blur and transparency (Hyprland, kitty, Waybar, rofi, notifications, dashboard, hot corner, dock, widgets); Gaming mode with options to keep blur, animations, shadows or gaps, Do Not Disturb (Settings > Services) |
-| **Your settings everywhere** | `./sync.sh` saves your Settings choices to `settings/`, `./install.sh` puts them on your other computers (files you changed there are kept) |
-| **Installer** | interactive (Install, Update, Choose, Restore), backs up everything, supports Arch Linux and Arch-based distributions, warns when Hyprland is too old |
+**A bar with room to breathe** — a horizontal Quickshell bar adapted from Caelestia, with workspaces, a system tray and popouts. It runs separately from the rest of the shell and hides on a monitor showing a fullscreen window.
 
-## Keybinds
-`SUPER` is the main modifier.
+**A launcher at your fingertips** — press `Super` to open the centered application launcher. It runs in the background and shares the bar's palette.
 
-| Keys | Action |
-| --- | --- |
-| `SUPER + U` | open **Settings** |
-| `SUPER + Q` | terminal |
-| `SUPER + E` | file manager |
-| `SUPER + R` | app menu |
-| `ALT + Space` | app launcher (rofi) |
-| `SUPER + C` | close window |
-| `SUPER + V` | toggle floating |
-| `SUPER + P` | pseudo-tile |
-| `SUPER + J` | toggle split direction |
-| `SUPER + M` | exit Hyprland |
-| `SUPER + ←/→/↑/↓` | move focus |
-| `SUPER + 1 … 0` | go to workspace |
-| `SUPER + SHIFT + 1 … 0` | move window to workspace |
-| `SUPER + S` | show/hide scratchpad |
-| `SUPER + SHIFT + S` | move window to scratchpad |
-| `SUPER + scroll` | next/previous workspace |
-| `SUPER + left mouse` | drag window |
-| `SUPER + right mouse` | resize window |
-| `ALT + ]` / `ALT + [` | volume up / down |
-| `SUPER + F12` / `F11` / `F10` | volume up / down / mute (with on-screen display) |
-| media keys | play/pause, next, previous |
-| `Fn` volume / brightness keys, headset `+` `-` | volume, mute, microphone, brightness |
-| `Print` / `SHIFT + Print` | screenshot of a region / the whole screen |
-| `SUPER + SHIFT + R` | record a region (press again to stop) |
-| `SUPER + A` | open the hot corner panel |
-| `SUPER + ALT + W` | edit desktop widgets (add, move, resize, style) |
-| `SUPER + ALT + D` | dashboard (slides up from the bottom; pushing the pointer against the bottom edge opens it too) |
-| `SUPER + W` | wallpapers (Wallpaper tab of the dashboard) |
+**A desktop that changes with you** — choose wallpapers and themes through the shadows interface; Matugen carries the colors into the Phantom bar and launcher.
+
+**Widgets and dashboard** — clock, calendar, system resources and an audio visualizer sit alongside the inherited dashboard and wallpaper picker.
+
+**Settings in one place** — the Quickshell settings app brings together controls for the desktop, appearance and services. The new bar settings page is still a work in progress.
+
+**Made for Hyprland** — window controls, workspaces and personal overrides are part of the setup. See [personal configuration](docs/PHANTOM-USER-CONFIG.md) for customization.
+
+Some components and interactions still need testing, including a clean installation, all popouts and protected Wi-Fi. See [PROJECT.md](PROJECT.md) for the current state.
+
+---
 
 ## Installation
 
-### Arch Linux (and CachyOS, EndeavourOS, Garuda)
+**Arch Linux and Arch-based distributions only.** The installer requires a normal user account and asks for `sudo` when needed. It can install packages, build private plugins, replace configuration files and affect a running session. Review `install.sh` first and test in a VM; do not use this as a production install guide yet.
+
+From a local copy of **this Phantom Shell repository**:
+
 ```bash
-sudo pacman -S --needed git base-devel
-git clone https://github.com/shadowww-dev/shadows-shell
-cd shadows-shell
+cd /path/to/phantom-shell
+./install.sh --dry-run
 ./install.sh
 ```
-The installer updates your system, installs every package (Hyprland, Quickshell, Waybar, swaync, rofi, kitty, fish, Nautilus, fonts, Papirus icons, Bibata cursor, btop, cava, fastfetch, cmatrix, peaclock and more), uses the AUR helper you have (`paru` comes with CachyOS, or it offers `yay`) for the few AUR packages, copies the configs and sets everything up. At the end it warns you when your Hyprland is older than 0.55. Then log out and pick Hyprland.
 
-### Options
-| Flag | What it does |
+The interactive installer offers installation choices; replaced files are backed up under `~/.config/darkshadows-shell-backup-<time>/`. A clean install without the Caelestia packages has not yet been verified. Existing installations with old package symlinks in the bar directories are rejected rather than migrated automatically.
+
+| Option | Purpose |
 | --- | --- |
-| `--yes` | install everything without questions |
-| `--dry-run` | show what would happen, change nothing |
-| `--no-packages` | skip the package step |
-| `--update` | get the newest version and update apps and scripts (keeps your configs) |
-| `--restore` | put back the files from the last backup |
+| `--dry-run` | Preview the installer actions. |
+| `--no-packages` | Skip package installation; dependencies must already be available. |
+| `--restore` | Restore files from the newest installer backup. |
 
-Every file the installer replaces is saved in `~/.config/darkshadows-shell-backup-<time>/`.
+The existing [installation notes](docs/INSTALL.md) are inherited and still point to shadows-shell; do **not** use their clone URL to install Phantom. A dedicated repository URL and final installation instructions will be added before release.
 
-### Updating
-Run `rice-update` (or `./install.sh --update` in the repo), or press **Update now** in the About tab of the dashboard or in the update notification.
+---
 
-## Layout
-| Path | Contents |
+## Keybinds
+
+`Super` is the Windows/Meta key. These are project defaults; personal Hyprland overrides can change them.
+
+### Shell
+
+| Keys | Action |
 | --- | --- |
-| `bin/` | helper scripts installed to `~/.local/bin` |
-| `quickshell/` | Settings app (`rice-settings`) and widgets/dock (`rice-desktop`) |
-| `config/` | dotfiles installed to `~/.config` (Hyprland, Waybar, ...) |
-| `install/` | installer UI and distro detection |
-| `lua/` | Hyprland add-ons: keybinds, widgets autostart, hot corner |
-| `wallpapers/` | original wallpapers, copied to `~/Pictures/Wallpapers` |
-| `sounds/` | notification sounds (made by `install/tools/make-sounds.py`, CC0) |
-| `VERSION` | the current version, used by the update check |
-| `.github/` | CI (shellcheck, dry-run install) and issue template |
+| `Super` | Open the application launcher |
+| `Super + U` | Open settings |
+| `Super + Q` | Open terminal |
+| `Super + E` | Open file manager |
+| `Super + R` | Open configured application menu |
+| `Super + W` | Open wallpapers |
+| `Super + Alt + D` | Open dashboard |
+| `Super + Alt + W` | Toggle desktop widget editor |
+| `Super + A` | Open hot corner panel |
+| `Print` / `Shift + Print` | Screenshot region / screen |
 
-## Maintainers
-`./sync.sh` copies your current setup from this machine into the repo (paths become `@HOME@`, no username is stored) and scans for secrets. Your choices in Settings go to `settings/`; `./install.sh` applies them on other computers, keeps files you changed there, and `./install.sh --update --use-saved-settings` takes the saved ones anyway.
+### Windows & workspaces
 
-To release a new version, put the new number in `VERSION` (for example `2.03`) and push. Everyone gets the update notification within a few hours.
+| Keys | Action |
+| --- | --- |
+| `Super + C` | Close window |
+| `Super + T` / `Super + F` | Toggle floating / fullscreen |
+| `Super + P` / `Super + J` | Pseudo-tile / toggle split direction |
+| `Super + arrows` | Move focus |
+| `Super + 1…0` | Switch workspace |
+| `Super + Shift + 1…0` | Move window to workspace |
+| `Super + S` | Toggle special workspace |
+| `Super + Shift + S` or `Super + Shift + A` | Move window to special workspace |
+| `Super + Shift + B` | Move window to current workspace |
+| `Super + scroll` | Switch workspaces |
+| `Super + left / right mouse` | Drag / resize window |
+| `Super + M` | Exit Hyprland |
 
-## License
-Not chosen yet. Add a `LICENSE` file before sharing widely.
+Volume, brightness and media keys are also bound. The complete defaults are in [`config/hypr/hyprland.lua`](config/hypr/hyprland.lua) and [`config/hypr/rice-keys.lua`](config/hypr/rice-keys.lua).
+
+---
+
+## Credits
+
+Phantom Shell stands on the work of two projects:
+
+- [**Shadow's Shell**](https://github.com/shadowww-dev/shadows-shell) — the foundation for the desktop, settings and overall shell.
+- [**Caelestia Shell**](https://github.com/caelestia-dots/shell) — the source of the adapted bar, launcher components and private plugins.
+
+See [bar upstream notes](quickshell/caelestia-bar/UPSTREAM.md), [launcher source notes](quickshell/caelestia-bar/LAUNCHER-SOURCE.md) and [plugin source notes](vendor/caelestia-shell-plugin-v2.5.0/PHANTOM-SOURCE.md) for provenance and local changes. Licensing and attribution for the combined distribution still need review before publication.
+
+<p align="center"><sub>PHANTOM SHELL &nbsp;✦&nbsp; MADE FOR THE SPACE BETWEEN WINDOWS</sub></p>
