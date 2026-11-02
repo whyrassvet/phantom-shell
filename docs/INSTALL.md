@@ -17,21 +17,6 @@ git clone https://github.com/shadowww-dev/shadows-shell && cd shadows-shell
 ```
 Hyprland, its tools and Quickshell come from the `nett00n/hyprland` COPR, `awww` from `scottames/awww`. Packages Fedora does not have are listed and skipped. Fedora Atomic (Bazzite, Silverblue): the installer prints the `rpm-ostree` commands.
 
-## NixOS
-Packages are declared in your system configuration, so the installer only prints the snippet.
-
-Without flakes, in `configuration.nix`:
-```nix
-imports = [ /path/to/shadows-shell/nix/module.nix ];
-```
-With flakes:
-```nix
-inputs.shadows-shell.url = "github:shadowww-dev/shadows-shell";
-# in your nixosSystem modules list:
-shadows-shell.nixosModules.default
-```
-Run `sudo nixos-rebuild switch`, then `./install.sh` and choose Tools, Apps and Dotfiles.
-
 ## Backups and undo
 Every file the installer replaces is copied to `~/.config/darkshadows-shell-backup-<time>/`. Undo with `./install.sh --restore`.
 

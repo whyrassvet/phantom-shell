@@ -11,7 +11,6 @@ if [ -r "$OS_RELEASE" ]; then
 fi
 FAMILY=other
 case " $DISTRO_ID $DISTRO_LIKE " in
-  *" nixos "*) FAMILY=nixos ;;
   *" arch "*|*" archlinux "*|*" cachyos "*|*" endeavouros "*|*" manjaro "*|*" garuda "*) FAMILY=arch ;;
   *" fedora "*|*" nobara "*|*" ultramarine "*) FAMILY=fedora ;;
 esac

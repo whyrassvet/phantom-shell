@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # DarkShadow's Shell installer.
-# Works for any user (everything uses $HOME / $USER). Arch-based distros get their packages
-# installed; NixOS gets the module to add; everything else gets a list of what to install.
+# Works for any user (everything uses $HOME / $USER). Arch- and Fedora-based distros get
+# package installation support; other distributions get a list of what to install.
 set -Euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -300,13 +300,6 @@ step_packages() {
         task "Turning on power modes (power-profiles-daemon)" sudo systemctl enable --now power-profiles-daemon.service
       fi
       rpm -q bluez >/dev/null 2>&1 && task "Turning on the Bluetooth service" sudo systemctl enable --now bluetooth.service
-      ;;
-    nixos)
-      info "NixOS installs packages from your system configuration, not from this script."
-      note "Add this line to /etc/nixos/configuration.nix:"
-      printf '\n        %simports = [ %s/nix/module.nix ];%s\n\n' "$CW" "$ROOT" "$C0"
-      note "or with flakes:  inputs.darkshadows-shell.url = \"github:shadowww-dev/shadows-shell\";"
-      note "then run:  sudo nixos-rebuild switch"
       ;;
     *)
       warn "$DISTRO_NAME is not supported for automatic packages."

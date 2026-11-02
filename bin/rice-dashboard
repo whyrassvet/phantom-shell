@@ -413,11 +413,6 @@ def packages(distro_id):
     if shutil.which("pacman"):
         n = sh(["pacman", "-Qq"], 6)
         return "%d (pacman)" % len(n.splitlines()) if n else ""
-    if os.path.isdir("/run/current-system/sw"):
-        n = sh(["nix-store", "-qR", "/run/current-system/sw"], 10)
-        user = sh(["nix-store", "-qR", HOME + "/.nix-profile"], 10) if os.path.exists(HOME + "/.nix-profile") else ""
-        cnt = len(set(n.splitlines()) | set(user.splitlines()))
-        return "%d (nix)" % cnt if cnt else ""
     if shutil.which("dpkg-query"):
         n = sh(["dpkg-query", "-f", ".\n", "-W"], 6)
         return "%d (dpkg)" % len(n.splitlines()) if n else ""

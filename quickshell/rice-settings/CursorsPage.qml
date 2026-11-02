@@ -205,7 +205,7 @@ Item {
         T {
             visible: !(page.cs.themes && page.cs.themes.length > 0)
             width: parent.width
-            text: "No cursor themes found. Install Bibata: bibata-cursor-theme-bin (Arch, AUR) or bibata-cursors (NixOS)."
+            text: "No cursor themes found. Install Bibata: bibata-cursor-theme-bin (Arch, AUR)."
             color: "#e0a050"
             font.pixelSize: 12
             wrapMode: Text.WordWrap
