@@ -89,17 +89,14 @@ Searcher {
         onFileChanged: reload()
         onLoaded: {
             let wall = text().trim();
-            if (!wall) {
+            if (!wall)
                 wall = root.fallback;
-                Quickshell.execDetached(["caelestia", "wallpaper", "-f", root.fallback, ...root.smartArg]);
-            }
             root.actualCurrent = wall;
             root.previewColourLock = false;
         }
         onLoadFailed: {
             root.actualCurrent = root.fallback;
             root.previewColourLock = false;
-            Quickshell.execDetached(["caelestia", "wallpaper", "-f", root.fallback, ...root.smartArg]);
         }
     }
 

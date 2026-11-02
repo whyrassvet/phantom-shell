@@ -8,6 +8,9 @@ within individual assets, including `assets/google-sans-flex/LICENSE`.
 
 Local modification: `utils/Paths.qml` uses `phantom-shell` directories for
 data, state, cache and configuration rather than the `caelestia` directories.
+`services/Wallpapers.qml` no longer invokes the Caelestia CLI automatically
+when the wallpaper state file is missing or empty. Explicit wallpaper operations
+still use the upstream CLI and require replacement.
 
 The bar module in `modules/bar/` was copied from the same installed version
 and subsequently modified for phantom-shell. Vendoring these directories alone
