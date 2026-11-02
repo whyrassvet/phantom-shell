@@ -15,6 +15,14 @@ for module in . Config Settings Components Services Models Images Blobs I18n; do
     exit 1
   fi
 done
+for entry in '.:core' 'Config:config' 'Settings:settings' 'Components:components' 'Services:services' 'Models:models' 'Images:images' 'Blobs:blobs' 'I18n:i18n'; do
+  module="${entry%%:*}"
+  plugin="${entry#*:}"
+  if [ ! -f "$qml/Caelestia/$module/libcaelestia-${plugin}plugin.so" ]; then
+    printf 'phantom-bar: private plugin not found: %s\n' "$qml/Caelestia/$module/libcaelestia-${plugin}plugin.so" >&2
+    exit 1
+  fi
+done
 for library in core config settings components services models images blobs i18n; do
   if [ ! -f "$qml/Caelestia/lib/libcaelestia-$library.so" ]; then
     printf 'phantom-bar: private library not found: %s\n' "$qml/Caelestia/lib/libcaelestia-$library.so" >&2

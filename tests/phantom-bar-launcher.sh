@@ -25,3 +25,21 @@ if env PATH="$scratch/bin:$PATH" PHANTOM_BAR_CONFIG="$root/quickshell/caelestia-
   exit 1
 fi
 grep -F 'private QML module not found' "$scratch/fail.err"
+
+# All module descriptors and libraries exist, but the I18n plugin is missing.
+for entry in '.:core' 'Config:config' 'Settings:settings' 'Components:components' 'Services:services' 'Models:models' 'Images:images' 'Blobs:blobs' 'I18n:i18n'; do
+  module="${entry%%:*}"
+  plugin="${entry#*:}"
+  mkdir -p "$scratch/partial/Caelestia/$module" "$scratch/partial/Caelestia/lib"
+  : > "$scratch/partial/Caelestia/$module/qmldir"
+  : > "$scratch/partial/Caelestia/lib/libcaelestia-$plugin.so"
+  if [ "$module" != I18n ]; then
+    : > "$scratch/partial/Caelestia/$module/libcaelestia-${plugin}plugin.so"
+  fi
+done
+if env PATH="$scratch/bin:$PATH" PHANTOM_BAR_CONFIG="$root/quickshell/caelestia-bar" \
+  PHANTOM_QML_ROOT="$scratch/partial" "$root/bin/phantom-bar" > "$scratch/partial.out" 2> "$scratch/partial.err"; then
+  echo 'Launcher unexpectedly accepted a missing private plugin' >&2
+  exit 1
+fi
+grep -F 'private plugin not found' "$scratch/partial.err"
