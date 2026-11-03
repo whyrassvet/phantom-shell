@@ -24,7 +24,8 @@ class WallpaperApplyTest(unittest.TestCase):
             p = self.bin / name
             p.write_text('#!/bin/sh\nprintf "%s\\n" "$(basename "$0")" >> "$LOG"\n'
                          'if [ "$FAIL" = "$(basename "$0")" ]; then exit 9; fi\n'
-                         'if [ "$(basename "$0")" = convert ]; then echo 50; fi\n')
+                         'if [ "$(basename "$0")" = convert ]; then echo "${SAT:-50}"; fi\n'
+                         'if [ "$(basename "$0")" = matugen ]; then printf "%s\\n" "$@" >> "$LOG"; fi\n')
             p.chmod(0o755)
         colors = self.home / ".local/bin/rice-colors"
         colors.parent.mkdir(parents=True)
@@ -61,6 +62,24 @@ class WallpaperApplyTest(unittest.TestCase):
         config.parent.mkdir(parents=True)
         config.write_text("unknown\n")
         self.assertEqual(self.run_apply().returncode, 0)
+
+    def test_monochrome_and_explicit_navy(self):
+        config = self.home / ".config/rice/color-mode"
+        config.parent.mkdir(parents=True)
+        for mode, saturation, expected in (("auto", "2.44", "scheme-monochrome"),
+                                            ("grey", "50", "scheme-monochrome"),
+                                            ("navy", "2.44", "#1a2a5e"),
+                                            ("auto", "50", "--source-color-index")):
+            with self.subTest(mode=mode, saturation=saturation):
+                config.write_text(mode + "\n")
+                self.log.write_text("")
+                self.env["SAT"] = saturation
+                result = self.run_apply()
+                self.assertEqual(result.returncode, 0, result.stderr)
+                calls = self.log.read_text()
+                self.assertIn(expected, calls)
+                if mode == "auto":
+                    self.assertNotIn("#1a2a5e", calls)
 
 
 if __name__ == "__main__":
