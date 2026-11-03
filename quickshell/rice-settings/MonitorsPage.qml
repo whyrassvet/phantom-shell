@@ -7,6 +7,7 @@ Column {
     property var ctl
     property var mons: []
     property string primaryMonitor: ""
+    property int vrrMode: -1
     property int countdown: 0
     spacing: 14
 
@@ -20,6 +21,38 @@ Column {
     }
 
     Timer { id: refresh; interval: 1500; onTriggered: monProc.running = true }
+
+    Process {
+        id: vrrRead
+        command: ["hyprctl", "-j", "getoption", "misc:vrr"]
+        running: true
+        stdout: StdioCollector {
+            onStreamFinished: {
+                try { const v = JSON.parse(text).int; page.vrrMode = Number.isInteger(v) ? v : -1 }
+                catch (e) { page.vrrMode = -1 }
+            }
+        }
+    }
+    Process {
+        id: vrrWrite
+        onExited: function(code) {
+            page.ctl.status = code === 0 ? "VRR updated" : "Could not update VRR"
+            vrrRead.running = true
+        }
+    }
+    Timer { interval: 3000; running: true; repeat: true; onTriggered: if (!vrrRead.running && !vrrWrite.running) vrrRead.running = true }
+
+    ToggleRow {
+        width: parent.width
+        label: "Variable refresh rate (VRR)"
+        desc: "Applies to all supported monitors. Turning on uses Hyprland's always-on mode."
+        enabled: page.vrrMode >= 0 && !vrrWrite.running
+        checked: page.vrrMode > 0
+        onToggled: function(v) {
+            vrrWrite.command = [Quickshell.env("HOME") + "/.local/bin/hypr-set", "vrr-set", v ? "1" : "0"]
+            vrrWrite.running = true
+        }
+    }
 
     Process {
         id: primaryRead

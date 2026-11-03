@@ -540,5 +540,8 @@ require("rice-dashboard")
 -- Apply personal rules and bindings after project defaults.
 loadPhantomFile("hyprland-user.lua")
 
+-- A VRR choice made in Monitor settings overrides the personal default.
+loadPhantomFile("hyprland-vrr.lua")
+
 -- must stay last: gaming mode and "no blur & transparency" override
 require("rice-gaming")
