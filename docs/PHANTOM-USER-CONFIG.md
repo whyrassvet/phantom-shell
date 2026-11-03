@@ -15,7 +15,7 @@ not every application or button in the shell.
 return {
     terminal = "foot",
     fileManager = "thunar",
-    menu = "rofi -show drun",
+    menu = "phantom-app-launcher",
 }
 ```
 

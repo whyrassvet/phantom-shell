@@ -7,7 +7,7 @@
   rice-services is KEY                    "true" / "false" (KEY, or profile:NAME), for the notification center
   rice-services toggle KEY                flip a switch (the notification center buttons use this)
   rice-services profile power-saver|balanced|performance|get
-  rice-services session lock|suspend|logout|reboot|poweroff   (the last three ask first)
+  rice-services session lock|suspend|logout|reboot|poweroff   (no confirmation)
 """
 import json
 import os
@@ -190,18 +190,6 @@ def profile_set(name):
             (r.stderr.strip() if r else "") or "Is power-profiles-daemon running?"])
 
 
-def confirm(question):
-    """a small yes / no menu (rofi); without rofi: yes"""
-    if not shutil.which("rofi"):
-        return True
-    try:
-        r = subprocess.run(["rofi", "-dmenu", "-i", "-p", question, "-l", "2", "-no-custom", "-theme-str", "window { width: 360px; }"],
-                           input="No\nYes\n", capture_output=True, text=True, timeout=60)
-        return r.stdout.strip() == "Yes"
-    except Exception:
-        return False
-
-
 def session(what):
     run(["swaync-client", "-cp"])     # close the notification center first
     if what == "lock":
@@ -213,14 +201,11 @@ def session(what):
     elif what == "suspend":
         run(["systemctl", "suspend"], 10)
     elif what == "logout":
-        if confirm("Log out?"):
-            run(["hyprctl", "dispatch", "exit"])
+        run(["hyprctl", "dispatch", "exit"])
     elif what == "reboot":
-        if confirm("Restart?"):
-            run(["systemctl", "reboot"], 10)
+        run(["systemctl", "reboot"], 10)
     elif what == "poweroff":
-        if confirm("Shut down?"):
-            run(["systemctl", "poweroff"], 10)
+        run(["systemctl", "poweroff"], 10)
     else:
         sys.exit("session: lock|suspend|logout|reboot|poweroff")
 

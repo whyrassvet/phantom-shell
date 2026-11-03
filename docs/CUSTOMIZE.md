@@ -13,20 +13,6 @@ waybar-set distro-icon on|off     # logo that matches your distro
 waybar-set autohide on|off
 ```
 
-## Rofi
-Use **Settings > Rofi**, or the command line:
-
-```bash
-rice-rofi set theme shadow|graphite|midnight|rose|paper
-rice-rofi set layout list|grid|bar
-rice-rofi set position top|center|bottom
-rice-rofi set transparency on|off
-rice-rofi set blur on|off
-rice-rofi reset          # defaults
-rice-rofi restore        # give back your original rofi and Hyprland files
-```
-The theme is written to `~/.config/rofi/shadows.rasi` and loaded from `~/.config/rofi/config.rasi`. Your previous `@theme` lines are commented out (backup: `config.rasi.bak-rice-rofi`).
-
 ## Theme
 ```bash
 rice-colors list             # all schemes

@@ -107,7 +107,7 @@ config_dirs() { local d; for d in "$ROOT"/config/*/; do [ -d "$d" ] && basename 
 pretty_dir() {
   case "$1" in
     hypr) echo "Hyprland" ;; waybar) echo "Waybar" ;; swaync) echo "Notifications (swaync)" ;;
-    rofi) echo "Rofi" ;; matugen) echo "Matugen colors" ;; kitty) echo "Kitty terminal" ;;
+    matugen) echo "Matugen colors" ;; kitty) echo "Kitty terminal" ;;
     fastfetch) echo "Fastfetch" ;; fish) echo "Fish shell" ;; waybar-presets) echo "Waybar presets" ;; *) echo "$1" ;;
   esac
 }
@@ -305,7 +305,7 @@ copy_lua() { local f; for f in "$ROOT"/lua/*.lua; do [ -f "$f" ] && put "$f" "$H
 
 # ------------------------------------------------------------------ your saved settings
 # settings/ holds what you chose in Settings on the computer that ran ./sync.sh: the Waybar look
-# (ui.json), dashboard, widgets, hot corner, notifications, lock screen, rofi, fonts, cursor, effects.
+# (ui.json), dashboard, widgets, hot corner, notifications, lock screen, fonts, cursor, effects.
 # A file is put in place when you do not have it yet, or when you did not change it since the
 # installer put it there last time. Files you changed on this computer are kept, unless you said
 # "use the saved settings" (then yours are backed up first, like every other file).
@@ -429,7 +429,6 @@ step_finish() {
   [ -x "$BIN/desktop-set" ] && task "Desktop widgets settings" t "$BIN/desktop-set" state
   command -v swaync >/dev/null 2>&1 && task "Notifications style" t "$BIN/rice-notify" apply
   command -v hyprlock >/dev/null 2>&1 && task "Lock screen and idle timers" t "$BIN/rice-lock" apply
-  command -v rofi >/dev/null 2>&1 && task "Rofi theme" t "$BIN/rice-rofi" apply
   task "Hot corner" t "$BIN/rice-hotcorner" apply
   [ -x "$BIN/desktop-set" ] && task "Dock and widget blur" t "$BIN/desktop-set" dock-blur
   [ -x "$BIN/rice-dashboard" ] && task "Dashboard blur" t "$BIN/rice-dashboard" blur
@@ -540,7 +539,7 @@ if [ "$MENU_CHOICE" = 2 ]; then
   menu_multi "Choose what to install" \
     "Packages|Hyprland, Quickshell, Waybar, tools|${WANT[0]}" \
     "Fonts|Inter, Rubik, Nerd Font icons and clock fonts|1" \
-    "Config files|Hyprland, Waybar, notifications, rofi|1" \
+    "Config files|Hyprland, Waybar, notifications|1" \
     "Apps and scripts|Settings app, widgets, dock, hot corner|1" \
     "Your settings|Waybar look, dashboard, widgets, lock screen (settings/)|1"
   WANT=("${MENU_SEL[@]}")

@@ -62,7 +62,7 @@ PanelWindow {
         if (cmd === "close") {
             return
         } else if (cmd === "allapps") {
-            Quickshell.execDetached(["bash", "-c", "sleep 0.25; rofi -show drun"])
+            Quickshell.execDetached(["bash", "-c", "sleep 0.25; \"$HOME/.local/bin/phantom-app-launcher\""])
         } else if (cmd === "settings") {
             Quickshell.execDetached(["bash", "-c", "\"$HOME/.local/bin/rice-settings\""])
         } else if (cmd === "wallpaper") {

@@ -240,7 +240,7 @@ PanelWindow {
                     anchors.fill: parent
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
-                    onClicked: Quickshell.execDetached(["rofi", "-show", "drun"])
+                    onClicked: Quickshell.execDetached([Quickshell.env("HOME") + "/.local/bin/phantom-app-launcher"])
                 }
             }
         }

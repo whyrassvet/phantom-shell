@@ -175,6 +175,6 @@
     "path": "/run/current-system/sw/share/icons/hicolor/scalable/apps/nix-snowflake-white.svg",
     "size": 16,
     "tooltip": false,
-    "on-click": "rofi -show drun"
+    "on-click": "$HOME/.local/bin/phantom-app-launcher"
   }
 }

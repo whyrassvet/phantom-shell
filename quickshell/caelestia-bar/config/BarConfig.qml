@@ -34,7 +34,7 @@ Singleton {
         onTriggered: styleFile.reload()
     }
     // Command used by the logo button.
-    property string launcherCommand: "rofi -show drun"
+    property string launcherCommand: "phantom-app-launcher"
     // Command used by the power button. Empty = toggle the session panel state.
     property string powerCommand: ""
 
