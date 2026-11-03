@@ -18,6 +18,19 @@ printf 'untouched\n' > "$outside/sentinel"
 copy_phantom_bar "$src" "$dst"
 cmp "$src/services/service.qml" "$dst/services/service.qml"
 
+mv "$src/components" "$scratch/components"
+if copy_phantom_bar "$src" "$scratch/missing-dir-dst" 2>/dev/null; then
+    echo 'Missing source directory unexpectedly accepted' >&2; exit 1
+fi
+ln -s "$scratch/components" "$src/components"
+if copy_phantom_bar "$src" "$scratch/linked-dir-dst" 2>/dev/null; then
+    echo 'Symlinked source directory unexpectedly accepted' >&2; exit 1
+fi
+rm "$src/components"
+mv "$scratch/components" "$src/components"
+test ! -e "$scratch/missing-dir-dst"
+test ! -e "$scratch/linked-dir-dst"
+
 ln -s "$outside" "$src/components/unsafe"
 if copy_phantom_bar "$src" "$scratch/source-link-dst" 2>/dev/null; then
     echo 'Source symlink unexpectedly accepted' >&2; exit 1

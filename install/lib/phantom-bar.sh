@@ -9,7 +9,10 @@ copy_phantom_bar() {
   local src="$1" dst="$2" name f dir
   [ -d "$src" ] || { echo "Bar source not found: $src" >&2; return 1; }
   for name in components services utils assets; do
-    [ -d "$src/$name" ] && [ ! -L "$src/$name" ] || { echo "Missing vendored bar directory: $src/$name" >&2; return 1; }
+    if [ ! -d "$src/$name" ] || [ -L "$src/$name" ]; then
+      echo "Missing vendored bar directory: $src/$name" >&2
+      return 1
+    fi
   done
   if [ -n "$(find -P "$src" -type l -print -quit)" ]; then
     echo "Refusing symlinks in bar source: $src" >&2
