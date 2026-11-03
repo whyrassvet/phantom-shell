@@ -9,7 +9,20 @@ ShellRoot {
     property string wallpaper: ""
     property bool locked: false
     readonly property string home: Quickshell.env("HOME")
-    readonly property var scr: Quickshell.screens.length > 0 ? Quickshell.screens[0] : null
+    property string primaryMonitor: ""
+    readonly property var scr: {
+        const screens = Quickshell.screens
+        for (let i = 0; i < screens.length; i++)
+            if (screens[i].name === primaryMonitor) return screens[i]
+        return screens.length > 0 ? screens[0] : null
+    }
+    Process {
+        id: primaryRead
+        command: ["sh", "-c", "cat \"$HOME/.config/phantom-shell/primary-monitor\" 2>/dev/null"]
+        running: true
+        stdout: StdioCollector { onStreamFinished: root.primaryMonitor = text.trim() }
+    }
+    Timer { interval: 1000; repeat: true; running: true; onTriggered: if (!primaryRead.running) primaryRead.running = true }
     readonly property int sw: scr ? scr.width : 1920
     readonly property int sh: scr ? scr.height : 1080
     // Keep in sync with the installed Phantom bar's default thickness.
@@ -191,6 +204,7 @@ ShellRoot {
     // ---- widgets (positions, sizes and looks come from the widget editor)
     WidgetWindow {
         id: weatherWin
+        screen: root.scr
         wid: "weather"; wc: root.wc("weather"); active: root.on("weather"); editing: root.editing; hidden: root.hideWidgets
         bw: root.sw; bh: root.sh; cw: 300; ch: 120; defX: 40; defY: 370
         onMoved: function(id, x, y) { root.savePos(id, x, y) }
@@ -199,6 +213,7 @@ ShellRoot {
     }
     WidgetWindow {
         id: mediaWin
+        screen: root.scr
         wid: "media"; wc: root.wc("media"); active: root.on("media"); editing: root.editing; hidden: root.hideWidgets
         bw: root.sw; bh: root.sh; cw: 400; ch: 120; defX: root.sw - 440; defY: 60
         onMoved: function(id, x, y) { root.savePos(id, x, y) }
@@ -216,6 +231,7 @@ ShellRoot {
     }
     WidgetWindow {
         id: userWin
+        screen: root.scr
         wid: "usercard"; wc: root.wc("usercard"); active: root.on("usercard"); editing: root.editing; hidden: root.hideWidgets
         bw: root.sw; bh: root.sh; cw: 340; ch: 120; defX: root.sw - 380; defY: 560
         onMoved: function(id, x, y) { root.savePos(id, x, y) }
@@ -233,6 +249,7 @@ ShellRoot {
     }
     WidgetWindow {
         id: batWin
+        screen: root.scr
         wid: "battery"; wc: root.wc("battery"); active: root.on("battery"); editing: root.editing; hidden: root.hideWidgets
         bw: root.sw; bh: root.sh; cw: 280; ch: 110; defX: 40; defY: 520
         onMoved: function(id, x, y) { root.savePos(id, x, y) }
@@ -251,15 +268,15 @@ ShellRoot {
         VizWidget { anchors.fill: parent; running: root.on("visualizer") && !root.hideWidgets && !Look.lite; style: vizWin.sty !== "" ? vizWin.sty : "bars"; flip: vizWin.flp }
     }
 
-    EditorWindow { root: root }
+    EditorWindow { root: root; screen: root.scr }
 
     // ---- dashboard (middle of the bar edge, SUPER + W for wallpapers)
-    Dashboard { id: dash }
-    WallPreview { path: dash.previewPath }
+    Dashboard { id: dash; screen: root.scr }
+    WallPreview { path: dash.previewPath; screen: root.scr }
 
     Dock { dc: root.cfg.dock ? root.cfg.dock : ({}) }
 
     // ---- hot corner (Settings > Hot corners)
-    HotCorner { }
+    HotCorner { screen: root.scr }
 
 }

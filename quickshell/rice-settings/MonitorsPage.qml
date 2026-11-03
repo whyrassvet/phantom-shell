@@ -6,6 +6,7 @@ Column {
     id: page
     property var ctl
     property var mons: []
+    property string primaryMonitor: ""
     property int countdown: 0
     spacing: 14
 
@@ -19,6 +20,35 @@ Column {
     }
 
     Timer { id: refresh; interval: 1500; onTriggered: monProc.running = true }
+
+    Process {
+        id: primaryRead
+        command: ["sh", "-c", "cat \"$HOME/.config/phantom-shell/primary-monitor\" 2>/dev/null"]
+        running: true
+        stdout: StdioCollector { onStreamFinished: page.primaryMonitor = text.trim() }
+    }
+    Process {
+        id: primaryWrite
+        onExited: function(code) {
+            if (code === 0) page.ctl.status = "Primary monitor saved"
+            else page.ctl.status = "Could not save primary monitor"
+            primaryRead.running = true
+        }
+    }
+    Timer { interval: 2000; running: true; repeat: true; onTriggered: if (!primaryRead.running) primaryRead.running = true }
+    function setPrimary(name) {
+        if (primaryWrite.running) return
+        primaryWrite.command = ["python3", "-c", "import os,sys,tempfile\np=os.path.expanduser('~/.config/phantom-shell/primary-monitor')\nos.makedirs(os.path.dirname(p),exist_ok=True)\nf,t=tempfile.mkstemp(dir=os.path.dirname(p),prefix='.primary-monitor-')\nwith os.fdopen(f,'w') as out: out.write(sys.argv[1]+'\\n')\nos.replace(t,p)", name]
+        primaryWrite.running = true
+    }
+
+    T { text: "Primary monitor"; font.bold: true; font.pixelSize: 16 }
+    T { text: "Dashboard, hot corner and desktop widgets. If unavailable, another screen is used."; color: "#8a8a8a"; wrapMode: Text.WordWrap; width: parent.width }
+    Seg {
+        options: page.mons.map(m => ({ label: m.name, value: m.name }))
+        current: page.primaryMonitor
+        onChosen: function(v) { page.setPrimary(v) }
+    }
 
     Timer {
         interval: 1000

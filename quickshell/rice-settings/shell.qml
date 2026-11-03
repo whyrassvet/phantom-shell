@@ -240,7 +240,8 @@ FloatingWindow {
         { name: "Desktop", icon: "\uf26c" },
         { name: "Hot corners", icon: "\udb82\ude0b" },
         { name: "Interface", icon: "\uf2d0" },
-        { name: "Services", icon: "" }
+        { name: "Services", icon: "" },
+        { name: "Monitors", icon: "\uf108" }
     ]
 
     readonly property string hyprTool: home + "/.local/bin/hypr-set"
@@ -680,6 +681,17 @@ FloatingWindow {
             PageSlot { idx: 12; cur: win.page; HotCornersPage { anchors.fill: parent; ctl: win } }
             PageSlot { idx: 13; cur: win.page; InterfacePage { anchors.fill: parent; ctl: win } }
             PageSlot { idx: 14; cur: win.page; ServicesPage { anchors.fill: parent; ctl: win } }
+            PageSlot {
+                idx: 15; cur: win.page
+                Flickable {
+                    anchors.fill: parent
+                    clip: true
+                    contentWidth: width
+                    contentHeight: monitorPage.height + 48
+                    boundsBehavior: Flickable.StopAtBounds
+                    MonitorsPage { id: monitorPage; x: 24; y: 16; width: parent.width - 48; ctl: win }
+                }
+            }
         }
 
         // ---------- the tour (after the welcome intro, or rice-welcome tour) ----------

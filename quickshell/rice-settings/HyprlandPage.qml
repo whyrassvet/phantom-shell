@@ -7,8 +7,8 @@ Item {
     property int tab: 0
     property bool confirmReset: false
 
-    readonly property var tabs: ["Gaps", "Borders", "Layout", "Rounding & Opacity", "Blur", "Animations", "Keybinds", "Monitors"]
-    readonly property var comps: [gapsC, bordersC, layoutC, roundC, blurC, animC, bindsC, monC]
+    readonly property var tabs: ["Gaps", "Borders", "Layout", "Rounding & Opacity", "Blur", "Animations", "Keybinds"]
+    readonly property var comps: [gapsC, bordersC, layoutC, roundC, blurC, animC, bindsC]
 
     readonly property var gapsSpec: [
         { key: "general.gaps_in", type: "slider", label: "Inner gaps", desc: "Gaps between windows", min: 0, max: 40, step: 1, unit: " px", def: 5 },
@@ -210,5 +210,4 @@ Item {
     }
 
     Component { id: bindsC; BindsPage { ctl: page.ctl } }
-    Component { id: monC; MonitorsPage { ctl: page.ctl } }
 }
