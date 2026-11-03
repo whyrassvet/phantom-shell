@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Check all bar style geometries in an isolated headless compositor."""
 import os
+import re
 from pathlib import Path
 import shutil
 import subprocess
@@ -147,6 +148,7 @@ with tempfile.TemporaryDirectory(prefix="phantom-styles-", dir="/tmp/opencode") 
                 assert f"STYLE_WORKSPACE_PADDING {style} true" in result, result
             for error in ("ReferenceError", "TypeError", "Failed to load configuration"):
                 assert error not in result, result
+            assert not re.search(r"Workspaces\.qml\[.*?\]: Unable to assign", result), result
         finally:
             os.killpg(proc.pid, 15)
             proc.wait(timeout=10)

@@ -57,7 +57,7 @@ StyledClippingRect {
         objectName: "workspaceOutline"
         anchors.fill: parent
         z: 1
-        radius: parent.radius
+        radius: root.height / 2
         color: "transparent"
         border.width: BarConfig.style === "islands" ? 1 : 0
         border.color: Colours.outline
