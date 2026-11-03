@@ -151,7 +151,7 @@ Item {
 
                 StyledSlider {
                     Layout.fillWidth: true
-                    implicitHeight: Tokens.padding.medium * 3
+                    implicitHeight: 10
                     value: streamRow.modelData.audio?.volume ?? 0
                     onInteraction: value => Audio.setStreamVolume(streamRow.modelData, value)
                 }
