@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""rice-update: updates for DarkShadow's Shell.
+"""rice-update: updates for Phantom Shell.
 
   rice-update               install the newest version (runs ./install.sh --update in the repo)
   rice-update check [--json] [--offline]
@@ -14,6 +14,7 @@ import shutil
 import subprocess
 import sys
 import time
+from phantom_version import clean, key
 
 HOME = os.path.expanduser("~")
 DIR = HOME + "/.config/rice"
@@ -40,25 +41,11 @@ def repo():
     return r if os.path.exists(r + "/install.sh") else None
 
 
-def key(v):
-    """'2.02' < '2.1' == '2.10' < '3.0' (the part after the dot reads like decimals)"""
-    try:
-        major, _, minor = v.strip().lstrip("vV").partition(".")
-        return (int(major), float("0." + (minor or "0")))
-    except ValueError:
-        return (0, 0.0)
-
-
-def clean(v):
-    v = (v or "").strip().lstrip("vV")
-    return v if v and key(v) > (0, 0.0) else ""
-
-
 def installed():
     try:
-        return clean(open(INSTALLED).read()) or "2.01"
+        return clean(open(INSTALLED).read()) or "0.0.0"
     except OSError:
-        return "2.01"   # installs from before versions existed
+        return "0.0.0"   # installed version is unknown
 
 
 def git(r, *a, timeout=25):

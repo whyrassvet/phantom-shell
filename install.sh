@@ -61,18 +61,9 @@ cleanup() { [ -n "$SUDO_PID" ] && kill "$SUDO_PID" 2>/dev/null; rm -f "${PKG_SPL
 trap cleanup EXIT
 
 # ------------------------------------------------------------------ helpers
-# ver_newer A B: true when version A is newer than B ("2.1" == "2.10" > "2.02")
+# ver_newer A B: compare Phantom versions, including prereleases.
 ver_newer() {
-  python3 - "$1" "$2" <<'PY' 2>/dev/null
-import sys
-def k(v):
-    a, _, b = v.strip().lstrip("vV").partition(".")
-    try:
-        return (int(a or 0), float("0." + (b or "0")))
-    except ValueError:
-        return (0, 0.0)
-sys.exit(0 if k(sys.argv[1]) > k(sys.argv[2]) else 1)
-PY
+  python3 "$ROOT/bin/phantom_version.py" "$1" "$2"
 }
 # put SRC DST: copy one file, fill in @HOME@/@USER@, back up what it replaces
 put() {

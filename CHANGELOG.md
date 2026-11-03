@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.1.1-alpha
+- Initial Phantom Shell alpha with an independent bar and application launcher.
+- Desktop widgets include auto-hide and a performance warning for the visualizer.
+- Monitor settings include primary display selection and a VRR toggle.
+- Experimental release: clean installation and full desktop acceptance remain unverified.
+
 ## V2.97
 - Screen recording never fails because of sound: if wf-recorder stops right away with the chosen sound, it tries the default input, then records without sound, and tells you. What happened is in ~/.cache/rice/record.log
 

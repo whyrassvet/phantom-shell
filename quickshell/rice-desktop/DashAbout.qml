@@ -2,7 +2,7 @@ import Quickshell
 import Quickshell.Io
 import QtQuick
 
-// About tab: this computer, your distro, DarkShadow's Shell (with updates). Cards can be edited.
+// About tab: this computer, your distro, Phantom Shell (with updates). Cards can be edited.
 Item {
     id: ab
     property var d
@@ -37,7 +37,7 @@ Item {
         catalog: [
             { id: "system", name: "This computer", sizes: [[5, 1], [4, 1], [6, 1]] },
             { id: "distro", name: "Distro", sizes: [[3, 1], [4, 1], [2, 1]] },
-            { id: "rice", name: "DarkShadow's Shell", sizes: [[4, 1], [3, 1], [5, 1]] }
+            { id: "rice", name: "Phantom Shell", sizes: [[4, 1], [3, 1], [5, 1]] }
         ]
         defaults: [{ id: "system", w: 5, h: 1 }, { id: "distro", w: 3, h: 1 }, { id: "rice", w: 4, h: 1 }]
         comps: ({ system: sysC, distro: distC, rice: riceC })
@@ -139,7 +139,7 @@ Item {
                 anchors.right: parent.right; anchors.rightMargin: 16
                 y: 20
                 spacing: 6
-                DText { width: parent.width; elide: Text.ElideRight; text: "DarkShadow's Shell"; font.pixelSize: 17; font.weight: Font.DemiBold; color: ab.p.text }
+                DText { width: parent.width; elide: Text.ElideRight; text: "Phantom Shell"; font.pixelSize: 17; font.weight: Font.DemiBold; color: ab.p.text }
                 Row {
                     spacing: 6
                     Rectangle {
