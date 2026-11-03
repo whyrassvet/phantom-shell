@@ -14,6 +14,8 @@ Item {
     id: root
 
     required property PopoutState popouts
+    property bool mixerExpanded: false
+    readonly property var playbackStreams: Audio.streams.filter(stream => stream.properties["media.class"] === "Stream/Output/Audio")
 
     implicitWidth: Tokens.sizes.bar.audioWidth
     implicitHeight: layout.implicitHeight + Tokens.padding.medium * 2
@@ -99,6 +101,60 @@ Item {
 
                 value: Audio.volume
                 onInteraction: value => Audio.setVolume(value)
+            }
+        }
+
+        IconTextButton {
+            Layout.fillWidth: true
+            Layout.topMargin: Tokens.spacing.medium
+            isToggle: true
+            checked: root.mixerExpanded
+            verticalPadding: Tokens.padding.extraSmall
+            text: Tr.tr("Application volume")
+            icon: root.mixerExpanded ? "expand_less" : "expand_more"
+
+            onClicked: root.mixerExpanded = !root.mixerExpanded
+        }
+
+        StyledText {
+            Layout.fillWidth: true
+            visible: root.mixerExpanded && root.playbackStreams.length === 0
+            text: Tr.tr("No active applications")
+            font: Tokens.font.body.small
+        }
+
+        ListView {
+            id: streamList
+
+            Layout.fillWidth: true
+            visible: root.mixerExpanded && count > 0
+            implicitHeight: Math.min(contentHeight, 240)
+            clip: true
+            spacing: Tokens.spacing.medium
+            model: root.playbackStreams
+            boundsBehavior: Flickable.StopAtBounds
+            ScrollBar.vertical: ScrollBar { policy: streamList.contentHeight > streamList.height ? ScrollBar.AsNeeded : ScrollBar.AlwaysOff }
+
+            delegate: ColumnLayout {
+                id: streamRow
+
+                required property PwNode modelData
+                width: streamList.width
+                spacing: Tokens.spacing.small
+
+                StyledText {
+                    Layout.fillWidth: true
+                    elide: Text.ElideRight
+                    text: Audio.getStreamName(streamRow.modelData) + " (" + Math.round((streamRow.modelData.audio?.volume ?? 0) * 100) + "%)"
+                    font: Tokens.font.body.small
+                }
+
+                StyledSlider {
+                    Layout.fillWidth: true
+                    implicitHeight: Tokens.padding.medium * 3
+                    value: streamRow.modelData.audio?.volume ?? 0
+                    onInteraction: value => Audio.setStreamVolume(streamRow.modelData, value)
+                }
             }
         }
 
