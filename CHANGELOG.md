@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.2.0-alpha
+- Add bar appearance settings: Flat, Floating, Islands and One island, with shared-surface popouts.
+- Improve the Settings opening animation and sound loading responsiveness.
+- Experimental release: clean installation and full desktop acceptance remain unverified.
+
 ## v0.1.2-alpha
 - Add a Caelestia-style session panel with a bar button and edge gesture.
 - Fix desktop widget auto-hide tracking when the selected monitor changes.
