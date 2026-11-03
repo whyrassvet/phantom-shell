@@ -26,7 +26,7 @@ DEFAULTS = {
              "apps": ["kitty", "org.gnome.Nautilus", "firefox", "spotify", "discord", "steam"]},
     "lock": {"toolbars": False, "widgets": False, "media": False},
     "widgetBlur": True,
-    "autoHide": False,       # widgets hide while windows are open (Settings > Desktop)      # blurred wallpaper behind the widget cards (Settings > Desktop > Widgets)
+    "autoHide": True,        # widgets hide while windows are open (Settings > Desktop)
     "editing": False,
 }
 CHOICES = {"placement": ["draggable", "leastBusy", "mostBusy"], "style": ["digital", "cookie", "pixel"]}

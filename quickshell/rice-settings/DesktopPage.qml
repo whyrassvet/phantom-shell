@@ -4,6 +4,17 @@ import QtQuick
 Item {
     id: page
     property var ctl
+    property bool confirmDisableAutoHide: false
+
+    function setAutoHide(v) {
+        const d = JSON.parse(JSON.stringify(page.ctl.dst)); d.autoHide = v; page.ctl.dst = d
+        Quickshell.execDetached(["bash", "-c", "\"$HOME/.local/bin/desktop-set\" auto-hide \"$1\"", "_", v ? "on" : "off"])
+        page.ctl.status = "Auto-hide widgets " + (v ? "on" : "off")
+    }
+    function requestAutoHide(v) {
+        if (v) setAutoHide(true)
+        else confirmDisableAutoHide = true
+    }
 
     readonly property var widgets: [
         { key: "weather", label: "Weather", icon: "", desc: "Temperature and sky" },
@@ -172,12 +183,8 @@ Item {
             ToggleRow {
                 label: "Auto-hide widgets"
                 desc: "Hide them while a tiled window is open on the screen; floating windows (Settings, pop-ups) leave them alone. Lighter on the computer"
-                checked: page.ctl.dst.autoHide === true
-                onToggled: function(v) {
-                    const d = JSON.parse(JSON.stringify(page.ctl.dst)); d.autoHide = v; page.ctl.dst = d
-                    Quickshell.execDetached(["bash", "-c", "\"$HOME/.local/bin/desktop-set\" auto-hide \"$1\"", "_", v ? "on" : "off"])
-                    page.ctl.status = "Auto-hide widgets " + (v ? "on" : "off")
-                }
+                checked: page.ctl.dst.autoHide !== false
+                onToggled: function(v) { page.requestAutoHide(v) }
             }
             ToggleRow {
                 label: "Blur behind widgets"
@@ -229,6 +236,43 @@ Item {
                 ]
                 current: page.cv("style", "digital")
                 onChosen: function(v) { page.ctl.dset("clock", "style", v) }
+            }
+        }
+    }
+
+    Rectangle {
+        anchors.fill: parent
+        z: 100
+        visible: page.confirmDisableAutoHide
+        color: "#b0000000"
+        MouseArea { anchors.fill: parent }
+        Rectangle {
+            anchors.centerIn: parent
+            width: Math.min(440, parent.width - 32)
+            height: warningContent.implicitHeight + 48
+            radius: 14
+            color: "#1a1a1a"
+            border.width: 1
+            border.color: "#404040"
+            Column {
+                id: warningContent
+                anchors { left: parent.left; right: parent.right; verticalCenter: parent.verticalCenter; margins: 24 }
+                spacing: 18
+                T { text: "Disable auto-hide?"; font.pixelSize: 18; font.bold: true }
+                T {
+                    width: parent.width
+                    text: "Keeping widgets visible behind windows, especially the visualizer with blur, can significantly increase GPU usage and power consumption."
+                    color: "#bdbdbd"
+                    wrapMode: Text.WordWrap
+                }
+                Row {
+                    spacing: 10
+                    Pill { label: "Cancel"; onClicked: page.confirmDisableAutoHide = false }
+                    Pill {
+                        label: "Disable auto-hide"
+                        onClicked: { page.confirmDisableAutoHide = false; page.setAutoHide(false) }
+                    }
+                }
             }
         }
     }

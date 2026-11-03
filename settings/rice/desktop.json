@@ -78,6 +78,6 @@
     "media": false
   },
   "widgetBlur": true,
-  "autoHide": false,
+  "autoHide": true,
   "editing": false
 }

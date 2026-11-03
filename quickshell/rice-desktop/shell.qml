@@ -159,7 +159,7 @@ ShellRoot {
     }
 
     // ---- auto-hide (Settings > Desktop): widgets fade out while windows are open on this screen
-    readonly property bool autoHide: cfg.autoHide === true || Look.lite
+    readonly property bool autoHide: cfg.autoHide !== false || Look.lite
     property bool busy: false
     readonly property bool hideWidgets: autoHide && busy && !editing && !locked
     Process {
