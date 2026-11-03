@@ -336,7 +336,7 @@ FloatingWindow {
         Behavior on color { ColorAnimation { duration: 300 } }
         focus: true
         Keys.onEscapePressed: win.closeNow()
-        NumberAnimation on opacity { from: 0; to: 1; duration: 240; easing.type: Easing.OutCubic }
+        opacity: 1 - openingSplash.opacity
 
         // falling stars over the whole window, behind everything (they stay put while the pages change)
         StarField {
@@ -744,6 +744,63 @@ FloatingWindow {
             text: win.status
             color: "#8a8a8a"
             font.pixelSize: 12
+        }
+    }
+
+    // Show the moon while Settings prepares, then fade into the window.
+    Rectangle {
+        id: openingSplash
+        anchors.fill: parent
+        z: 1000000
+        color: Qt.rgba(0.05, 0.05, 0.05, win.flat ? 1 : 0.72)
+        opacity: 1
+        visible: opacity > 0.01
+        property bool soundAttempted: false
+        function playReveal() {
+            if (!soundAttempted && Sfx.loaded) {
+                soundAttempted = true
+                Sfx.play("intro/reveal")
+            }
+        }
+        Component.onCompleted: playReveal()
+        Connections { target: Sfx; function onLoadedChanged() { openingSplash.playReveal() } }
+        StarField {
+            anchors.fill: parent
+            count: 20
+            running: win.visible && win.stars && openingSplash.visible
+            visible: win.stars
+        }
+        MouseArea { anchors.fill: parent }
+        Column {
+            anchors.centerIn: parent
+            spacing: 8
+            MoonLogo {
+                anchors.horizontalCenter: parent.horizontalCenter
+                size: 150
+                intro: false
+                reveal: 0
+                NumberAnimation on reveal { from: 0; to: 1; duration: 1300; easing.type: Easing.OutCubic }
+            }
+            T {
+                id: splashTitle
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: "Phantom Shell"
+                kind: "display"
+                font.pixelSize: 28
+                font.bold: true
+                opacity: 0
+                transform: Translate { id: titleRise; y: 12 }
+                ParallelAnimation {
+                    running: true
+                    SequentialAnimation { PauseAnimation { duration: 400 } NumberAnimation { target: splashTitle; property: "opacity"; to: 1; duration: 1000; easing.type: Easing.OutCubic } }
+                    SequentialAnimation { PauseAnimation { duration: 400 } NumberAnimation { target: titleRise; property: "y"; to: 0; duration: 1000; easing.type: Easing.OutCubic } }
+                }
+            }
+        }
+        SequentialAnimation {
+            running: true
+            PauseAnimation { duration: 2200 }
+            NumberAnimation { target: openingSplash; property: "opacity"; to: 0; duration: 520; easing.type: Easing.InOutCubic }
         }
     }
 }
