@@ -114,6 +114,14 @@ ShellRoot {
                         width: scope.fullscreen ? 0 : 4
                         height: scope.modelData.height - BarConfig.thickness
                     }
+                    // Keep receiving an edge drag after it leaves the 4 px strip.
+                    // Without an underlying application, the pointer can otherwise
+                    // leave the surface before the session drag threshold is reached.
+                    Region {
+                        id: sessionDragRegion
+                        width: sessionEdge.pressed ? scope.modelData.width : 0
+                        height: sessionEdge.pressed ? scope.modelData.height : 0
+                    }
                     Region {
                         x: Math.floor(sessionPanel.x)
                         y: Math.floor(sessionPanel.y)
