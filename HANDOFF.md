@@ -2,6 +2,8 @@
 
 ## Этап и последняя задача
 
+2026-11-03 по просьбе пользователя удалён неотслеживаемый `wallpapers/Monochrome Crescent Moon Among Clouds.png` (1672×941), оставлен и добавлен в проект `wallpapers/phantom-shell-monochrome-4k.png` (3840×2160). Копия в `~/Pictures` и текущая сессия не менялись; 4K-обои визуально не проверялись. Резервные копии документов `/tmp/opencode/phantom-wallpaper-4k-backup-20261103/`.
+
 2026-11-03 по просьбе пользователя автоматическая палитра очень тёмных монохромных обоев переведена на `scheme-monochrome` вместо фиксированного синего seed; явный режим Navy сохранён. Обновлены проектный и установленный `quickshell/hyprquickpaper/commands.sh`, дополнен `tests/wallpaper-apply-errors.py`. Изолированный Matugen на `Monochrome Crescent Moon Among Clouds.png` дал серые цвета, реальная сессия и повторное применение обоев не проверялись. Копии `/tmp/opencode/phantom-monochrome-backup-20261103/`.
 
 2026-11-03 по просьбе пользователя созданы теги и GitHub pre-release `v0.2.0-alpha` на `1ac2b794400a10c1ab3e55790381cc0105a38bc5` и `v0.2.1-alpha` на `32074c336f29a7d8151cc6887d89d30597970f9e`. В `AGENTS.md` закреплено создание тега и GitHub Release при изменении версии после проверок и публикации в `main`; перенос в `main` по-прежнему требует решения пользователя. Полная приёмка и чистая установка не завершены. Копии `/tmp/opencode/phantom-release-policy-backup-20261103/`.
