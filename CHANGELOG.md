@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.2.2-alpha
+- Add expandable per-application volume controls to the bar audio popout.
+- Remove the unused Rofi integration and use the Phantom application launcher instead.
+- Improve automatic colours for dark monochrome wallpapers and add a monochrome 4K wallpaper.
+- Experimental release: clean installation and full desktop acceptance remain unverified.
+
 ## v0.2.1-alpha
 - Fix the Welcome-to-Settings tour sequence and prevent the duplicated opening sound.
 - Experimental release: clean installation and full desktop acceptance remain unverified.
