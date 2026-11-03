@@ -162,13 +162,39 @@ ShellRoot {
     readonly property bool autoHide: cfg.autoHide !== false || Look.lite
     property bool busy: false
     readonly property bool hideWidgets: autoHide && busy && !editing && !locked
+    readonly property string busyMonitor: scr ? scr.name : ""
+    onBusyMonitorChanged: syncBusyWatcher()
+    onAutoHideChanged: syncBusyWatcher()
+    function syncBusyWatcher() {
+        const wanted = autoHide ? busyMonitor : ""
+        if (busyProc.running) {
+            if (busyProc.monitor !== wanted) {
+                busyProc.restartPending = true
+                busyProc.running = false
+            }
+        } else {
+            busy = false
+            if (wanted !== "") {
+                busyProc.monitor = wanted
+                busyProc.running = true
+            }
+        }
+    }
     Process {
         id: busyProc
-        command: ["bash", "-c", "exec \"$HOME/.local/bin/rice-busy\" \"$1\"", "_", root.scr ? root.scr.name : ""]
-        running: root.autoHide
+        property string monitor: ""
+        property bool restartPending: false
+        command: ["bash", "-c", "exec \"$HOME/.local/bin/rice-busy\" \"$1\"", "_", monitor]
         stdout: SplitParser { onRead: function(line) { root.busy = line.trim() === "1" } }
-        onRunningChanged: if (!running) root.busy = false
+        onRunningChanged: if (!running) {
+            root.busy = false
+            if (restartPending) {
+                restartPending = false
+                Qt.callLater(root.syncBusyWatcher)
+            }
+        }
     }
+    Component.onCompleted: syncBusyWatcher()
 
     // ---- clock
     WidgetWindow {
