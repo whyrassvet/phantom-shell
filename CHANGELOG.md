@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.1.2-alpha
+- Add a Caelestia-style session panel with a bar button and edge gesture.
+- Fix desktop widget auto-hide tracking when the selected monitor changes.
+- Experimental release: clean installation and full desktop acceptance remain unverified.
+
 ## v0.1.1-alpha
 - Initial Phantom Shell alpha with an independent bar and application launcher.
 - Desktop widgets include auto-hide and a performance warning for the visualizer.
