@@ -4,6 +4,13 @@
 
 ---
 
+## 2026-11-03 — публикация 0.1.1-alpha
+
+- `main` опубликован на `61d86824ea57091f92337d1e82f9d86e3583c299`, создан GitHub pre-release `v0.1.1-alpha` с тегом на этот же коммит: https://github.com/whyrassvet/phantom-shell/releases/tag/v0.1.1-alpha. Первая попытка создания release с коротким SHA возвращала HTTP 422, повтор с полным SHA успешен.
+- Реальный установленный `rice-update check --json` вернул `installed` и `latest` `0.1.1-alpha`, `update: false`, `error: ""`; GitHub подтвердил тег, коммит и pre-release. Проверка изменила кэш обновлений и выполнила git fetch. Полной установки и пользовательской визуальной проверки дашборда не было.
+
+---
+
 ## 2026-11-03 — версия Phantom 0.1.1-alpha
 
 - По просьбе пользователя подготовлена `0.1.1-alpha`: собственный `VERSION`, запись changelog, название и ссылка Phantom в About, версия приветствия. `bin/phantom_version.py` предоставляет сравнение версий и prerelease для updater и установщика, updater использует Phantom. Установлены updater, модуль, About и welcome, отображаемая версия записана в `~/.config/rice/version`. Полный установщик не запускался; соответствие всех установленных файлов релизу не проверено. Копии `/tmp/opencode/phantom-version-20261103/`.
