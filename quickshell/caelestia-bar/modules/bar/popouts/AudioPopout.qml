@@ -149,11 +149,19 @@ Item {
                     font: Tokens.font.body.small
                 }
 
-                StyledSlider {
+                Item {
                     Layout.fillWidth: true
-                    implicitHeight: 10
-                    value: streamRow.modelData.audio?.volume ?? 0
-                    onInteraction: value => Audio.setStreamVolume(streamRow.modelData, value)
+                    // The 10 px track has a taller handle, especially while pressed.
+                    implicitHeight: 36
+
+                    StyledSlider {
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        anchors.verticalCenter: parent.verticalCenter
+                        implicitHeight: 10
+                        value: streamRow.modelData.audio?.volume ?? 0
+                        onInteraction: value => Audio.setStreamVolume(streamRow.modelData, value)
+                    }
                 }
             }
         }

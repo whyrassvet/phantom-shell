@@ -54,10 +54,12 @@ with tempfile.TemporaryDirectory(prefix="phantom-audio-", dir="/tmp/opencode") a
 ''' % ('''root.playbackStreams = Array.from({length: 8}, (_, i) => Qt.createQmlObject('import QtQuick; QtObject { property string name: "App"; property QtObject audio: QtObject { property real volume: 0.5 } }', root));''' if mock else 'console.log("AUDIO_REAL_LOADED", true); running = false;',
        '''else if (step === 2) {
                     const row = streamList.itemAtIndex(0);
-                    const slider = row.children.find(child => child.interaction !== undefined);
+                    const sliderBox = row.children.find(child => child.children.some(c => c.interaction !== undefined));
+                    const slider = sliderBox.children.find(child => child.interaction !== undefined);
                     slider.interaction(0.3);
                     console.log("AUDIO_MOCK", streamList.count === 8, streamList.height === 240,
-                        Math.abs(root.playbackStreams[0].audio.volume - 0.3) < 0.001, slider.height === 10);
+                        Math.abs(root.playbackStreams[0].audio.volume - 0.3) < 0.001, slider.height === 10,
+                        sliderBox.height >= 35 && slider.y >= 12.5 && sliderBox.height - slider.y - slider.height >= 12.5);
                     layout.children.find(c => c.objectName === "mixerButtonProbe").clicked();
                 } else if (step === 3) {
                     console.log("AUDIO_COLLAPSED", !streamList.visible, root.implicitHeight === before);
@@ -148,7 +150,7 @@ with tempfile.TemporaryDirectory(prefix="phantom-audio-", dir="/tmp/opencode") a
         with log.open("w") as output:
             proc = subprocess.Popen(args, stdout=output, stderr=subprocess.STDOUT, start_new_session=True)
             try:
-                expected = ["AUDIO_EMPTY true true", "AUDIO_MOCK true true true true", "AUDIO_COLLAPSED true true", "AUDIO_TOP_FIXED true true true true"] if mock else ["AUDIO_EMPTY true true", "AUDIO_REAL_LOADED true", "AUDIO_TOP_FIXED true true true true"]
+                expected = ["AUDIO_EMPTY true true", "AUDIO_MOCK true true true true true", "AUDIO_COLLAPSED true true", "AUDIO_TOP_FIXED true true true true"] if mock else ["AUDIO_EMPTY true true", "AUDIO_REAL_LOADED true", "AUDIO_TOP_FIXED true true true true"]
                 deadline = time.monotonic() + 12
                 while time.monotonic() < deadline and proc.poll() is None:
                     result = log.read_text(errors="replace")
