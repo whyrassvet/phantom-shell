@@ -91,7 +91,7 @@ ShellRoot {
 
                 WlrLayershell.layer: WlrLayer.Top
                 WlrLayershell.exclusionMode: ExclusionMode.Ignore
-                WlrLayershell.keyboardFocus: pops.hasCurrent && pops.currentName === "wirelesspassword" ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
+                WlrLayershell.keyboardFocus: (pops.hasCurrent && pops.currentName === "wirelesspassword") || popoutWin.sessionState.session ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
                 exclusiveZone: -1
 
                 mask: Region {
@@ -108,6 +108,50 @@ ShellRoot {
                         width: Math.min(scope.modelData.width - x, Math.ceil(pops.width + 2 * revealArea.joinRadius))
                         height: bar.shouldBeVisible ? Math.max(0, Math.ceil(pops.height * popoutWin.reveal)) : 0
                     }
+                    Region {
+                        x: scope.modelData.width - 4
+                        y: BarConfig.thickness
+                        width: scope.fullscreen ? 0 : 4
+                        height: scope.modelData.height - BarConfig.thickness
+                    }
+                    Region {
+                        x: Math.floor(sessionPanel.x)
+                        y: Math.floor(sessionPanel.y)
+                        width: popoutWin.sessionState.session ? Math.ceil(sessionPanel.width) : 0
+                        height: popoutWin.sessionState.session ? Math.ceil(sessionPanel.height) : 0
+                    }
+                }
+
+                property var sessionState: ShellState.forScreen(scope.modelData)
+
+                MouseArea {
+                    id: sessionEdge
+                    x: parent.width - width
+                    y: BarConfig.thickness
+                    width: 4
+                    height: parent.height - y
+                    enabled: !scope.fullscreen
+                    property real startX
+                    function handleDrag(delta: real): void {
+                        if (delta < -Config.session.dragThreshold && Config.session.enabled)
+                            popoutWin.sessionState.session = true;
+                    }
+                    onPressed: event => startX = event.x
+                    onPositionChanged: event => {
+                        if (pressed)
+                            handleDrag(event.x - startX);
+                    }
+                }
+
+                SessionPanel {
+                    id: sessionPanel
+                    screenState: popoutWin.sessionState
+                    anchors.verticalCenter: parent.verticalCenter
+                    x: parent.width - width * (1 - offsetScale)
+                    opacity: 1 - offsetScale
+                    visible: offsetScale < 1
+                    property real offsetScale: screenState.session && Config.session.enabled ? 0 : 1
+                    Behavior on offsetScale { Anim {} }
                 }
 
                 Rectangle {
@@ -225,8 +269,10 @@ ShellRoot {
             }
 
             onFullscreenChanged: {
-                if (fullscreen)
+                if (fullscreen) {
                     pops.close();
+                    popoutWin.sessionState.session = false;
+                }
             }
 
             // Close the popout and compact tray after leaving both surfaces.

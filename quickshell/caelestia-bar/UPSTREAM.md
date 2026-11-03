@@ -24,3 +24,7 @@ The bar module in `modules/bar/` was copied from the same installed version
 and subsequently modified for phantom-shell. Vendoring these directories alone
 does not make the bar standalone: the C++ QML plugins, CLI calls, settings,
 and colour scheme still require further integration and testing.
+
+`components/SessionPanel.qml` adapts `modules/session/Content.qml` from the
+same Caelestia revision. The Phantom bar supplies its own window, input regions
+and edge-drag handling instead of Caelestia's drawers.
