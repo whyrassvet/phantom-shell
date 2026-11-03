@@ -32,10 +32,10 @@ ShellRoot {
     Timer {
         interval: 1500; running: true
         onTriggered: {
-            const ok = w.px === 0 && w.fw === 2560 && w.py === 1400 && w.dispH === 40
+            const ok = w.px === 0 && w.fw === 2560 && w.py === 1400 && w.dispH === 40 && !w.anchors.top && w.anchors.bottom && w.implicitHeight === 40
             w.bw = 1920; w.bh = 1080
             w.wc = {x: 200, y: 30, w: 100, h: 80}
-            const changed = w.px === 0 && w.fw === 1920 && w.py === 1000 && w.dispH === 80 && other.px === 25 && other.py === 35 && other.fw === 300 && other.fh === 90
+            const changed = w.px === 0 && w.fw === 1920 && w.py === 1000 && w.dispH === 80 && w.implicitHeight === 80 && other.anchors.top && other.anchors.bottom && other.px === 25 && other.py === 35 && other.fw === 300 && other.fh === 90
             console.log("CAVA_AUTO_BOTTOM", ok, changed, w.px, w.py, w.fw, w.dispH)
             Qt.quit()
         }

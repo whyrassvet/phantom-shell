@@ -2,7 +2,7 @@ import Quickshell
 import Quickshell.Wayland
 import QtQuick
 
-// Full-screen transparent surface; only the widget rectangle receives input (mask).
+// Full-screen transparent surface, except for the bottom-anchored visualizer.
 // Dragging moves an item inside the surface, so nothing is resized or re-configured
 // by the compositor while you drag (no shaking).
 // The widget editor (EditorWindow.qml) changes px/py/sc/fw/fh/op/bgv/sty/flp live and saves on release.
@@ -73,7 +73,8 @@ PanelWindow {
 
     visible: active && fk > 0.01
     color: "transparent"
-    anchors { top: true; left: true; right: true; bottom: true }
+    anchors { top: !w.autoBottom; left: true; right: true; bottom: true }
+    implicitHeight: autoBottom ? Math.max(1, dispH) : 0
     exclusionMode: ExclusionMode.Ignore
     // above windows while you edit, so you can see what you change
     WlrLayershell.layer: editing ? WlrLayer.Top : WlrLayer.Bottom
@@ -86,7 +87,7 @@ PanelWindow {
     Item {
         id: holder
         x: w.px
-        y: w.py
+        y: w.autoBottom ? 0 : w.py
         width: w.dispW
         height: w.dispH
         opacity: w.op * w.fk
