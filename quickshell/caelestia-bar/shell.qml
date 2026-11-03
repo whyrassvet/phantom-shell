@@ -91,7 +91,7 @@ ShellRoot {
 
                 WlrLayershell.layer: WlrLayer.Top
                 WlrLayershell.exclusionMode: ExclusionMode.Ignore
-                WlrLayershell.keyboardFocus: (pops.hasCurrent && pops.currentName === "wirelesspassword") || popoutWin.sessionState.session ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
+                WlrLayershell.keyboardFocus: popoutWin.sessionState.session ? WlrKeyboardFocus.Exclusive : (pops.hasCurrent && pops.currentName === "wirelesspassword") ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
                 exclusiveZone: -1
 
                 mask: Region {
@@ -124,6 +124,19 @@ ShellRoot {
 
                 property var sessionState: ShellState.forScreen(scope.modelData)
 
+                Connections {
+                    target: popoutWin.sessionState
+                    function onSessionChanged(): void {
+                        if (!popoutWin.sessionState.session)
+                            return;
+                        for (const screen of Quickshell.screens) {
+                            const state = ShellState.forScreen(screen);
+                            if (state && state !== popoutWin.sessionState)
+                                state.session = false;
+                        }
+                    }
+                }
+
                 MouseArea {
                     id: sessionEdge
                     x: parent.width - width
@@ -140,6 +153,28 @@ ShellRoot {
                     onPositionChanged: event => {
                         if (pressed)
                             handleDrag(event.x - startX);
+                    }
+                }
+
+                Shape {
+                    id: sessionBackground
+                    x: sessionPanel.x - 16
+                    y: sessionPanel.y - 24
+                    width: parent.width - x
+                    height: sessionPanel.height + 48
+                    opacity: sessionPanel.opacity
+                    visible: sessionPanel.visible
+
+                    ShapePath {
+                        id: sessionFill
+                        strokeWidth: 0
+                        fillColor: barBackground.color
+                        startX: sessionBackground.width
+                        startY: 0
+                        PathQuad { x: 0; y: 40; controlX: 0; controlY: 0 }
+                        PathLine { x: 0; y: sessionBackground.height - 40 }
+                        PathQuad { x: sessionBackground.width; y: sessionBackground.height; controlX: 0; controlY: sessionBackground.height }
+                        PathLine { x: sessionBackground.width; y: 0 }
                     }
                 }
 
