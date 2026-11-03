@@ -7,9 +7,10 @@ import qs.services
 Rectangle {
     id: root
     required property ScreenState screenState
+    required property color backgroundColor
     width: 380
     radius: 22
-    color: Colours.tPalette.m3surfaceContainerLow
+    color: root.backgroundColor
     border.width: 1
     border.color: Colours.outline
     focus: visible

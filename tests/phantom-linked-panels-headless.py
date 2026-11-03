@@ -41,12 +41,23 @@ with tempfile.TemporaryDirectory(prefix="phantom-linked-", dir="/tmp/opencode") 
                 function state(): string { return JSON.stringify({open: corner.opened, sidebar: popoutWin.sessionState.sidebar, ready: corner.panelReady, enabled: corner.enabledHere}) }
                 function motion(frac: real): string { return JSON.stringify(corner.testMotion(frac)) }
                 function anim(): string { return JSON.stringify(corner.testAnim()) }
+                function backgrounds(): string { return JSON.stringify(corner.testBackgrounds()) }
                 function close(): void { corner.close() }
             }
 ''' + marker))
     corner = bar / "components/UnifiedCorner.qml"
     text = corner.read_text().replace('    function close(): void', '''    function testDrag(dx: real, dy: real): void { cornerMouse.dragged = false; cornerMouse.handleDrag(dx, dy); }
     function testStop(): void { revealAnim.stop(); notificationAnim.stop(); }
+    function testBackgrounds(): var {
+        const oldCfg = cfg, oldStatus = status;
+        cfg = Object.assign({}, cfg, { opacity: 0.44, transparency: true, tint: true });
+        status = Object.assign({}, status, { accent: "#a05020" });
+        const tinted = { control: String(control.item.backgroundColor), notification: String(notifCard.color) };
+        cfg = Object.assign({}, cfg, { transparency: false });
+        const opaque = { control: String(control.item.backgroundColor), notification: String(notifCard.color) };
+        cfg = oldCfg; status = oldStatus;
+        return { tinted: tinted, opaque: opaque };
+    }
     function testAnim(): var {
         return { revealDuration: revealAnim.duration, revealTo: revealAnim.to, revealCurve: revealAnim.easing.bezierCurve, notificationDuration: notificationAnim.duration, notificationTo: notificationAnim.to, revealRunning: revealAnim.running, notificationRunning: notificationAnim.running, speed: speed, contentOpen: control.item ? control.item.open : false };
     }
@@ -86,6 +97,7 @@ printf 'SHORT_DRAG '; qs ipc -p "$2" call linkedTest state
 qs ipc -p "$2" call linkedTest drag
 sleep 0.6
 printf 'BAR_STATE '; qs ipc -p "$2" call linkedTest state
+printf 'BACKGROUNDS '; qs ipc -p "$2" call linkedTest backgrounds
 printf 'BOTH_ANIM '; qs ipc -p "$2" call linkedTest anim
 printf 'OPEN_MOTION '; qs ipc -p "$2" call linkedTest motion 0.55
 qs ipc -p "$2" call linkedTest close
@@ -108,6 +120,10 @@ wait
     assert 'BAR_STATE {"open":true,"sidebar":true,"ready":true,"enabled":true}' in result.stdout, result.stdout
     assert 'CLOSED_STATE {"open":false,"sidebar":false,"ready":true,"enabled":true}' in result.stdout, result.stdout
     assert 'FALLBACK_STATE {"managed":false,"visible":true,"enabled":true}' in result.stdout, result.stdout
+    backgrounds = json.loads(next(line.split(" ", 1)[1] for line in result.stdout.splitlines() if line.startswith("BACKGROUNDS ")))
+    for mode in ("tinted", "opaque"):
+        assert backgrounds[mode]["control"] == backgrounds[mode]["notification"], result.stdout
+    assert backgrounds["tinted"]["control"] != backgrounds["opaque"]["control"], result.stdout
     motions = {}
     for label in ("OPEN_MOTION", "CLOSE_MOTION"):
         line = next(line for line in result.stdout.splitlines() if line.startswith(label + " "))

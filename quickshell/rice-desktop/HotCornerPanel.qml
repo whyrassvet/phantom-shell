@@ -31,6 +31,17 @@ Item {
         return (0.299 * r + 0.587 * g + 0.114 * b) / 255
     }
     readonly property color accFg: lum(acc) > 0.55 ? "#0d0d0d" : "#F6F5F4"
+    readonly property color backgroundColor: {
+        const a = cfg.transparency === false ? 1 : (cfg.opacity !== undefined ? cfg.opacity : 0.9)
+        let r = 18, g = 18, b = 20
+        if (cfg.tint === true) {
+            const x = String(acc).replace("#", "")
+            r = 18 + (parseInt(x.substr(0, 2), 16) - 18) * 0.16
+            g = 18 + (parseInt(x.substr(2, 2), 16) - 18) * 0.16
+            b = 20 + (parseInt(x.substr(4, 2), 16) - 20) * 0.16
+        }
+        return Qt.rgba(r / 255, g / 255, b / 255, a)
+    }
     function elapsed() {
         const s = Math.max(0, Math.floor(nowTs - (st.rec_start || nowTs)))
         return String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0")
@@ -44,17 +55,7 @@ Item {
         visible: pnl.showBg
         anchors.fill: parent
         radius: pnl.rad
-        color: {
-            const a = pnl.cfg.transparency === false ? 1 : (pnl.cfg.opacity !== undefined ? pnl.cfg.opacity : 0.9)
-            let r = 18, g = 18, b = 20
-            if (pnl.cfg.tint === true) {
-                const x = String(pnl.acc).replace("#", "")
-                r = 18 + (parseInt(x.substr(0, 2), 16) - 18) * 0.16
-                g = 18 + (parseInt(x.substr(2, 2), 16) - 18) * 0.16
-                b = 20 + (parseInt(x.substr(4, 2), 16) - 20) * 0.16
-            }
-            return Qt.rgba(r / 255, g / 255, b / 255, a)
-        }
+        color: pnl.backgroundColor
         border.width: 1
         border.color: Qt.rgba(1, 1, 1, 0.08)
     }

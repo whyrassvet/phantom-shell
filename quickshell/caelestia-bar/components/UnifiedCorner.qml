@@ -170,6 +170,7 @@ Item {
             width: panels.width
             height: root.notificationHeight
             screenState: root.screenState
+            backgroundColor: control.item?.backgroundColor ?? "transparent"
             visible: root.notificationReveal > 0
             opacity: root.notificationReveal
         }
