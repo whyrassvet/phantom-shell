@@ -91,12 +91,12 @@ DEFAULTS = {
     "apps": [],
     "toggles": ["wifi", "bluetooth", "dnd", "gaming", "settings"],
     "width": 420, "radius": 26, "opacity": 0.9, "animation": "grow", "speed": 1.0,
-    "audio": False, "rec_sound": True, "rec_mic": False, "clipboard": True,
+    "audio": False, "rec_sound": True, "rec_mic": False, "clipboard": True, "shot_overlay": "dark",
     "blur": True, "transparency": True, "card_alpha": 0.05, "tint": False, "scale": 1.0,
 }
 INTS = {"trigger": (1, 16), "delay": (0, 800), "width": (300, 680), "radius": (0, 36)}
 FLOATS = {"opacity": (0.3, 1.0), "speed": (0.5, 2.0), "card_alpha": (0.0, 0.2), "scale": (0.75, 1.5)}
-CHOICES = {"corner": ["bottom-right", "bottom-left", "top-right", "top-left"], "animation": ["grow", "slide", "scale", "fade"]}
+CHOICES = {"corner": ["bottom-right", "bottom-left", "top-right", "top-left"], "animation": ["grow", "slide", "scale", "fade"], "shot_overlay": ["dark", "light"]}
 BOOLS = ("enabled", "close_on_leave", "audio", "rec_sound", "rec_mic", "clipboard", "header", "blur", "transparency", "tint")
 
 
@@ -442,11 +442,37 @@ def shot_take(mode):
     # -l 1: light PNG compression, a big screen is saved several times faster (the file is a bit bigger)
     cmd = ["grim", "-l", "1"]
     if mode == "region":
-        g = region()
-        if not g:
+        if not shutil.which("hyprpicker") or not shutil.which("slurp"):
+            notify("Screenshot tool missing", "Install hyprpicker and slurp for frozen region screenshots", "dialog-warning")
             return
-        cmd += ["-g", g]
-    code, _ = q(cmd + [f], timeout=20)
+        # hyprpicker holds a frozen layer on every output while slurp selects above it.
+        freeze = subprocess.Popen(["hyprpicker", "-r", "-z", "-d"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        try:
+            time.sleep(0.5)
+            if freeze.poll() is not None:
+                notify("Screenshot failed", "Could not freeze the screen", "dialog-warning")
+                return
+            color = "#00000080" if c["shot_overlay"] == "dark" else "#ffffff80"
+            code, g = q(["slurp", "-b", color], timeout=60)
+            if code != 0 or not g.strip() or freeze.poll() is not None:
+                return
+            # Let the compositor finish fading slurp's selection layer out.
+            time.sleep(0.5)
+            if freeze.poll() is not None:
+                notify("Screenshot failed", "Screen freeze ended before capture", "dialog-warning")
+                return
+            cmd += ["-g", g.strip()]
+            code, _ = q(cmd + [f], timeout=20)
+        finally:
+            if freeze.poll() is None:
+                freeze.terminate()
+                try:
+                    freeze.wait(timeout=3)
+                except subprocess.TimeoutExpired:
+                    freeze.kill()
+                    freeze.wait()
+    else:
+        code, _ = q(cmd + [f], timeout=20)
     if code != 0:
         notify("Screenshot failed", "grim could not capture the screen", "dialog-warning")
         return

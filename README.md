@@ -112,7 +112,9 @@ See the [installation notes](docs/INSTALL.md). Final installation instructions a
 | `Super + Alt + D` | Open dashboard |
 | `Super + Alt + W` | Toggle desktop widget editor |
 | `Super + A` | Open hot corner panel |
-| `Print` / `Shift + Print` | Screenshot region / screen |
+| `Super + Shift + S` / `Print` | Screenshot region / entire desktop |
+
+For region screenshots, the screen is frozen during selection. The selection overlay defaults to dark; run `rice-hotcorner set shot_overlay light` to use a light overlay, or `rice-hotcorner set shot_overlay dark` to switch back.
 
 ### Windows & workspaces
 

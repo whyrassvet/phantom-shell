@@ -15,7 +15,9 @@ hl.bind("XF86MonBrightnessUp",   hl.dsp.exec_cmd(bin .. "rice-media bright-up"),
 hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd(bin .. "rice-media bright-down"), { locked = true })
 
 -- screenshots and screen recording
-hl.bind("Print",               hl.dsp.exec_cmd(bin .. "rice-hotcorner shot region"))
+hl.unbind("SUPER + SHIFT + S") -- replaces Hyprland's special-workspace binding
+hl.bind("SUPER + SHIFT + S",   hl.dsp.exec_cmd(bin .. "rice-hotcorner shot region"))
+hl.bind("Print",               hl.dsp.exec_cmd(bin .. "rice-hotcorner shot full"))
 hl.bind("SHIFT + Print",       hl.dsp.exec_cmd(bin .. "rice-hotcorner shot full"))
 hl.bind("SUPER + SHIFT + R",   hl.dsp.exec_cmd(bin .. "rice-hotcorner record region"))   -- press again to stop
 hl.bind("SUPER + A",           hl.dsp.exec_cmd(bin .. "rice-hotcorner open"))
