@@ -67,6 +67,7 @@ with tempfile.TemporaryDirectory(prefix="phantom-audio-", dir="/tmp/opencode") a
         content = bar / "modules/bar/popouts/Content.qml"
         content_text = content.read_text()
         if 'id: audioProbe' not in content_text:
+            content_text = content_text.replace('root.popouts.currentName === name', 'root.popouts.currentName === name || objectName === "geometryProbe"')
             content.write_text(content_text.replace('    Item {\n        id: content', '''    Window {
         visible: true
         width: 400
@@ -76,6 +77,49 @@ with tempfile.TemporaryDirectory(prefix="phantom-audio-", dir="/tmp/opencode") a
             width: implicitWidth
             height: implicitHeight
             popouts: root.popouts
+        }
+        Item {
+            id: geometryHost
+            x: 300
+            width: 100
+            height: targetHeight
+            property real targetHeight: 100
+            property real childHeight: 100
+            Behavior on height { NumberAnimation { duration: 1000 } }
+
+            Popout {
+                id: geometryPopout
+                objectName: "geometryProbe"
+                name: "audio"
+                sourceComponent: Item {
+                    implicitWidth: 100
+                    implicitHeight: geometryHost.childHeight
+                }
+            }
+            Popout {
+                id: otherPopout
+                objectName: "geometryProbe"
+                name: "other"
+                sourceComponent: Item { implicitWidth: 100; implicitHeight: 100 }
+            }
+            Timer {
+                property int step: 0
+                interval: 300
+                running: true
+                repeat: true
+                onTriggered: {
+                    if (step === 1) {
+                        geometryHost.targetHeight = 300;
+                        geometryHost.childHeight = 300;
+                    } else if (step === 2) {
+                        console.log("AUDIO_TOP_FIXED", geometryPopout.active,
+                            geometryPopout.y === 0, geometryHost.height > 100 && geometryHost.height < 300,
+                            Math.abs(otherPopout.y - (geometryHost.height - otherPopout.height) / 2) <= 0.51);
+                        running = false;
+                    }
+                    step++;
+                }
+            }
         }
     }
 
@@ -104,7 +148,7 @@ with tempfile.TemporaryDirectory(prefix="phantom-audio-", dir="/tmp/opencode") a
         with log.open("w") as output:
             proc = subprocess.Popen(args, stdout=output, stderr=subprocess.STDOUT, start_new_session=True)
             try:
-                expected = ["AUDIO_EMPTY true true", "AUDIO_MOCK true true true", "AUDIO_COLLAPSED true true"] if mock else ["AUDIO_EMPTY true true", "AUDIO_REAL_LOADED true"]
+                expected = ["AUDIO_EMPTY true true", "AUDIO_MOCK true true true", "AUDIO_COLLAPSED true true", "AUDIO_TOP_FIXED true true true true"] if mock else ["AUDIO_EMPTY true true", "AUDIO_REAL_LOADED true", "AUDIO_TOP_FIXED true true true true"]
                 deadline = time.monotonic() + 12
                 while time.monotonic() < deadline and proc.poll() is None:
                     result = log.read_text(errors="replace")

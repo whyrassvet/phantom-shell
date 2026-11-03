@@ -167,7 +167,9 @@ Item {
         readonly property bool shouldBeActive: root.popouts.currentName === name
         property bool ready: true
 
-        anchors.centerIn: parent
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.verticalCenter: name === "audio" ? undefined : parent.verticalCenter
+        anchors.top: name === "audio" ? parent.top : undefined
 
         opacity: 0
         active: false
