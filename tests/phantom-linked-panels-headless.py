@@ -46,6 +46,7 @@ with tempfile.TemporaryDirectory(prefix="phantom-linked-", dir="/tmp/opencode") 
             }
 ''' + marker))
     corner = bar / "components/UnifiedCorner.qml"
+    assert "blurEnabled: root.exitBlurEnabled" in corner.read_text()
     text = corner.read_text().replace('    function close(): void', '''    function testDrag(dx: real, dy: real): void { cornerMouse.dragged = false; cornerMouse.handleDrag(dx, dy); }
     function testStop(): void { revealAnim.stop(); notificationAnim.stop(); }
     function testBackgrounds(): var {
@@ -66,7 +67,7 @@ with tempfile.TemporaryDirectory(prefix="phantom-linked-", dir="/tmp/opencode") 
         reveal = frac; notificationReveal = frac;
         const c = control.mapToItem(root, 0, 0);
         const n = notifCard.mapToItem(root, 0, 0);
-        return { control: reveal, notification: notificationReveal, cardHeight: notificationHeight, inputY: inputY, inputX: inputX, controlX: c.x, controlY: c.y, notificationX: n.x, notificationY: n.y, controlFinalY: inputY + panels.height - panelHeight, opacity: panels.opacity, blur: Number(dissolveBlur), layerOn: panels.layer.enabled, speed: speed, openDuration: openDuration, closeDuration: closeDuration };
+        return { control: reveal, notification: notificationReveal, cardHeight: notificationHeight, inputY: inputY, inputX: inputX, controlX: c.x, controlY: c.y, notificationX: n.x, notificationY: n.y, controlFinalY: inputY + panels.height - panelHeight, opacity: panels.opacity, blur: Number(dissolveBlur), blurEnabled: exitBlurEnabled, layerOn: panels.layer.enabled, speed: speed, openDuration: openDuration, closeDuration: closeDuration };
     }
     function close(): void''')
     text = text.replace('        NotificationPanel {\n', '        NotificationPanel {\n            id: notifCard\n', 1)
@@ -139,6 +140,7 @@ wait
         assert motion["speed"] == 1.25, result.stdout
         assert motion["openDuration"] == 373 and motion["closeDuration"] == 460, result.stdout
     assert motions["CLOSE_MOTION"]["layerOn"] is True, result.stdout
+    assert motions["CLOSE_MOTION"]["blurEnabled"] is False, result.stdout
     assert abs(motions["CLOSE_MOTION"]["blur"] - (1 - 0.45) * 0.55) < 0.01, result.stdout
     assert motions["OPEN_MOTION"]["layerOn"] is False, result.stdout
     def anim_of(label):

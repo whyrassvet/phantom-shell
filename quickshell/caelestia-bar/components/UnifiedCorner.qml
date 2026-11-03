@@ -21,6 +21,7 @@ Item {
     readonly property int closeDuration: 460
     readonly property real speed: Math.max(0.1, dashboardSpeed || 1)
     readonly property real dissolveBlur: (1 - Math.min(1, root.reveal)) * 0.55
+    readonly property bool exitBlurEnabled: false
     readonly property var openCurve: [0.05, 0.7, 0.1, 1.0, 1, 1]
     // Exit: dissolve and blur in place with soft ends.
     readonly property var closeCurve: [0.45, 0.05, 0.55, 0.95, 1, 1]
@@ -153,10 +154,10 @@ Item {
         height: root.inputHeight
         visible: root.reveal > 0 || root.notificationReveal > 0
         opacity: Math.min(1, root.reveal)
-        // The exit dissolves in place: the tile fades and blurs instead of shrinking.
+        // Keep group opacity during the exit; the optional blur is disabled for now.
         layer.enabled: !root.opened && root.reveal > 0
         layer.effect: MultiEffect {
-            blurEnabled: true
+            blurEnabled: root.exitBlurEnabled
             blurMax: 32
             blur: root.dissolveBlur
             autoPaddingEnabled: false
