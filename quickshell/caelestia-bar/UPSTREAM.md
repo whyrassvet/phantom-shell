@@ -8,9 +8,9 @@ within individual assets, including `assets/google-sans-flex/LICENSE`.
 
 Local modification: `utils/Paths.qml` uses `phantom-shell` directories for
 data, state, cache and configuration rather than the `caelestia` directories.
-`services/Wallpapers.qml` no longer invokes the Caelestia CLI automatically
-when the wallpaper state file is missing or empty. Explicit wallpaper operations
-still use the upstream CLI and require replacement.
+`services/Wallpapers.qml` does not invoke the Caelestia CLI for its wallpaper
+operations: it uses the shadows wallpaper backend and `phantom-wallpaper-select`.
+Installation and live behavior of these paths still require verification.
 `services/Colours.qml` targets the bar layer instead of the Caelestia drawers,
 and retains its built-in palette if the phantom-shell scheme is invalid or absent.
 Its built-in Material palette is neutral grayscale, except semantic error and
