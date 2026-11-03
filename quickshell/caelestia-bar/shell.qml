@@ -158,10 +158,13 @@ ShellRoot {
 
                 Shape {
                     id: sessionBackground
+                    readonly property real ear: Math.min(24, width / 2)
+                    readonly property real corner: Math.min(28, width / 2, (height - 2 * ear) / 2)
+                    readonly property real curve: 0.55228475
                     x: sessionPanel.x - 16
-                    y: sessionPanel.y - 24
+                    y: sessionPanel.y - 40
                     width: parent.width - x
-                    height: sessionPanel.height + 48
+                    height: sessionPanel.height + 80
                     opacity: sessionPanel.opacity
                     visible: sessionPanel.visible
 
@@ -171,9 +174,31 @@ ShellRoot {
                         fillColor: barBackground.color
                         startX: sessionBackground.width
                         startY: 0
-                        PathQuad { x: 0; y: 40; controlX: 0; controlY: 0 }
-                        PathLine { x: 0; y: sessionBackground.height - 40 }
-                        PathQuad { x: sessionBackground.width; y: sessionBackground.height; controlX: 0; controlY: sessionBackground.height }
+                        // Rotated version of the dashboard's attached outline:
+                        // concave ears at the screen and rounded outer corners.
+                        PathCubic {
+                            x: sessionBackground.width - sessionBackground.ear; y: sessionBackground.ear
+                            control1X: sessionBackground.width; control1Y: sessionBackground.ear * sessionBackground.curve
+                            control2X: x + sessionBackground.ear * sessionBackground.curve; control2Y: y
+                        }
+                        PathLine { x: sessionBackground.corner; y: sessionBackground.ear }
+                        PathCubic {
+                            x: 0; y: sessionBackground.ear + sessionBackground.corner
+                            control1X: sessionBackground.corner * (1 - sessionBackground.curve); control1Y: sessionBackground.ear
+                            control2X: 0; control2Y: y - sessionBackground.corner * sessionBackground.curve
+                        }
+                        PathLine { x: 0; y: sessionBackground.height - sessionBackground.ear - sessionBackground.corner }
+                        PathCubic {
+                            x: sessionBackground.corner; y: sessionBackground.height - sessionBackground.ear
+                            control1X: 0; control1Y: y - sessionBackground.corner * (1 - sessionBackground.curve)
+                            control2X: sessionBackground.corner * (1 - sessionBackground.curve); control2Y: y
+                        }
+                        PathLine { x: sessionBackground.width - sessionBackground.ear; y: sessionBackground.height - sessionBackground.ear }
+                        PathCubic {
+                            x: sessionBackground.width; y: sessionBackground.height
+                            control1X: sessionBackground.width - sessionBackground.ear * (1 - sessionBackground.curve); control1Y: sessionBackground.height - sessionBackground.ear
+                            control2X: sessionBackground.width; control2Y: sessionBackground.height - sessionBackground.ear * sessionBackground.curve
+                        }
                         PathLine { x: sessionBackground.width; y: 0 }
                     }
                 }

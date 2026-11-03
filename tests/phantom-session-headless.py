@@ -36,6 +36,7 @@ with tempfile.TemporaryDirectory(prefix="phantom-session-test-", dir="/tmp/openc
                     if (phase === 0) {
                         console.log("SESSION_BUTTON", popoutWin.sessionState.session, sessionPanel.visible, sessionPanel.width > 0, sessionPanel.height > 0);
                         console.log("SESSION_SURFACE", sessionBackground.visible, sessionBackground.width > 0, sessionBackground.height > sessionPanel.height, sessionFill.fillColor === barBackground.color);
+                        console.log("SESSION_CONTOUR", sessionBackground.ear === 24, sessionBackground.corner === 28, sessionBackground.height === sessionPanel.height + 80);
                         console.log("SESSION_FOCUS_OPEN", popoutWin.WlrLayershell.keyboardFocus === WlrKeyboardFocus.Exclusive);
                         popoutWin.sessionState.session = false;
                         sessionEdge.handleDrag(-Config.session.dragThreshold - 1);
@@ -75,7 +76,7 @@ with tempfile.TemporaryDirectory(prefix="phantom-session-test-", dir="/tmp/openc
                     break
                 time.sleep(0.1)
             result = log.read_text(errors="replace")
-            for expected in ("SESSION_BUTTON true true true true", "SESSION_SURFACE true true true true", "SESSION_FOCUS_OPEN true", "SESSION_DRAG true", "SESSION_SHORT_DRAG false", "SESSION_FOCUS_CLOSED true"):
+            for expected in ("SESSION_BUTTON true true true true", "SESSION_SURFACE true true true true", "SESSION_CONTOUR true true true", "SESSION_FOCUS_OPEN true", "SESSION_DRAG true", "SESSION_SHORT_DRAG false", "SESSION_FOCUS_CLOSED true"):
                 assert expected in result, result
             for error in ("ReferenceError", "TypeError", "Failed to load configuration"):
                 assert error not in result, result
