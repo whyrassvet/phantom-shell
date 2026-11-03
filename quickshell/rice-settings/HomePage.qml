@@ -29,7 +29,6 @@ Item {
         "Gaming mode turns off animations, blur and gaps. Click it again to bring them back.",
         "Notifications has nine popup styles. Try Island or Accent bar.",
         "Theme has 21 color schemes, from pure Mono to Ocean and Rose.",
-        "Rofi can open as a full-width bar at the bottom of the screen.",
         "Lock screen clocks come in Big, Stacked and Minimal. Preview them in Idle & Lockscreen.",
         "Run rice-notify test in a terminal to see a sample notification.",
         "Many settings are also commands: rice-hotcorner, rice-lock, rice-notify."
@@ -279,12 +278,11 @@ Item {
                 spacing: 10
                 Repeater {
                     model: [
-                        { i: "\udb80\udfd8", t: "Theme", d: "Colors & schemes", p: 7 },
+                        { i: "\udb80\udfd8", t: "Theme", d: "Colors & schemes", p: 6 },
                         { i: "\uf03e", t: "Wallpaper", d: "Pick a new one", p: -1 },
-                        { i: "\uf0f3", t: "Notifications", d: "Popups & panel", p: 9 },
-                        { i: "\uf023", t: "Lock screen", d: "Idle & lock", p: 10 },
-                        { i: "\uf0c9", t: "Bar", d: "Choose the bar style", p: 2 },
-                        { i: "\uf002", t: "Rofi", d: "App launcher", p: 6 }
+                        { i: "\uf0f3", t: "Notifications", d: "Popups & panel", p: 8 },
+                        { i: "\uf023", t: "Lock screen", d: "Idle & lock", p: 9 },
+                        { i: "\uf0c9", t: "Bar", d: "Choose the bar style", p: 2 }
                     ]
                     delegate: Rectangle {
                         width: (quick.width - 20) / 3

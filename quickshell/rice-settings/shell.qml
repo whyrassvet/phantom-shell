@@ -60,7 +60,7 @@ FloatingWindow {
         background: ["background", "wallpaper"], top: ["top", "position"], bottom: ["bottom", "position"],
         place: ["position"], where: ["position"], size: ["size", "width", "height", "scale"], big: ["size", "scale"],
         speed: ["speed", "animation"], fast: ["speed"], slow: ["speed", "light", "performance"], lag: ["light", "performance"], laggy: ["light", "performance"], performance: ["light", "performance"], power: ["power", "battery"], wifi: ["wi-fi", "wifi", "network"],
-        launcher: ["rofi", "launcher"], apps: ["apps", "rofi", "dock"], game: ["gaming"], games: ["gaming"]
+        launcher: ["launcher"], apps: ["apps", "dock"], game: ["gaming"], games: ["gaming"]
     })
     function buildIndex() {
         const out = []
@@ -240,7 +240,6 @@ FloatingWindow {
         { name: "Bar layout", icon: "\uf0db", hidden: true },
         { name: "Hyprland", icon: "\uf108" },
         { name: "Dashboard", icon: "\uf009" },
-        { name: "Rofi", icon: "\uf002" },
         { name: "Theme", icon: "\udb80\udfd8" },
         { name: "Cursors", icon: "\uf245" },
         { name: "Notifications", icon: "\uf0f3" },
@@ -680,17 +679,16 @@ FloatingWindow {
             PageSlot { idx: 2; cur: win.page; PhantomBarPage { anchors.fill: parent; ctl: win } }
             PageSlot { idx: 4; cur: win.page; HyprlandPage { anchors.fill: parent; ctl: win } }
             PageSlot { idx: 5; cur: win.page; DashboardPage { anchors.fill: parent; ctl: win } }
-            PageSlot { idx: 6; cur: win.page; RofiPage { anchors.fill: parent; ctl: win } }
-            PageSlot { idx: 7; cur: win.page; ThemePage { anchors.fill: parent; ctl: win } }
-            PageSlot { idx: 8; cur: win.page; CursorsPage { anchors.fill: parent; ctl: win } }
-            PageSlot { idx: 9; cur: win.page; NotificationsPage { anchors.fill: parent; ctl: win } }
-            PageSlot { idx: 10; cur: win.page; IdlePage { anchors.fill: parent; ctl: win } }
-            PageSlot { idx: 11; cur: win.page; DesktopPage { anchors.fill: parent; ctl: win } }
-            PageSlot { idx: 12; cur: win.page; HotCornersPage { anchors.fill: parent; ctl: win } }
-            PageSlot { idx: 13; cur: win.page; InterfacePage { anchors.fill: parent; ctl: win } }
-            PageSlot { idx: 14; cur: win.page; ServicesPage { anchors.fill: parent; ctl: win } }
+            PageSlot { idx: 6; cur: win.page; ThemePage { anchors.fill: parent; ctl: win } }
+            PageSlot { idx: 7; cur: win.page; CursorsPage { anchors.fill: parent; ctl: win } }
+            PageSlot { idx: 8; cur: win.page; NotificationsPage { anchors.fill: parent; ctl: win } }
+            PageSlot { idx: 9; cur: win.page; IdlePage { anchors.fill: parent; ctl: win } }
+            PageSlot { idx: 10; cur: win.page; DesktopPage { anchors.fill: parent; ctl: win } }
+            PageSlot { idx: 11; cur: win.page; HotCornersPage { anchors.fill: parent; ctl: win } }
+            PageSlot { idx: 12; cur: win.page; InterfacePage { anchors.fill: parent; ctl: win } }
+            PageSlot { idx: 13; cur: win.page; ServicesPage { anchors.fill: parent; ctl: win } }
             PageSlot {
-                idx: 15; cur: win.page
+                idx: 14; cur: win.page
                 Flickable {
                     anchors.fill: parent
                     clip: true

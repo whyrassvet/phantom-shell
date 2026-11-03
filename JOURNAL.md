@@ -4,6 +4,13 @@
 
 ---
 
+## 2026-11-03 — удаление настроек Rofi
+
+- По просьбе пользователя удалены страница `RofiPage.qml`, пункт навигации, карточка и подсказка Home, скорректированы индексы оставшихся страниц и карточек. Проектные и установленные `quickshell/rice-settings/{shell,HomePage}.qml` обновлены, `RofiPage.qml` удалён из обеих копий; сам Rofi и его конфигурация не изменены. Дополнены тесты, копии — `/tmp/opencode/phantom-remove-rofi-settings-20261103/`.
+- Прошли `tests/settings-no-waybar.py`, `tests/settings-navigation-headless.py` (14 видимых страниц и поисковый индекс), `tests/phantom-bar-settings-headless.py`, `tests/phantom-primary-monitor.py`, `git diff --check`; установленные файлы сверены. Cage сообщал о недоступности XWayland; в тесте монитора отсутствовали изолированные звуки и `.face`. Визуальная проверка в реальной сессии остаётся.
+
+---
+
 ## 2026-11-03 — установка исправления указателя
 
 - По просьбе пользователя установлен исправленный `~/.config/quickshell/caelestia-bar/modules/bar/popouts/AudioPopout.qml`; предыдущая копия и документы сохранены в `/tmp/opencode/phantom-slider-clip-installed-20261103/`.
