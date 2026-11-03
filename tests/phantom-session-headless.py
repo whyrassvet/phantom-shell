@@ -14,6 +14,17 @@ with tempfile.TemporaryDirectory(prefix="phantom-session-test-", dir="/tmp/openc
     scratch = Path(tmp)
     bar = scratch / "bar"
     shutil.copytree(ROOT / "quickshell/caelestia-bar", bar)
+    panel = bar / "components/SessionPanel.qml"
+    text = panel.read_text()
+    marker = "    SessionButton {\n        id: logout"
+    assert text.count(marker) == 1
+    test_commands = '''    Component.onCompleted: {
+        console.log("LOGOUT_UWSM", JSON.stringify(logoutCommand(["logout"], "hyprland-uwsm")));
+        console.log("LOGOUT_OTHER", JSON.stringify(logoutCommand(["logout"], "hyprland")));
+        console.log("LOGOUT_CUSTOM", JSON.stringify(logoutCommand(["custom", "arg"], "hyprland-uwsm")));
+    }
+'''
+    panel.write_text(text.replace(marker, test_commands + marker))
     power = bar / "modules/bar/components/Power.qml"
     text = power.read_text().replace("    StateLayer {", "    StateLayer {\n        id: powerLayer", 1)
     text = text.replace("    MaterialIcon {", '''    Timer {
@@ -84,6 +95,8 @@ with tempfile.TemporaryDirectory(prefix="phantom-session-test-", dir="/tmp/openc
                 time.sleep(0.1)
             result = log.read_text(errors="replace")
             for expected in ("SESSION_BUTTON true true true true", "SESSION_SURFACE true true true true", "SESSION_CONTOUR true true true", "SESSION_FOCUS_OPEN true", "SESSION_DRAG_REGION_CLOSED true true", "SESSION_DRAG_REGION_HELD true true", "SESSION_DRAG true", "SESSION_SHORT_DRAG false", "SESSION_FOCUS_CLOSED true"):
+                assert expected in result, result
+            for expected in ('LOGOUT_UWSM ["uwsm","stop"]', 'LOGOUT_OTHER ["logout"]', 'LOGOUT_CUSTOM ["custom","arg"]'):
                 assert expected in result, result
             for error in ("ReferenceError", "TypeError", "Failed to load configuration"):
                 assert error not in result, result

@@ -18,10 +18,18 @@ Column {
     padding: Tokens.padding.large
     spacing: Tokens.spacing.large
 
+    // Let UWSM finish its session normally instead of terminating sddm-helper.
+    // Explicitly configured logout commands and non-UWSM sessions stay untouched.
+    function logoutCommand(command: list<string>, desktopSession: string): list<string> {
+        if (desktopSession === "hyprland-uwsm" && command.length === 1 && command[0] === "logout")
+            return ["uwsm", "stop"];
+        return command;
+    }
+
     SessionButton {
         id: logout
         icon: Config.session.icons.logout
-        command: Config.session.commands.logout
+        command: root.logoutCommand(Config.session.commands.logout, Quickshell.env("DESKTOP_SESSION"))
         KeyNavigation.down: shutdown
     }
     SessionButton {
