@@ -97,22 +97,24 @@ ShellRoot {
                 mask: Region {
                     id: barInputRegion
 
-                    width: scope.modelData.width
+                    x: bar.x
+                    y: BarConfig.topGap
+                    width: bar.width
                     height: bar.shouldBeVisible ? BarConfig.thickness : 0
 
                     Region {
                         id: popoutInputRegion
 
                         x: Math.max(0, Math.floor(revealArea.x - revealArea.joinRadius))
-                        y: BarConfig.thickness
+                        y: revealArea.y
                         width: Math.min(scope.modelData.width - x, Math.ceil(pops.width + 2 * revealArea.joinRadius))
                         height: bar.shouldBeVisible ? Math.max(0, Math.ceil(pops.height * popoutWin.reveal)) : 0
                     }
                     Region {
                         x: scope.modelData.width - 4
-                        y: BarConfig.thickness
+                        y: BarConfig.topGap + BarConfig.thickness
                         width: scope.fullscreen ? 0 : 4
-                        height: scope.modelData.height - BarConfig.thickness
+                        height: scope.modelData.height - y
                     }
                     // Keep receiving an edge drag after it leaves the 4 px strip.
                     // Without an underlying application, the pointer can otherwise
@@ -148,7 +150,7 @@ ShellRoot {
                 MouseArea {
                     id: sessionEdge
                     x: parent.width - width
-                    y: BarConfig.thickness
+                    y: BarConfig.topGap + BarConfig.thickness
                     width: 4
                     height: parent.height - y
                     enabled: !scope.fullscreen
@@ -225,18 +227,21 @@ ShellRoot {
                 Rectangle {
                     id: barBackground
 
-                    anchors.top: parent.top
-                    width: parent.width
+                    x: bar.x
+                    y: BarConfig.topGap
+                    width: bar.width
                     height: BarConfig.thickness
-                    visible: bar.shouldBeVisible
+                    radius: BarConfig.style === "flat" ? 0 : 12
+                    visible: bar.shouldBeVisible && BarConfig.style !== "islands"
                     color: Effects.flat ? Colours.palette.m3surface : Colours.tPalette.m3surface
                 }
 
                 Bar.BarWrapper {
                     id: bar
 
-                    anchors.top: parent.top
-                    width: parent.width
+                    x: BarConfig.style === "flat" || BarConfig.style === "islands" ? 0 : (scope.modelData.width - width) / 2
+                    y: BarConfig.topGap
+                    width: BarConfig.style === "flat" || BarConfig.style === "islands" ? scope.modelData.width : BarConfig.style === "floating" ? Math.max(0, scope.modelData.width - 24) : Math.min(scope.modelData.width, Math.max(0, contentWidth + BarConfig.padding * 4))
                     height: BarConfig.thickness
                     screen: scope.modelData
                     screenState: ShellState.forScreen(scope.modelData)
@@ -257,7 +262,7 @@ ShellRoot {
 
                     readonly property real joinRadius: Tokens.rounding.extraLarge
 
-                    y: BarConfig.thickness
+                    y: BarConfig.topGap + BarConfig.thickness + (BarConfig.style === "flat" ? 0 : 4)
                     width: pops.width
                     height: pops.height * popoutWin.reveal
                     clip: true
@@ -272,14 +277,16 @@ ShellRoot {
                         ShapePath {
                             strokeWidth: 0
                             fillColor: barBackground.color
-                            startX: 0
+                            startX: BarConfig.style === "flat" ? 0 : popoutBackground.corner
                             startY: 0
-                            PathLine { x: revealArea.width; y: 0 }
+                            PathLine { x: revealArea.width - (BarConfig.style === "flat" ? 0 : popoutBackground.corner); y: 0 }
+                            PathQuad { x: revealArea.width; y: BarConfig.style === "flat" ? 0 : popoutBackground.corner; controlX: revealArea.width; controlY: 0 }
                             PathLine { x: revealArea.width; y: revealArea.height - popoutBackground.corner }
                             PathQuad { x: revealArea.width - popoutBackground.corner; y: revealArea.height; controlX: revealArea.width; controlY: revealArea.height }
                             PathLine { x: popoutBackground.corner; y: revealArea.height }
                             PathQuad { x: 0; y: revealArea.height - popoutBackground.corner; controlX: 0; controlY: revealArea.height }
-                            PathLine { x: 0; y: 0 }
+                            PathLine { x: 0; y: BarConfig.style === "flat" ? 0 : popoutBackground.corner }
+                            PathQuad { x: BarConfig.style === "flat" ? 0 : popoutBackground.corner; y: 0; controlX: 0; controlY: 0 }
                         }
                     }
 
@@ -297,10 +304,10 @@ ShellRoot {
 
                 Shape {
                     x: revealArea.x - revealArea.joinRadius
-                    y: BarConfig.thickness
+                    y: BarConfig.topGap + BarConfig.thickness
                     width: revealArea.width + 2 * revealArea.joinRadius
                     height: Math.min(revealArea.joinRadius, revealArea.height)
-                    visible: height > 0 && revealArea.width > 0
+                    visible: BarConfig.style === "flat" && height > 0 && revealArea.width > 0
                     clip: true
 
                     ShapePath {

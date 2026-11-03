@@ -18,8 +18,9 @@ Item {
 
     readonly property bool disabled: Strings.testRegexList(Config.bar.excludedScreens, screen.name)
     readonly property int thickness: BarConfig.thickness
+    readonly property real contentWidth: content.item?.implicitWidth ?? 0
     readonly property bool shouldBeVisible: !fullscreen && !disabled && (Config.bar.persistent || screenState.bar || isHovered)
-    readonly property int exclusiveZone: shouldBeVisible ? thickness : 0
+    readonly property int exclusiveZone: shouldBeVisible ? thickness + BarConfig.topGap : 0
 
     property bool isHovered
 

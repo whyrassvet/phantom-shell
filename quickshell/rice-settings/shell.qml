@@ -669,7 +669,7 @@ FloatingWindow {
 
             PageSlot { idx: 0; cur: win.page; HomePage { id: homePage; anchors.fill: parent; ctl: win } }
             PageSlot { idx: 1; cur: win.page; SoundsPage { anchors.fill: parent; ctl: win } }
-            PageSlot { idx: 2; cur: win.page; T { anchors.centerIn: parent; text: "Work in progress"; font.pixelSize: 20 } }
+            PageSlot { idx: 2; cur: win.page; PhantomBarPage { anchors.fill: parent; ctl: win } }
             PageSlot { idx: 4; cur: win.page; HyprlandPage { anchors.fill: parent; ctl: win } }
             PageSlot { idx: 5; cur: win.page; DashboardPage { anchors.fill: parent; ctl: win } }
             PageSlot { idx: 6; cur: win.page; RofiPage { anchors.fill: parent; ctl: win } }

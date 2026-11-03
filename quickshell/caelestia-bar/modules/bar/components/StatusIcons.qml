@@ -42,7 +42,7 @@ StyledRect {
         return false;
     }
 
-    color: Colours.tPalette.m3surfaceContainer
+    color: BarConfig.style === "islands" ? Qt.alpha(Qt.darker(Colours.palette.m3surfaceContainer, 1.35), Effects.flat ? 1 : Colours.tPalette.m3surface.a) : Colours.tPalette.m3surfaceContainer
     radius: height / 2
 
     clip: true

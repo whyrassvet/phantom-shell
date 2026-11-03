@@ -34,7 +34,9 @@ StyledRect {
     implicitHeight: BarConfig.innerThickness
     implicitWidth: nonAnimWidth
 
-    color: Qt.alpha(Colours.tPalette.m3surfaceContainer, (Config.bar.tray.background && items.count > 0) ? Colours.tPalette.m3surfaceContainer.a : 0)
+    color: BarConfig.style === "islands" && Config.bar.tray.background && items.count > 0
+        ? Qt.alpha(Qt.darker(Colours.palette.m3surfaceContainer, 1.35), Effects.flat ? 1 : Colours.tPalette.m3surface.a)
+        : Qt.alpha(Colours.tPalette.m3surfaceContainer, (Config.bar.tray.background && items.count > 0) ? Colours.tPalette.m3surfaceContainer.a : 0)
     radius: height / 2
 
     Row {

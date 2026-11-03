@@ -31,8 +31,10 @@ Item {
 
     MaterialIcon {
         id: icon
+        objectName: "powerIcon"
 
         anchors.centerIn: parent
+        anchors.horizontalCenterOffset: BarConfig.style === "islands" ? -1 : 0
 
         text: "power_settings_new"
         color: Colours.palette.m3error

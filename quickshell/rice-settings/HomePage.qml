@@ -20,7 +20,7 @@ Item {
         "SUPER + W opens the wallpaper menu. The Auto theme follows your new wallpaper.",
         "Drag the desktop widgets anywhere, their position is saved.",
         "Pick a scheme in Theme to recolor the bar, borders, notifications and lock screen.",
-        "Bar settings are a work in progress.",
+        "Choose the bar style in Bar settings.",
         "Idle & Lockscreen decides when the screen locks and when the computer sleeps.",
         "Click your picture in the sidebar to change it. It is also shown on the lock screen.",
         "Touch the bottom-right corner of the screen for quick toggles, apps and wallpapers.",
@@ -283,7 +283,7 @@ Item {
                         { i: "\uf03e", t: "Wallpaper", d: "Pick a new one", p: -1 },
                         { i: "\uf0f3", t: "Notifications", d: "Popups & panel", p: 9 },
                         { i: "\uf023", t: "Lock screen", d: "Idle & lock", p: 10 },
-                        { i: "\uf0c9", t: "Bar", d: "Work in progress", p: 2 },
+                        { i: "\uf0c9", t: "Bar", d: "Choose the bar style", p: 2 },
                         { i: "\uf002", t: "Rofi", d: "App launcher", p: 6 }
                     ]
                     delegate: Rectangle {

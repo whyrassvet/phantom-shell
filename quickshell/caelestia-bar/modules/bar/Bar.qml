@@ -47,7 +47,7 @@ RowLayout {
             const icon = items.childAt(items.mapFromItem(root, x, root.height / 2).x, items.height / 2);
             if (icon) {
                 popouts.currentName = icon.name;
-                popouts.currentCenter = Qt.binding(() => icon.mapToItem(root, icon.implicitWidth / 2, 0).x);
+                popouts.currentCenter = Qt.binding(() => icon.mapToItem(null, icon.implicitWidth / 2, 0).x);
                 popouts.hasCurrent = true;
             }
         } else if (id === "tray" && Config.bar.popouts.tray) {
@@ -58,7 +58,7 @@ RowLayout {
                 const index = Array.from({length: tray.items.count}, (_, i) => i).find(i => tray.items.itemAt(i) === trayItem);
                 if (trayItem) {
                     popouts.currentName = `traymenu${index}`;
-                    popouts.currentCenter = Qt.binding(() => trayItem.mapToItem(root, trayItem.implicitWidth / 2, 0).x);
+                    popouts.currentCenter = Qt.binding(() => trayItem.mapToItem(null, trayItem.implicitWidth / 2, 0).x);
                     popouts.hasCurrent = true;
                 } else {
                     popouts.hasCurrent = false;
@@ -159,12 +159,11 @@ RowLayout {
                 delegate: EntryWrapper {
                     id: clockEntry
                     Layout.fillWidth: true
-                    Layout.minimumWidth: 0
-                    clip: true
+                    Layout.minimumWidth: item?.implicitWidth ?? 0
                     Clock {
                         objectName: "taskbarClock"
                         width: implicitWidth
-                        x: root.width / 2 - clockEntry.x - width / 2
+                        x: Math.max(0, Math.min(clockEntry.width - width, root.width / 2 - clockEntry.x - width / 2))
                     }
                 }
             }
@@ -189,18 +188,31 @@ RowLayout {
     }
 
     component EntryWrapper: Item {
+        id: entryWrapper
         required property var modelData
         required property int index
         default property Item item
         readonly property string entryId: modelData.id
 
         Layout.leftMargin: index === 0 ? (entryId === "logo" ? root.spacing : root.hPadding) : 0
-        Layout.rightMargin: index === repeater.count - 1 ? root.spacing : 0
+        Layout.rightMargin: index === repeater.count - 1 ? root.spacing + (BarConfig.style === "islands" && entryId === "power" ? 2 : 0) : 0
         Layout.alignment: Qt.AlignVCenter
 
         implicitWidth: item?.implicitWidth ?? 0
         implicitHeight: item?.implicitHeight ?? 0
 
-        children: item
+        property Rectangle islandBackground: Rectangle {
+            parent: entryWrapper
+            z: -1
+            visible: BarConfig.style === "islands" && ["logo", "clock", "power"].includes(entryWrapper.entryId)
+            x: entryWrapper.entryId === "clock" ? (entryWrapper.item?.x ?? 0) - BarConfig.padding - 2.5 : -BarConfig.padding
+            y: (entryWrapper.height - height) / 2
+            width: (entryWrapper.entryId === "clock" ? (entryWrapper.item?.implicitWidth ?? 0) + 5 : entryWrapper.width) + BarConfig.padding * 2
+            height: BarConfig.innerThickness
+            radius: height / 2
+            color: Qt.alpha(Qt.darker(Colours.palette.m3surfaceContainer, 1.35), Effects.flat ? 1 : Colours.tPalette.m3surface.a)
+        }
+
+        children: [islandBackground, item]
     }
 }

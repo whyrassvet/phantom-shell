@@ -14,7 +14,7 @@ class SettingsWithoutWaybar(unittest.TestCase):
         shell = (ROOT / "quickshell/rice-settings/shell.qml").read_text()
         home = (ROOT / "quickshell/rice-settings/HomePage.qml").read_text()
         self.assertIn('name: "Bar"', shell)
-        self.assertIn('text: "Work in progress"', shell)
+        self.assertIn('PhantomBarPage {', shell)
         self.assertIn('name: "Bar layout", icon: "\\uf0db", hidden: true', shell)
         for text in (shell, home):
             for old in ('waybar-reload', 'WaybarPage {', 'BarLayoutPage {', 'page.ctl.run(["transparency"'):

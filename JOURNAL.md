@@ -4,6 +4,13 @@
 
 ---
 
+## 2026-11-03 — принятие стилей бара
+
+- Пользователь принял текущий вид четырёх стилей бара и попросил зафиксировать и опубликовать изменения, затем подготовить `0.2.0-alpha`. Общая поверхность бара и попоутов сохранена; записи ниже об ожидании визуального подтверждения текущего вида устарели.
+- Прошли `tests/phantom-bar-styles-headless.py`, `tests/phantom-bar-settings-headless.py`, `tests/phantom-session-headless.py`, `tests/phantom-flat-headless.py`, `tests/settings-no-waybar.py`, мониторные тесты, `shellcheck` и `git diff --check`. Изолированный Cage сообщал об ошибке запуска XWayland, хотя тесты завершились успешно. Полная приёмка трея, попоутов, ввода между островками и нескольких мониторов остаётся.
+
+---
+
 ## 2026-11-03 — заставка настроек
 
 - По просьбе пользователя добавлена заставка с месяцем, названием Phantom Shell, падающими звёздами и звуком `intro/reveal`, фон совпадает с настройками, общая длительность около 2,72 с. Пользователь подтвердил временную копию и попросил вернуть прежнюю задержку звёзд; `StarField.qml` не менялся. Обновлены проектный и установленный `quickshell/rice-settings/shell.qml`, резервные копии `/tmp/opencode/phantom-settings-splash-backup-20261103/`.
@@ -22,6 +29,69 @@
 
 - Устранено подвисание первого клика: в `quickshell/rice-settings/SfxTap.qml` обращение к звуковому singleton перенесено на создание окна. Проектный и установленный файлы обновлены; резервные копии `/tmp/opencode/phantom-settings-first-click-backup-20261103/`.
 - Временная инструментированная копия показала 552–613 мс до исправления и около 1 мс для клика после; инициализация при создании окна занимала 610–630 мс. Пользователь подтвердил плавность и приемлемое открытие. `tests/settings-no-waybar.py` и `git diff --check` прошли. Первый слышимый звук и установленная копия после замены отдельно не проверялись.
+
+---
+
+## 2026-11-03 — смещение значка питания на 1 px
+
+- Пользователь сообщил, что 2 px влево слишком много, и попросил сдвинуть значок на 1 px вправо. В проектном и установленном `modules/bar/components/Power.qml` смещение Islands стало −1 px; подложка и область нажатия не менялись. Тест обновлён, копии `/tmp/opencode/phantom-power-icon-onepx-s789li1r/`.
+- Прошли `tests/phantom-bar-styles-headless.py`, `tests/phantom-session-headless.py`, `git diff --check`; установленный файл совпадает с проектным, бар загружен. В журнале сохраняются предупреждения StatusNotifierItem и Qt о потоках; визуальное подтверждение ожидается, коммит и push не выполнялись.
+
+---
+
+## 2026-11-03 — центрирование значка питания
+
+- Пользователь уточнил, что смещён значок относительно подложки. В проектном и установленном `modules/bar/components/Power.qml` значок сдвинут влево на 2 px только в Islands, фон и область клика не изменены; тест стилей дополнен. Копии `/tmp/opencode/phantom-power-icon-_nqs8rh2/`.
+- Прошли изолированные `tests/phantom-bar-styles-headless.py`, `tests/phantom-flat-headless.py`, `tests/phantom-session-headless.py` и `git diff --check`; установленная копия совпадает с проектной, перезапущенный бар загрузился. В журнале предупреждения invalid StatusNotifierItem registration и Qt о потоках; визуальная проверка пользователем ожидается, коммит и push не выполнялись.
+
+---
+
+## 2026-11-03 — отступ кнопки питания
+
+- После подтверждения прозрачности Islands пользователь попросил выровнять отступы у кнопки питания. В проектном и установленном `modules/bar/Bar.qml` правый отступ последнего модуля питания увеличен на 2 px только в Islands; тест дополнен. Резервные копии `/tmp/opencode/phantom-power-spacing-yby_4hmd/`.
+- Прошли изолированные `tests/phantom-bar-styles-headless.py`, `tests/phantom-flat-headless.py`, `tests/phantom-session-headless.py`, `git diff --check`; установленный файл совпадает с проектным, перезапущенный бар загрузился, в журнале предупреждение invalid StatusNotifierItem registration. Визуальное подтверждение ожидается; коммит и push не выполнялись.
+
+---
+
+## 2026-11-03 — прозрачность Islands
+
+- По просьбе пользователя прозрачность плашек Islands привязана к обычному фону бара, цвет сохранён. Обновлены проектные и установленные `modules/bar/Bar.qml`, `components/StatusIcons.qml`, `components/Tray.qml`, `components/workspaces/Workspaces.qml` и тест; резервные копии `/tmp/opencode/phantom-islands-opacity-f42mf830/`.
+- Изолированно прошли `tests/phantom-bar-styles-headless.py`, `tests/phantom-flat-headless.py`, `tests/phantom-session-headless.py`, `git diff --check`. Проверено совпадение альфа-каналов в обычном режиме; flat-режим именно Islands и реальные вид и взаимодействия ещё проверить. Бар перезапущен и загрузился, журнал содержит предупреждение invalid StatusNotifierItem registration. Пользовательское подтверждение ожидается; коммит и push не выполнялись.
+
+---
+
+## 2026-11-03 — отступы Islands
+
+- По просьбе пользователя уменьшены и выровнены боковые отступы плашки рабочих пространств и на 5 px симметрично расширена подложка часов; только для Islands. Обновлены проектные и установленные `modules/bar/Bar.qml` и `components/workspaces/Workspaces.qml`, дополнен тест. Копии `/tmp/opencode/phantom-island-padding-oim95e5l/`.
+- `tests/phantom-bar-styles-headless.py` проверил новые отступы и ширину, `tests/phantom-flat-headless.py`, `tests/phantom-session-headless.py` и `git diff --check` прошли. Бар перезапущен, `Configuration Loaded`, есть предупреждение invalid StatusNotifierItem registration. Визуальная оценка пользователя ожидается; коммит и push не выполнялись.
+
+---
+
+## 2026-11-03 — уточнение оформления Islands
+
+- Пользователь подтвердил остальные исправления, но пояснил, что затемнить нужно существующие серые плашки, а не добавлять вокруг них чёрные контуры. В проектной и установленной копиях `modules/bar/Bar.qml`, `components/StatusIcons.qml`, `components/Tray.qml` и `components/workspaces/Workspaces.qml` лишние внешние подложки отключены, сами плашки затемнены; отдельные фоны оставлены логотипу, часам и питанию. Другие стили не менялись. Копии `/tmp/opencode/phantom-islands-fix-9838_a41/`.
+- Изолированно прошли `tests/phantom-bar-styles-headless.py`, `tests/phantom-flat-headless.py`, `tests/phantom-session-headless.py`, `git diff --check`. Бар перезапущен, журнал содержит `Configuration Loaded` и предупреждение invalid StatusNotifierItem registration; оба монитора резервируют 48 px. Реальный внешний вид Islands и трей после изменения ожидают подтверждения пользователя; коммит и push не выполнялись.
+
+---
+
+## 2026-11-03 — исправления стилей по проверке пользователя
+
+- Пользователь показал перекрытие часов треем в One island, неподходящие ушки попоутов и отсутствие фонов Islands. Исправлены ограничение часов, дочерние фоновые элементы и прозрачность, а также форма и отступ попоутов в несплошных стилях. Изменены проектные и установленные `quickshell/caelestia-bar/shell.qml` и `modules/bar/Bar.qml`, тест стилей; резервные копии `/tmp/opencode/phantom-bar-style-fixes-dtm7o0bc/`.
+- Прошли изолированные `tests/phantom-bar-styles-headless.py`, `tests/phantom-bar-settings-headless.py`, `tests/phantom-flat-headless.py`, `tests/phantom-session-headless.py`, `git diff --check`. Установленный бар перезапущен, журнал содержит `Configuration Loaded` и предупреждение invalid StatusNotifierItem registration; при выбранном Floating резерв 48 px на обоих мониторах. Реальные вид, попоуты, ввод и расширение трея после исправления ждут проверки пользователя; коммит и push не выполнялись.
+
+---
+
+## 2026-11-03 — установка стилей для проверки
+
+- С отдельного разрешения пользователя установлены четыре QML бара и три QML настроек из проектной копии; прежние шесть файлов совпадали с исходниками до разработки и сохранены в `/tmp/opencode/phantom-bar-styles-installed-_p3tahyk/`, `PhantomBarPage.qml` был новым. Изменён только процесс бара, лаунчер и desktop не перезапускались. Резервные копии проектных документов до этой записи — `/tmp/opencode/phantom-bar-styles-install-docs/`.
+- Бар запущен, в журнале `Configuration Loaded`; на eDP-1 и DP-3 резерв верхней кромки 40 px. В журнале есть предупреждение об invalid StatusNotifierItem registration. Визуальная проверка четырёх стилей, реальные клики, попоуты, трей, ввод в промежутках и выбор через настройки ещё нужны; подтверждение пользователя не получено. Коммит и push не выполнялись.
+
+---
+
+## 2026-11-03 — стили бара, проектная проверка
+
+- По просьбе пользователя начата реализация Flat, Floating, Islands и One island; положение бара остаётся сверху. Изменены проектные `quickshell/caelestia-bar/{shell.qml,config/BarConfig.qml,modules/bar/Bar.qml,modules/bar/BarWrapper.qml}`, настройки `quickshell/rice-settings/{shell.qml,HomePage.qml,PhantomBarPage.qml}` и тесты. Бар и попоуты остались на одной поверхности. Резервные копии ранее существовавших файлов — `/tmp/opencode/phantom-bar-styles-backup/`. Установленные файлы и сессия не менялись.
+- Изолированно прошли `tests/phantom-bar-styles-headless.py`, `tests/phantom-bar-settings-headless.py`, `tests/phantom-flat-headless.py`, `tests/phantom-session-headless.py` и `tests/settings-no-waybar.py`; страница настроек записала значение в изолированный XDG, headless-композитор сообщал об ошибке запуска XWayland. `qmlformat` не обработал `shell.qml` с кодом 1 без сообщения; тот же результат на исходной копии. Визуальная проверка, реальные клики в UI, ввод в промежутках островков, трей, попоуты, реальное резервирование места и несколько экранов остаются. Следующий пункт — только после подтверждения пользователя.
 
 ---
 
