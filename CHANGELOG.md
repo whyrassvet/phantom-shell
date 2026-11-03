@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.2.1-alpha
+- Fix the Welcome-to-Settings tour sequence and prevent the duplicated opening sound.
+- Experimental release: clean installation and full desktop acceptance remain unverified.
+
 ## v0.2.0-alpha
 - Add bar appearance settings: Flat, Floating, Islands and One island, with shared-surface popouts.
 - Improve the Settings opening animation and sound loading responsiveness.

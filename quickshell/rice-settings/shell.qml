@@ -20,6 +20,14 @@ FloatingWindow {
     readonly property string home: Quickshell.env("HOME")
     // the tour is on: the rest of the screen goes dark (dimWin below)
     property bool tourOn: false
+    property bool tourRequested: false
+    property bool splashFinished: false
+    function scheduleRequestedTour() {
+        if (tourRequested && splashFinished) {
+            tourRequested = false
+            tourDelay.start()
+        }
+    }
     function startTour() { page = 0; tour.start() }
 
     // falling stars across the whole window (Home: Falling stars)
@@ -729,7 +737,7 @@ FloatingWindow {
             id: tourCheck
             running: true
             command: ["bash", "-c", "f=\"$HOME/.cache/rice/settings-tour\"; [ -e \"$f\" ] && rm -f \"$f\" && echo 1 || echo 0"]
-            stdout: StdioCollector { onStreamFinished: if (text.trim() === "1") tourDelay.start() }
+            stdout: StdioCollector { onStreamFinished: if (text.trim() === "1") { win.tourRequested = true; win.scheduleRequestedTour() } }
         }
         Timer { id: tourDelay; interval: 650; onTriggered: { win.page = 0; tour.start() } }
 
@@ -759,7 +767,7 @@ FloatingWindow {
         function playReveal() {
             if (!soundAttempted && Sfx.loaded) {
                 soundAttempted = true
-                Sfx.play("intro/reveal")
+                if (Quickshell.env("PHANTOM_SETTINGS_FROM_WELCOME") !== "1") Sfx.play("intro/reveal")
             }
         }
         Component.onCompleted: playReveal()
@@ -801,6 +809,7 @@ FloatingWindow {
             running: true
             PauseAnimation { duration: 2200 }
             NumberAnimation { target: openingSplash; property: "opacity"; to: 0; duration: 520; easing.type: Easing.InOutCubic }
+            onFinished: { win.splashFinished = true; win.scheduleRequestedTour() }
         }
     }
 }

@@ -13,7 +13,7 @@ ShellRoot {
     readonly property string home: Quickshell.env("HOME")
     readonly property string user: Quickshell.env("USER")
     property string distro: "Linux"
-    readonly property string version: "0.2.0-alpha"
+    readonly property string version: "0.2.1-alpha"
     property bool leaving: false
 
     // distro logo (Nerd Font "font logos"): the same ones as the bar and the dashboard
@@ -41,7 +41,7 @@ ShellRoot {
         if (leaving) return
         leaving = true
         Sfx.play("intro/open", true)
-        if (tour) Quickshell.execDetached(["bash", "-c", "sleep 0.6; \"$HOME/.local/bin/rice-welcome\" tour"])
+        if (tour) Quickshell.execDetached(["bash", "-c", "sleep 0.6; PHANTOM_SETTINGS_FROM_WELCOME=1 \"$HOME/.local/bin/rice-welcome\" tour"])
         else Sfx.music(false)       // skipped: no music (with the tour it plays on until the tour ends)
         Quickshell.execDetached(["bash", "-c", "\"$HOME/.local/bin/rice-welcome\" seen"])
         win.openUp()
