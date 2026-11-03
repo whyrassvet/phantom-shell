@@ -50,6 +50,14 @@ with tempfile.TemporaryDirectory(prefix="phantom-styles-", dir="/tmp/opencode") 
                     && (!needsBackground || Math.abs(entry.islandBackground.color.a - (Effects.flat ? 1 : Colours.tPalette.m3surface.a)) < 0.01);
                 if (["workspaces", "statusIcons"].includes(entry.entryId))
                     backgrounds = backgrounds && Math.abs(entry.item.color.a - (Effects.flat ? 1 : Colours.tPalette.m3surface.a)) < 0.01;
+                if (needsBackground)
+                    backgrounds = backgrounds && entry.islandBackground.border.width === 1 && entry.islandBackground.border.color === Colours.outline;
+                if (entry.entryId === "statusIcons")
+                    backgrounds = backgrounds && entry.item.border.width === 1 && entry.item.border.color === Colours.outline;
+                if (entry.entryId === "workspaces") {
+                    const outline = entry.item.children.find(child => child.objectName === "workspaceOutline");
+                    backgrounds = backgrounds && outline && outline.border.width === 1 && outline.border.color === Colours.outline;
+                }
                 if (entry.entryId === "power" && i === repeater.count - 1) {
                     powerMargin = entry.Layout.rightMargin === root.spacing + (BarConfig.style === "islands" ? 2 : 0);
                     const icon = entry.item.children.find(child => child.objectName === "powerIcon");
@@ -85,6 +93,7 @@ with tempfile.TemporaryDirectory(prefix="phantom-styles-", dir="/tmp/opencode") 
                         expected === "floating" ? bar.width < scope.modelData.width : true,
                         expected === "island" ? bar.width < scope.modelData.width : true);
                     console.log("STYLE_DIMENSIONS", expected, bar.width, bar.contentWidth, scope.modelData.width, popoutWin.width);
+                    console.log("STYLE_OUTLINE", expected, barBackground.border.width === 1 && barBackground.border.color === Colours.outline);
                 }
             }
 '''
@@ -123,6 +132,7 @@ with tempfile.TemporaryDirectory(prefix="phantom-styles-", dir="/tmp/opencode") 
                             and f"STYLE_ENTRIES {style} true true true" in current
                             and f"STYLE_POWER_MARGIN {style} true" in current
                             and f"STYLE_POWER_ICON {style} true" in current
+                            and f"STYLE_OUTLINE {style} true" in current
                             and f"STYLE_WORKSPACE_PADDING {style} true" in current):
                         break
                     time.sleep(0.1)

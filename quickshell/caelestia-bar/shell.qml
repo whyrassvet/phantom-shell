@@ -234,6 +234,8 @@ ShellRoot {
                     radius: BarConfig.style === "flat" ? 0 : 12
                     visible: bar.shouldBeVisible && BarConfig.style !== "islands"
                     color: Effects.flat ? Colours.palette.m3surface : Colours.tPalette.m3surface
+                    border.width: 1
+                    border.color: Colours.outline
                 }
 
                 Bar.BarWrapper {

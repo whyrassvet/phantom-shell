@@ -38,6 +38,8 @@ StyledRect {
         ? Qt.alpha(Qt.darker(Colours.palette.m3surfaceContainer, 1.35), Effects.flat ? 1 : Colours.tPalette.m3surface.a)
         : Qt.alpha(Colours.tPalette.m3surfaceContainer, (Config.bar.tray.background && items.count > 0) ? Colours.tPalette.m3surfaceContainer.a : 0)
     radius: height / 2
+    border.width: BarConfig.style === "islands" && Config.bar.tray.background && items.count > 0 ? 1 : 0
+    border.color: Colours.outline
 
     Row {
         id: layout

@@ -44,6 +44,8 @@ StyledRect {
 
     color: BarConfig.style === "islands" ? Qt.alpha(Qt.darker(Colours.palette.m3surfaceContainer, 1.35), Effects.flat ? 1 : Colours.tPalette.m3surface.a) : Colours.tPalette.m3surfaceContainer
     radius: height / 2
+    border.width: BarConfig.style === "islands" ? 1 : 0
+    border.color: Colours.outline
 
     clip: true
     implicitHeight: BarConfig.innerThickness

@@ -211,6 +211,8 @@ RowLayout {
             height: BarConfig.innerThickness
             radius: height / 2
             color: Qt.alpha(Qt.darker(Colours.palette.m3surfaceContainer, 1.35), Effects.flat ? 1 : Colours.tPalette.m3surface.a)
+            border.width: 1
+            border.color: Colours.outline
         }
 
         children: [islandBackground, item]

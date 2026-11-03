@@ -53,6 +53,16 @@ StyledClippingRect {
     color: BarConfig.style === "islands" ? Qt.alpha(Qt.darker(Colours.palette.m3surfaceContainer, 1.35), Effects.flat ? 1 : Colours.tPalette.m3surface.a) : Colours.tPalette.m3surfaceContainer
     radius: height / 2
 
+    Rectangle {
+        objectName: "workspaceOutline"
+        anchors.fill: parent
+        z: 1
+        radius: parent.radius
+        color: "transparent"
+        border.width: BarConfig.style === "islands" ? 1 : 0
+        border.color: Colours.outline
+    }
+
     Item {
         anchors.fill: parent
         scale: root.onSpecial ? 0.8 : 1

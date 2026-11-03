@@ -15,6 +15,7 @@ Singleton {
     property string scheme
     property string flavour
     readonly property bool light: currentLight
+    readonly property color outline: light ? Qt.rgba(0, 0, 0, 0.07) : Qt.rgba(1, 1, 1, 0.07)
     property bool currentLight
     readonly property M3Palette palette: current
     readonly property M3TPalette tPalette: M3TPalette {}

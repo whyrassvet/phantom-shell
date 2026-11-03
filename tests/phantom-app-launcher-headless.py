@@ -20,8 +20,8 @@ with tempfile.TemporaryDirectory(prefix="phantom-app-launcher-", dir="/tmp/openc
     (scratch / "runtime").chmod(0o700)
     palette = scratch / "home/.config/matugen/phantom-bar.json"
     palette.parent.mkdir(parents=True)
-    def scheme(surface):
-        return json.dumps({"name": "test", "mode": "dark", "colours": {"surface": surface}})
+    def scheme(surface, mode="dark"):
+        return json.dumps({"name": "test", "mode": mode, "colours": {"surface": surface}})
     palette.write_text(scheme("#123456"))
     app = scratch / "bin/test-app"
     app.write_text(f"#!/bin/sh\nprintf launched > '{scratch / 'launched'}'\n")
@@ -35,7 +35,12 @@ with tempfile.TemporaryDirectory(prefix="phantom-app-launcher-", dir="/tmp/openc
     assert source.count(background) == 1
     source = source.replace(background, background + '''
             onColorChanged: console.log("PHANTOM_APP_ALPHA", Effects.flat, color.a)
-            Component.onCompleted: console.log("PHANTOM_APP_ALPHA", Effects.flat, color.a)''')
+            property color testOutline: border.color
+            onTestOutlineChanged: console.log("PHANTOM_OUTLINE", border.width, testOutline.r, testOutline.a)
+            Component.onCompleted: {
+                console.log("PHANTOM_APP_ALPHA", Effects.flat, color.a);
+                console.log("PHANTOM_OUTLINE", border.width, testOutline.r, testOutline.a);
+            }''')
     needle = "    id: root\n"
     assert source.count(needle) == 1
     qml.write_text(source.replace(needle, needle + '''
@@ -99,12 +104,14 @@ with tempfile.TemporaryDirectory(prefix="phantom-app-launcher-", dir="/tmp/openc
                     or "PHANTOM_APP_SURFACE #123456" not in text or text.count("PHANTOM_APP_OPEN true") != 2
                     or "PHANTOM_APP_OPEN false" not in text or "PHANTOM_APP_QUERY cleared" not in text):
                 raise RuntimeError(log.read_text(errors="replace"))
-            palette.write_text(scheme("#654321"))
+            palette.write_text(scheme("#654321", "light"))
             deadline = time.monotonic() + 10
             while time.monotonic() < deadline and "PHANTOM_APP_SURFACE #654321" not in log.read_text(errors="replace") and proc.poll() is None:
                 time.sleep(0.1)
             text = log.read_text(errors="replace")
             if "PHANTOM_APP_SURFACE #654321" not in text or any(error in text for error in ("TypeError:", "ReferenceError:", "Unable to assign", "is not a type")):
+                raise RuntimeError(text)
+            if "PHANTOM_OUTLINE 1 0 " not in text or "PHANTOM_OUTLINE 1 1 " not in text:
                 raise RuntimeError(text)
             if "PHANTOM_APP_ALPHA false 0.5" not in text:
                 raise RuntimeError(text)
@@ -120,9 +127,9 @@ with tempfile.TemporaryDirectory(prefix="phantom-app-launcher-", dir="/tmp/openc
             offset = len(text)
             flat.unlink()
             deadline = time.monotonic() + 10
-            while time.monotonic() < deadline and "PHANTOM_APP_ALPHA false 0.5" not in log.read_text(errors="replace")[offset:] and proc.poll() is None:
+            while time.monotonic() < deadline and "PHANTOM_APP_ALPHA false 0.4" not in log.read_text(errors="replace")[offset:] and proc.poll() is None:
                 time.sleep(0.1)
-            if "PHANTOM_APP_ALPHA false 0.5" not in log.read_text(errors="replace")[offset:]:
+            if "PHANTOM_APP_ALPHA false 0.4" not in log.read_text(errors="replace")[offset:]:
                 raise RuntimeError(log.read_text(errors="replace"))
         finally:
             if proc.poll() is None:
