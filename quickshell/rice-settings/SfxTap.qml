@@ -9,6 +9,9 @@ Item {
     anchors.fill: parent
     z: 100000
 
+    // Initialize the sound singleton before the first click, even when sounds are off.
+    Component.onCompleted: { const ready = Sfx.loaded }
+
     function pick(item, x, y, chain) {
         const kids = item.children
         let order = []
