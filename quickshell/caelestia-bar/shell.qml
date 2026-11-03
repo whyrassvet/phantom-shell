@@ -4,6 +4,7 @@
 import QtQuick
 import QtQuick.Shapes
 import Quickshell
+import Quickshell.Io
 import Quickshell.Hyprland
 import Quickshell.Wayland
 import Caelestia.Config
@@ -17,6 +18,15 @@ import qs.modules.bar.popouts as BarPopouts
 
 ShellRoot {
     id: root
+
+    function hotCornerCall(method: string, args: list<string>): void {
+        const config = (Quickshell.env("XDG_CONFIG_HOME") || Quickshell.env("HOME") + "/.config") + "/quickshell/rice-desktop";
+        Quickshell.execDetached(["qs", "ipc", "-p", config, "call", "hotCornerLink", method].concat(args));
+    }
+    Timer {
+        interval: 1000; running: true; repeat: true; triggeredOnStart: true
+        onTriggered: root.hotCornerCall("useUnified", [])
+    }
 
     // Match the upstream shell: Google Sans Flex is bundled, not assumed to
     // be installed globally. Font tokens continue to honour user settings.
@@ -91,7 +101,7 @@ ShellRoot {
 
                 WlrLayershell.layer: WlrLayer.Top
                 WlrLayershell.exclusionMode: ExclusionMode.Ignore
-                WlrLayershell.keyboardFocus: popoutWin.sessionState.session ? WlrKeyboardFocus.Exclusive : (pops.hasCurrent && pops.currentName === "wirelesspassword") ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
+                WlrLayershell.keyboardFocus: popoutWin.sessionState.session || popoutWin.sessionState.sidebar ? WlrKeyboardFocus.Exclusive : (corner.opened || (pops.hasCurrent && pops.currentName === "wirelesspassword")) ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
                 exclusiveZone: -1
 
                 mask: Region {
@@ -111,24 +121,43 @@ ShellRoot {
                         height: bar.shouldBeVisible ? Math.max(0, Math.ceil(pops.height * popoutWin.reveal)) : 0
                     }
                     Region {
-                        x: scope.modelData.width - 4
-                        y: BarConfig.topGap + BarConfig.thickness
-                        width: scope.fullscreen ? 0 : 4
-                        height: scope.modelData.height - y
+                        x: scope.modelData.width - 24
+                        y: scope.modelData.height - 24
+                        width: !scope.fullscreen && corner.enabledHere ? 24 : 0
+                        height: width
+                    }
+                    Region {
+                        id: sessionEdgeRegion
+                        x: scope.modelData.width - 8
+                        y: Math.floor(scope.modelData.height / 3)
+                        width: scope.fullscreen || corner.opened ? 0 : 8
+                        height: width > 0 ? Math.floor(scope.modelData.height / 3) : 0
                     }
                     // Keep receiving an edge drag after it leaves the 4 px strip.
                     // Without an underlying application, the pointer can otherwise
                     // leave the surface before the session drag threshold is reached.
                     Region {
                         id: sessionDragRegion
-                        width: sessionEdge.pressed ? scope.modelData.width : 0
-                        height: sessionEdge.pressed ? scope.modelData.height : 0
+                        width: corner.pressed || sessionEdge.pressed ? scope.modelData.width : 0
+                        height: corner.pressed || sessionEdge.pressed ? scope.modelData.height : 0
                     }
                     Region {
                         x: Math.floor(sessionPanel.x)
                         y: Math.floor(sessionPanel.y)
                         width: popoutWin.sessionState.session ? Math.ceil(sessionPanel.width) : 0
                         height: popoutWin.sessionState.session ? Math.ceil(sessionPanel.height) : 0
+                    }
+                    Region {
+                        x: Math.floor(corner.inputX)
+                        y: Math.floor(corner.inputY)
+                        width: corner.reveal > 0 ? Math.ceil(corner.panelWidth) : 0
+                        height: corner.reveal > 0 ? Math.ceil(corner.inputHeight) : 0
+                    }
+                    Region {
+                        x: Math.floor(notificationPopups.x)
+                        y: Math.floor(notificationPopups.y)
+                        width: notificationPopups.visible ? Math.ceil(notificationPopups.width) : 0
+                        height: notificationPopups.visible ? Math.ceil(notificationPopups.height) : 0
                     }
                 }
 
@@ -139,30 +168,69 @@ ShellRoot {
                     function onSessionChanged(): void {
                         if (!popoutWin.sessionState.session)
                             return;
+                        corner.close();
+                        popoutWin.sessionState.sidebar = false;
                         for (const screen of Quickshell.screens) {
                             const state = ShellState.forScreen(screen);
                             if (state && state !== popoutWin.sessionState)
                                 state.session = false;
                         }
                     }
+                    function onSidebarChanged(): void {
+                        if (!popoutWin.sessionState.sidebar)
+                            return;
+                        for (const screen of Quickshell.screens) {
+                            const state = ShellState.forScreen(screen);
+                            if (state && state !== popoutWin.sessionState)
+                                state.sidebar = false;
+                        }
+                        for (const notif of Notifs.popups)
+                            notif.popup = false;
+                    }
                 }
 
                 MouseArea {
                     id: sessionEdge
+                    z: 10
                     x: parent.width - width
-                    y: BarConfig.topGap + BarConfig.thickness
-                    width: 4
-                    height: parent.height - y
-                    enabled: !scope.fullscreen
+                    y: Math.floor(parent.height / 3)
+                    width: 8
+                    height: Math.floor(parent.height / 3)
+                    enabled: !scope.fullscreen && !corner.opened
                     property real startX
                     function handleDrag(delta: real): void {
-                        if (delta < -Config.session.dragThreshold && Config.session.enabled)
+                        if (delta < -Config.session.dragThreshold && Config.session.enabled) {
+                            corner.close();
                             popoutWin.sessionState.session = true;
+                        }
                     }
                     onPressed: event => startX = event.x
-                    onPositionChanged: event => {
-                        if (pressed)
-                            handleDrag(event.x - startX);
+                    onPositionChanged: event => { if (pressed) handleDrag(event.x - startX); }
+                }
+
+                UnifiedCorner {
+                    id: corner
+                    anchors.fill: parent
+                    screenState: popoutWin.sessionState
+                }
+
+                Column {
+                    id: notificationPopups
+                    x: parent.width - width - 12
+                    y: BarConfig.topGap + BarConfig.thickness + 12
+                    width: Math.min(360, parent.width - 24)
+                    height: Math.min(implicitHeight, parent.height - y)
+                    clip: true
+                    spacing: 8
+                    visible: !popoutWin.sessionState.sidebar
+                    Repeater {
+                        model: Notifs.popups.filter(n => !n.closed)
+                        NotificationCard {
+                            required property var modelData
+                            width: notificationPopups.width
+                            notif: modelData
+                            popup: true
+                        }
                     }
                 }
 
@@ -349,6 +417,8 @@ ShellRoot {
                 if (fullscreen) {
                     pops.close();
                     popoutWin.sessionState.session = false;
+                    popoutWin.sessionState.sidebar = false;
+                    corner.close();
                 }
             }
 

@@ -14,6 +14,7 @@ QtObject {
 
     property bool popup
     property bool closed
+    property bool closing
     property var locks: new Set()
 
     property date time: new Date()
@@ -218,12 +219,16 @@ QtObject {
     }
 
     function close(): void {
+        if (closing)
+            return;
+        closing = true;
         closed = true;
         if (locks.size === 0 && Notifs.list.includes(this)) {
             Notifs.list = Notifs.list.filter(n => n !== this);
             notification?.dismiss();
             destroy();
         }
+        closing = false;
     }
 
     Component.onCompleted: {

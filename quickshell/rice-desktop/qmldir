@@ -1,0 +1,34 @@
+singleton Fonts 1.0 Fonts.qml
+singleton Sfx 1.0 Sfx.qml
+singleton Look 1.0 Look.qml
+singleton DashFont 1.0 DashFont.qml
+BatteryWidget 1.0 BatteryWidget.qml
+DCard 1.0 DCard.qml
+ClockWidget 1.0 ClockWidget.qml
+Card 1.0 Card.qml
+CalendarWidget 1.0 CalendarWidget.qml
+DashPerf 1.0 DashPerf.qml
+DashHome 1.0 DashHome.qml
+DashGrid 1.0 DashGrid.qml
+DashAbout 1.0 DashAbout.qml
+DText 1.0 DText.qml
+DRing 1.0 DRing.qml
+Dock 1.0 Dock.qml
+EditorWindow 1.0 EditorWindow.qml
+HotCorner 1.0 HotCorner.qml
+HotCornerPanel 1.0 HotCornerPanel.qml
+MIcon 1.0 MIcon.qml
+Dashboard 1.0 Dashboard.qml
+DashWalls 1.0 DashWalls.qml
+RoundImage 1.0 RoundImage.qml
+ResourcesWidget 1.0 ResourcesWidget.qml
+MediaWidget 1.0 MediaWidget.qml
+SfxBank 1.0 SfxBank.qml
+SfxTap 1.0 SfxTap.qml
+T 1.0 T.qml
+UserCard 1.0 UserCard.qml
+VizStrip 1.0 VizStrip.qml
+WidgetWindow 1.0 WidgetWindow.qml
+WeatherWidget 1.0 WeatherWidget.qml
+WallPreview 1.0 WallPreview.qml
+VizWidget 1.0 VizWidget.qml

@@ -303,6 +303,6 @@ ShellRoot {
     Dock { dc: root.cfg.dock ? root.cfg.dock : ({}) }
 
     // ---- hot corner (Settings > Hot corners)
-    HotCorner { screen: root.scr }
+    HotCorner { id: hotCorner; screen: hotCorner.linkedScreen ?? root.scr }
 
 }

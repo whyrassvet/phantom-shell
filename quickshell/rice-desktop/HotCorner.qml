@@ -9,6 +9,11 @@ PanelWindow {
     property var cfg: ({ enabled: false })
     property var st: ({})
     property bool open: false
+    property bool linked: false
+    property bool notificationHovered: false
+    property var linkedScreen: null
+    property double unifiedDeadline: 0
+    property bool unifiedManaged: false
     property string cfgText: ""
     property string lastOpenCmd: ""
     property bool cmdSeen: false
@@ -27,6 +32,39 @@ PanelWindow {
     readonly property real sc: cfg.scale ? Math.max(0.75, Math.min(1.5, cfg.scale)) : 1
     readonly property real pw: panel.width * sc
     readonly property real ph: panel.height * sc
+
+    function notifyBar(method, args) {
+        const config = (Quickshell.env("XDG_CONFIG_HOME") || Quickshell.env("HOME") + "/.config") + "/quickshell/caelestia-bar"
+        Quickshell.execDetached(["qs", "ipc", "-p", config, "call", "linkedPanels", method].concat(args))
+    }
+    IpcHandler {
+        target: "hotCornerLink"
+        function useUnified(): void {
+            hc.unifiedDeadline = Date.now() + 3500
+            if (hc.atBottom && hc.atRight) { hc.unifiedManaged = true; hc.open = false }
+        }
+        function openLinked(screenName: string): void {
+            const selected = Quickshell.screens.find(s => s.name === screenName)
+            if (!selected || !hc.cfg.enabled || !hc.atBottom || !hc.atRight)
+                return
+            hc.linkedScreen = selected
+            hc.linked = true
+            hc.open = true
+            hc.notifyBar("geometry", [screenName, String(Math.ceil(hc.pw)), String(Math.ceil(hc.ph + hc.gap * 2))])
+        }
+        function setHovered(hovered: bool): void {
+            hc.notificationHovered = hovered
+            if (hovered) { leaveTimer.stop(); graceTimer.stop() }
+            else if (hc.open && hc.linked && !hover.hovered && !trigHover.hovered && !areaHover.hovered) leaveTimer.restart()
+        }
+        function close(): void {
+            if (hc.linked) hc.open = false
+        }
+    }
+    Timer {
+        interval: 1000; running: true; repeat: true
+        onTriggered: if (hc.unifiedManaged && (Date.now() > hc.unifiedDeadline || !hc.atBottom || !hc.atRight)) hc.unifiedManaged = false
+    }
 
     // emphasized decelerate in, emphasized accelerate out (Material 3 motion)
     NumberAnimation {
@@ -83,7 +121,7 @@ PanelWindow {
         later.restart()
     }
 
-    visible: cfg.enabled === true
+    visible: cfg.enabled === true && !unifiedManaged
     color: "transparent"
     anchors { bottom: hc.atBottom; top: !hc.atBottom; right: hc.atRight; left: !hc.atRight }
     implicitWidth: pw + 2 * gap + 16
@@ -166,7 +204,7 @@ PanelWindow {
     Timer {
         id: leaveTimer
         interval: 380
-        onTriggered: if (hc.cfg.close_on_leave !== false && !hover.hovered && !trigHover.hovered && !areaHover.hovered) shotCheck.running = true
+        onTriggered: if (hc.cfg.close_on_leave !== false && !hc.notificationHovered && !hover.hovered && !trigHover.hovered && !areaHover.hovered) shotCheck.running = true
     }
     // a screenshot (Print) is being taken while the panel is open: stay, so the panel can be in the picture
     Process {
@@ -175,21 +213,29 @@ PanelWindow {
         stdout: StdioCollector {
             onStreamFinished: {
                 if (text.trim() === "1") { shotWait.restart(); return }
-                if (!hover.hovered && !trigHover.hovered && !areaHover.hovered) hc.open = false
+                if (!hc.notificationHovered && !hover.hovered && !trigHover.hovered && !areaHover.hovered) hc.open = false
             }
         }
     }
-    Timer { id: shotWait; interval: 400; onTriggered: if (hc.open && !hover.hovered && !trigHover.hovered && !areaHover.hovered) shotCheck.running = true }
+    Timer { id: shotWait; interval: 400; onTriggered: if (hc.open && !hc.notificationHovered && !hover.hovered && !trigHover.hovered && !areaHover.hovered) shotCheck.running = true }
     Timer {
         // opened but the pointer never came into the panel
         id: graceTimer
         interval: 1400
-        onTriggered: if (hc.cfg.close_on_leave !== false && !hover.hovered && !trigHover.hovered && !areaHover.hovered) hc.open = false
+        onTriggered: if (hc.cfg.close_on_leave !== false && !hc.notificationHovered && !hover.hovered && !trigHover.hovered && !areaHover.hovered) hc.open = false
     }
     onOpenChanged: {
         animateTo(open ? 1 : 0)
         if (open) { refresh(); graceTimer.restart() }
-        else { graceTimer.stop(); leaveTimer.stop() }
+        else {
+            graceTimer.stop(); leaveTimer.stop()
+            if (linked) {
+                notifyBar("close", [linkedScreen?.name ?? ""])
+                linked = false
+                notificationHovered = false
+                linkedScreen = null
+            }
+        }
     }
 
     Item {

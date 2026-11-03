@@ -14,6 +14,7 @@ with tempfile.TemporaryDirectory(prefix="phantom-session-test-", dir="/tmp/openc
     scratch = Path(tmp)
     bar = scratch / "bar"
     shutil.copytree(ROOT / "quickshell/caelestia-bar", bar)
+    shutil.copytree(ROOT / "quickshell/rice-desktop", scratch / "rice-desktop")
     panel = bar / "components/SessionPanel.qml"
     text = panel.read_text()
     marker = "    SessionButton {\n        id: logout"
@@ -36,9 +37,9 @@ with tempfile.TemporaryDirectory(prefix="phantom-session-test-", dir="/tmp/openc
     power.write_text(text)
     shell = bar / "shell.qml"
     text = shell.read_text()
-    assert text.count("sessionEdge.pressed ? scope.modelData.") == 2
-    text = text.replace("sessionEdge.pressed ? scope.modelData.", "(sessionEdge.pressed || sessionEdge.testPressed) ? scope.modelData.")
-    text = text.replace("id: sessionEdge\n", "id: sessionEdge\n                    property bool testPressed: false\n", 1)
+    assert text.count("corner.pressed || sessionEdge.pressed ? scope.modelData.") == 2
+    text = text.replace("corner.pressed || sessionEdge.pressed ? scope.modelData.", "(corner.pressed || corner.testPressed || sessionEdge.pressed) ? scope.modelData.")
+    text = text.replace("id: corner\n", "id: corner\n                    property bool testPressed: false\n", 1)
     marker = "            onFullscreenChanged: {"
     assert text.count(marker) == 1
     test = '''            Timer {
@@ -53,17 +54,20 @@ with tempfile.TemporaryDirectory(prefix="phantom-session-test-", dir="/tmp/openc
                         console.log("SESSION_CONTOUR", sessionBackground.ear === 24, sessionBackground.corner === 28, sessionBackground.height === sessionPanel.height + 80);
                         console.log("SESSION_FOCUS_OPEN", popoutWin.WlrLayershell.keyboardFocus === WlrKeyboardFocus.Exclusive);
                         console.log("SESSION_DRAG_REGION_CLOSED", sessionDragRegion.width === 0, sessionDragRegion.height === 0);
-                        sessionEdge.testPressed = true;
+                        corner.testPressed = true;
                         console.log("SESSION_DRAG_REGION_HELD", sessionDragRegion.width === scope.modelData.width, sessionDragRegion.height === scope.modelData.height);
-                        sessionEdge.testPressed = false;
+                        corner.testPressed = false;
                         popoutWin.sessionState.session = false;
-                        sessionEdge.handleDrag(-Config.session.dragThreshold - 1);
-                        console.log("SESSION_DRAG", popoutWin.sessionState.session);
+                        corner.openBoth();
+                        console.log("SESSION_DRAG", popoutWin.sessionState.sidebar, popoutWin.sessionState.session);
                     } else {
-                        popoutWin.sessionState.session = false;
-                        sessionEdge.handleDrag(-Config.session.dragThreshold + 1);
-                        console.log("SESSION_SHORT_DRAG", popoutWin.sessionState.session);
+                        corner.close();
+                        console.log("SESSION_SHORT_DRAG", popoutWin.sessionState.sidebar);
                         console.log("SESSION_FOCUS_CLOSED", popoutWin.WlrLayershell.keyboardFocus === WlrKeyboardFocus.None);
+                        sessionEdge.handleDrag(-Config.session.dragThreshold + 1);
+                        console.log("POWER_EDGE_SHORT", popoutWin.sessionState.session);
+                        sessionEdge.handleDrag(-Config.session.dragThreshold - 1);
+                        console.log("POWER_EDGE_DRAG", popoutWin.sessionState.session, popoutWin.sessionState.sidebar, corner.opened);
                         stop();
                     }
                     phase++;
@@ -90,17 +94,18 @@ with tempfile.TemporaryDirectory(prefix="phantom-session-test-", dir="/tmp/openc
         try:
             deadline = time.monotonic() + 15
             while time.monotonic() < deadline and proc.poll() is None:
-                if "SESSION_SHORT_DRAG" in log.read_text(errors="replace"):
+                if "POWER_EDGE_DRAG" in log.read_text(errors="replace"):
                     break
                 time.sleep(0.1)
             result = log.read_text(errors="replace")
-            for expected in ("SESSION_BUTTON true true true true", "SESSION_SURFACE true true true true", "SESSION_CONTOUR true true true", "SESSION_FOCUS_OPEN true", "SESSION_DRAG_REGION_CLOSED true true", "SESSION_DRAG_REGION_HELD true true", "SESSION_DRAG true", "SESSION_SHORT_DRAG false", "SESSION_FOCUS_CLOSED true"):
+            for expected in ("SESSION_BUTTON true true true true", "SESSION_SURFACE true true true true", "SESSION_CONTOUR true true true", "SESSION_FOCUS_OPEN true", "SESSION_DRAG_REGION_CLOSED true true", "SESSION_DRAG_REGION_HELD true true", "SESSION_DRAG true false", "SESSION_SHORT_DRAG false", "SESSION_FOCUS_CLOSED true", "POWER_EDGE_SHORT false", "POWER_EDGE_DRAG true false false"):
                 assert expected in result, result
             for expected in ('LOGOUT_UWSM ["uwsm","stop"]', 'LOGOUT_OTHER ["logout"]', 'LOGOUT_CUSTOM ["custom","arg"]'):
                 assert expected in result, result
             for error in ("ReferenceError", "TypeError", "Failed to load configuration"):
                 assert error not in result, result
         finally:
-            os.killpg(proc.pid, 15)
+            if proc.poll() is None:
+                os.killpg(proc.pid, 15)
             proc.wait(timeout=10)
     print("Session button and drag threshold passed; no power action executed.")
