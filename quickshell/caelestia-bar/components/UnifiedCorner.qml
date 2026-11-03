@@ -1,13 +1,14 @@
 // The existing Phantom hot-corner content and notification dock on one surface.
 import QtQuick
-import QtQuick.Effects
 import Quickshell
 import Quickshell.Io
+import Quickshell.Wayland
 import qs.services
 
 Item {
     id: root
     required property ScreenState screenState
+    required property var targetScreen
     property var cfg: ({ enabled: false })
     property var status: ({})
     property bool opened: false
@@ -15,37 +16,8 @@ Item {
     property string lastOpenCmd: ""
     property bool cmdSeen: false
     property real dashboardSpeed: 1
-    property real reveal: 0
-    property real notificationReveal: 0
-    readonly property int openDuration: 373
-    readonly property int closeDuration: 460
-    readonly property real speed: Math.max(0.1, dashboardSpeed || 1)
-    readonly property real dissolveBlur: (1 - Math.min(1, root.reveal)) * 0.55
-    readonly property bool exitBlurEnabled: false
-    readonly property var openCurve: [0.05, 0.7, 0.1, 1.0, 1, 1]
-    // Exit: dissolve and blur in place with soft ends.
-    readonly property var closeCurve: [0.45, 0.05, 0.55, 0.95, 1, 1]
-
-    // Duration and curve are applied when the animation starts, as in Dashboard.qml.
-    // Bindings inside Behavior kept the opening values for the closing run.
-    NumberAnimation { id: revealAnim; target: root; property: "reveal" }
-    NumberAnimation { id: notificationAnim; target: root; property: "notificationReveal" }
-
-    function animateTo(anim: var, prop: string, value: real, opening: bool): void {
-        if (anim.running && anim.to === value) return;
-        if (!anim.running && Math.abs(root[prop] - value) < 0.001) return;
-        anim.stop();
-        anim.duration = (opening ? root.openDuration : root.closeDuration) / root.speed;
-        anim.easing.type = Easing.BezierSpline;
-        anim.easing.bezierCurve = opening ? root.openCurve : root.closeCurve;
-        anim.to = value;
-        anim.start();
-    }
-    function syncReveal(): void {
-        const both = root.opened && root.screenState.sidebar;
-        root.animateTo(revealAnim, "reveal", root.opened ? 1 : 0, root.opened);
-        root.animateTo(notificationAnim, "notificationReveal", both ? 1 : 0, both);
-    }
+    property bool shownNotifications: false
+    readonly property real reveal: opened ? 1 : 0
     readonly property alias pressed: cornerMouse.pressed
     readonly property bool panelReady: control.status === Loader.Ready
     readonly property bool enabledHere: cfg.enabled === true && (cfg.corner ?? "bottom-right") === "bottom-right"
@@ -55,7 +27,7 @@ Item {
     readonly property real topInset: 48
     readonly property real notificationHeight: Math.min(360, Math.max(0, height - topInset - panelHeight - 30))
     readonly property real inputX: width - panelWidth - 10
-    readonly property real inputHeight: panelHeight + (screenState.sidebar || notificationReveal > 0 ? notificationHeight + 10 : 0)
+    readonly property real inputHeight: panelHeight + (shownNotifications ? notificationHeight + 10 : 0)
     readonly property real inputY: height - inputHeight - 10
     signal hoverChanged(bool hovered)
 
@@ -116,13 +88,13 @@ Item {
     Timer { id: later; interval: 1600; onTriggered: root.refresh() }
     Timer { id: leaveTimer; interval: 380; onTriggered: if (root.cfg.close_on_leave !== false && !panelHover.hovered && !cornerHover.hovered) root.close() }
     Timer { id: openTimer; interval: Math.max(250, root.cfg.delay ?? 150); onTriggered: if (!cornerMouse.pressed && cornerHover.hovered) root.opened = true }
+    Timer { id: closeHold; interval: 1000 }
 
     onOpenedChanged: {
-        if (opened) { screenState.session = false; refresh(); leaveTimer.stop(); }
-        else screenState.sidebar = false;
-        syncReveal();
+        if (opened) { closeHold.stop(); shownNotifications = screenState.sidebar; screenState.session = false; refresh(); leaveTimer.stop(); }
+        else { closeHold.restart(); screenState.sidebar = false; }
     }
-    Connections { target: root.screenState; function onSidebarChanged(): void { if (root.screenState.sidebar) root.opened = true; root.syncReveal(); } }
+    Connections { target: root.screenState; function onSidebarChanged(): void { if (root.screenState.sidebar) root.opened = true; if (root.opened) root.shownNotifications = root.screenState.sidebar; } }
 
     MouseArea {
         id: cornerMouse
@@ -146,22 +118,27 @@ Item {
         onReleased: if (!dragged && containsMouse) root.opened = !root.opened
         HoverHandler { id: cornerHover }
     }
+    PanelWindow {
+        id: panelWindow
+        screen: root.targetScreen
+        visible: root.opened
+        color: "transparent"
+        anchors.right: true
+        anchors.bottom: true
+        margins.right: 10
+        margins.bottom: 10
+        implicitWidth: root.panelWidth
+        implicitHeight: root.inputHeight
+        exclusionMode: ExclusionMode.Ignore
+        WlrLayershell.layer: WlrLayer.Top
+        WlrLayershell.namespace: "phantom-corner"
+        WlrLayershell.keyboardFocus: root.screenState.sidebar ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.OnDemand
     Item {
         id: panels
-        x: root.inputX
-        y: root.inputY
+        x: 0
+        y: 0
         width: root.panelWidth
         height: root.inputHeight
-        visible: root.reveal > 0 || root.notificationReveal > 0
-        opacity: Math.min(1, root.reveal)
-        // Keep group opacity during the exit; the optional blur is disabled for now.
-        layer.enabled: !root.opened && root.reveal > 0
-        layer.effect: MultiEffect {
-            blurEnabled: root.exitBlurEnabled
-            blurMax: 32
-            blur: root.dissolveBlur
-            autoPaddingEnabled: false
-        }
         HoverHandler {
             id: panelHover
             onHoveredChanged: { if (hovered) leaveTimer.stop(); else if (root.opened) leaveTimer.restart(); }
@@ -172,8 +149,7 @@ Item {
             height: root.notificationHeight
             screenState: root.screenState
             backgroundColor: control.item?.backgroundColor ?? "transparent"
-            visible: root.notificationReveal > 0
-            opacity: root.notificationReveal
+            visible: root.shownNotifications
         }
         Loader {
             id: control
@@ -187,7 +163,7 @@ Item {
                 item.st = Qt.binding(() => root.status);
                 // Keep the content populated while the tile collapses; otherwise the
                 // panel resets its sections as soon as opened turns false.
-                item.open = Qt.binding(() => root.opened || root.reveal > 0);
+                item.open = Qt.binding(() => root.opened || closeHold.running);
             }
             Connections {
                 target: control.item
@@ -201,5 +177,6 @@ Item {
             source: "file://" + Quickshell.shellDir + "/../rice-desktop/SfxTap.qml"
             onLoaded: item.root = panels
         }
+    }
     }
 }

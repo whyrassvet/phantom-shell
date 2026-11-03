@@ -102,11 +102,11 @@ Singleton {
         let rule, barRule, trEnabled;
         if (Hypr.usingLua) {
             rule = `eval hl.layer_rule({ match = { namespace = "(caelestia-popouts|phantom-app-launcher)" }, %1 = %2 })`;
-            barRule = `eval hl.layer_rule({ match = { namespace = "caelestia-bar" }, %1 = %2 })`;
+            barRule = `eval hl.layer_rule({ match = { namespace = "(caelestia-bar|phantom-corner)" }, %1 = %2 })`;
             trEnabled = transparency.enabled;
         } else {
             rule = "keyword layerrule %1 %2, match:namespace (caelestia-popouts|phantom-app-launcher)";
-            barRule = "keyword layerrule %1 %2, match:namespace caelestia-bar";
+            barRule = "keyword layerrule %1 %2, match:namespace (caelestia-bar|phantom-corner)";
             trEnabled = transparency.enabled ? 1 : 0;
         }
         // The shared bar surface also contains the hot-corner panels, whose

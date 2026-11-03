@@ -39,16 +39,14 @@ with tempfile.TemporaryDirectory(prefix="phantom-linked-", dir="/tmp/opencode") 
                 function shortDrag(): void { corner.testDrag(-10, 0) }
                 function hoverOnly(): void { corner.opened = true }
                 function state(): string { return JSON.stringify({open: corner.opened, sidebar: popoutWin.sessionState.sidebar, ready: corner.panelReady, enabled: corner.enabledHere}) }
-                function motion(frac: real): string { return JSON.stringify(corner.testMotion(frac)) }
-                function anim(): string { return JSON.stringify(corner.testAnim()) }
+                function panel(): string { return JSON.stringify(corner.testPanel()) }
                 function backgrounds(): string { return JSON.stringify(corner.testBackgrounds()) }
                 function close(): void { corner.close() }
             }
 ''' + marker))
     corner = bar / "components/UnifiedCorner.qml"
-    assert "blurEnabled: root.exitBlurEnabled" in corner.read_text()
+    assert "MultiEffect" not in corner.read_text()
     text = corner.read_text().replace('    function close(): void', '''    function testDrag(dx: real, dy: real): void { cornerMouse.dragged = false; cornerMouse.handleDrag(dx, dy); }
-    function testStop(): void { revealAnim.stop(); notificationAnim.stop(); }
     function testBackgrounds(): var {
         const oldCfg = cfg, oldStatus = status;
         cfg = Object.assign({}, cfg, { opacity: 0.44, transparency: true, tint: true });
@@ -59,15 +57,8 @@ with tempfile.TemporaryDirectory(prefix="phantom-linked-", dir="/tmp/opencode") 
         cfg = oldCfg; status = oldStatus;
         return { tinted: tinted, opaque: opaque };
     }
-    function testAnim(): var {
-        return { revealDuration: revealAnim.duration, revealTo: revealAnim.to, revealCurve: revealAnim.easing.bezierCurve, notificationDuration: notificationAnim.duration, notificationTo: notificationAnim.to, revealRunning: revealAnim.running, notificationRunning: notificationAnim.running, speed: speed, contentOpen: control.item ? control.item.open : false };
-    }
-    function testMotion(frac: real): var {
-        testStop();
-        reveal = frac; notificationReveal = frac;
-        const c = control.mapToItem(root, 0, 0);
-        const n = notifCard.mapToItem(root, 0, 0);
-        return { control: reveal, notification: notificationReveal, cardHeight: notificationHeight, inputY: inputY, inputX: inputX, controlX: c.x, controlY: c.y, notificationX: n.x, notificationY: n.y, controlFinalY: inputY + panels.height - panelHeight, opacity: panels.opacity, blur: Number(dissolveBlur), blurEnabled: exitBlurEnabled, layerOn: panels.layer.enabled, speed: speed, openDuration: openDuration, closeDuration: closeDuration };
+    function testPanel(): var {
+        return { visible: panelWindow.visible, namespace: panelWindow.WlrLayershell.namespace, notifications: shownNotifications, contentOpen: control.item ? control.item.open : false, notificationHeight: notificationHeight, width: panelWindow.implicitWidth, height: panelWindow.implicitHeight };
     }
     function close(): void''')
     text = text.replace('        NotificationPanel {\n', '        NotificationPanel {\n            id: notifCard\n', 1)
@@ -90,7 +81,7 @@ printf 'DESKTOP_STATE '; qs ipc -p "$1" call linkedTest state
 qs ipc -p "$2" call linkedTest hoverOnly
 sleep 1
 printf 'HOVER_ONLY '; qs ipc -p "$2" call linkedTest state
-printf 'OPEN_ANIM '; qs ipc -p "$2" call linkedTest anim
+printf 'HOVER_PANEL '; qs ipc -p "$2" call linkedTest panel
 qs ipc -p "$2" call linkedTest close
 sleep 1
 qs ipc -p "$2" call linkedTest shortDrag
@@ -99,12 +90,10 @@ qs ipc -p "$2" call linkedTest drag
 sleep 0.6
 printf 'BAR_STATE '; qs ipc -p "$2" call linkedTest state
 printf 'BACKGROUNDS '; qs ipc -p "$2" call linkedTest backgrounds
-printf 'BOTH_ANIM '; qs ipc -p "$2" call linkedTest anim
-printf 'OPEN_MOTION '; qs ipc -p "$2" call linkedTest motion 0.55
+printf 'BOTH_PANEL '; qs ipc -p "$2" call linkedTest panel
 qs ipc -p "$2" call linkedTest close
 sleep 0.15
-printf 'CLOSE_ANIM '; qs ipc -p "$2" call linkedTest anim
-printf 'CLOSE_MOTION '; qs ipc -p "$2" call linkedTest motion 0.45
+printf 'CLOSED_PANEL '; qs ipc -p "$2" call linkedTest panel
 sleep 1
 printf 'CLOSED_STATE '; qs ipc -p "$2" call linkedTest state
 kill "$bar"
@@ -125,40 +114,17 @@ wait
     for mode in ("tinted", "opaque"):
         assert backgrounds[mode]["control"] == backgrounds[mode]["notification"], result.stdout
     assert backgrounds["tinted"]["control"] != backgrounds["opaque"]["control"], result.stdout
-    motions = {}
-    for label in ("OPEN_MOTION", "CLOSE_MOTION"):
-        line = next(line for line in result.stdout.splitlines() if line.startswith(label + " "))
-        motion = json.loads(line.split(" ", 1)[1])
-        motions[label] = motion
-        assert 0 < motion["control"] < 1 and 0 < motion["notification"] < 1, result.stdout
-        assert abs(motion["control"] - motion["notification"]) < 0.15, result.stdout
-        # The tile dissolves in place: its geometry must not shrink while closing.
-        assert abs(motion["controlX"] - motion["inputX"]) < 1 and abs(motion["notificationX"] - motion["inputX"]) < 1, result.stdout
-        assert abs(motion["controlY"] - motion["controlFinalY"]) < 1 and abs(motion["notificationY"] - motion["inputY"]) < 1, result.stdout
-        assert abs(motion["opacity"] - motion["control"]) < 0.01, result.stdout
-        assert 0 < motion["cardHeight"] <= 360 and motion["inputY"] >= 48, result.stdout
-        assert motion["speed"] == 1.25, result.stdout
-        assert motion["openDuration"] == 373 and motion["closeDuration"] == 460, result.stdout
-    assert motions["CLOSE_MOTION"]["layerOn"] is True, result.stdout
-    assert motions["CLOSE_MOTION"]["blurEnabled"] is False, result.stdout
-    assert abs(motions["CLOSE_MOTION"]["blur"] - (1 - 0.45) * 0.55) < 0.01, result.stdout
-    assert motions["OPEN_MOTION"]["layerOn"] is False, result.stdout
-    def anim_of(label):
+    def panel_of(label):
         line = next(line for line in result.stdout.splitlines() if line.startswith(label + " "))
         return json.loads(line.split(" ", 1)[1])
-    open_anim = anim_of("OPEN_ANIM")
-    assert open_anim["revealTo"] == 1 and abs(open_anim["revealDuration"] - 298.4) < 1, result.stdout
-    assert open_anim["notificationTo"] == 0 and not open_anim["notificationRunning"], result.stdout
-    assert [round(v, 2) for v in open_anim["revealCurve"]] == [0.05, 0.7, 0.1, 1.0, 1.0, 1.0], result.stdout
-    both_anim = anim_of("BOTH_ANIM")
-    assert both_anim["revealTo"] == 1 and both_anim["notificationTo"] == 1, result.stdout
-    assert abs(both_anim["revealDuration"] - 298.4) < 1 and abs(both_anim["notificationDuration"] - 298.4) < 1, result.stdout
-    close_anim = anim_of("CLOSE_ANIM")
-    assert close_anim["revealTo"] == 0 and close_anim["notificationTo"] == 0, result.stdout
-    assert close_anim["revealRunning"] and close_anim["notificationRunning"], result.stdout
-    assert abs(close_anim["revealDuration"] - 368) < 1 and abs(close_anim["notificationDuration"] - 368) < 1, result.stdout
-    assert [round(v, 2) for v in close_anim["revealCurve"]] == [0.45, 0.05, 0.55, 0.95, 1.0, 1.0], result.stdout
-    assert close_anim["contentOpen"] is True, result.stdout
+    hover = panel_of("HOVER_PANEL")
+    both = panel_of("BOTH_PANEL")
+    closed = panel_of("CLOSED_PANEL")
+    assert hover["visible"] and not hover["notifications"] and hover["contentOpen"], result.stdout
+    assert both["visible"] and both["notifications"] and both["contentOpen"], result.stdout
+    assert both["namespace"] == "phantom-corner" and 0 < both["notificationHeight"] <= 360, result.stdout
+    assert both["height"] > hover["height"] and both["width"] > 0, result.stdout
+    assert not closed["visible"] and closed["contentOpen"], result.stdout
     for error in ("ReferenceError", "TypeError", "Failed to load configuration"):
         assert error not in result.stdout, result.stdout
     print("Unified corner: panel loaded, hover-only, drag and close passed; old trigger resumed after the bar stopped.")

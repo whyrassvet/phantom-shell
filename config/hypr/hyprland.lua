@@ -475,6 +475,13 @@ hl.layer_rule({
     ignore_alpha = 0.1,
 })
 
+hl.layer_rule({
+    name  = "phantom-corner-blur",
+    match = { namespace = "phantom-corner" },
+    blur = true,
+    ignore_alpha = 0.1,
+})
+
 hl.window_rule({
     name  = "rice-settings",
     match = { title = "^Rice Settings$" },

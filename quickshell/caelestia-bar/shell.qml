@@ -101,7 +101,7 @@ ShellRoot {
 
                 WlrLayershell.layer: WlrLayer.Top
                 WlrLayershell.exclusionMode: ExclusionMode.Ignore
-                WlrLayershell.keyboardFocus: popoutWin.sessionState.session || popoutWin.sessionState.sidebar ? WlrKeyboardFocus.Exclusive : (corner.opened || (pops.hasCurrent && pops.currentName === "wirelesspassword")) ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
+                WlrLayershell.keyboardFocus: popoutWin.sessionState.session ? WlrKeyboardFocus.Exclusive : (pops.hasCurrent && pops.currentName === "wirelesspassword") ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
                 exclusiveZone: -1
 
                 mask: Region {
@@ -146,12 +146,6 @@ ShellRoot {
                         y: Math.floor(sessionPanel.y)
                         width: popoutWin.sessionState.session ? Math.ceil(sessionPanel.width) : 0
                         height: popoutWin.sessionState.session ? Math.ceil(sessionPanel.height) : 0
-                    }
-                    Region {
-                        x: Math.floor(corner.inputX)
-                        y: Math.floor(corner.inputY)
-                        width: corner.reveal > 0 ? Math.ceil(corner.panelWidth) : 0
-                        height: corner.reveal > 0 ? Math.ceil(corner.inputHeight) : 0
                     }
                     Region {
                         x: Math.floor(notificationPopups.x)
@@ -212,6 +206,7 @@ ShellRoot {
                     id: corner
                     anchors.fill: parent
                     screenState: popoutWin.sessionState
+                    targetScreen: scope.modelData
                 }
 
                 Column {
