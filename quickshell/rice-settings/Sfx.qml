@@ -16,6 +16,8 @@ Singleton {
     property var opt: ({ click: true, "switch": true, slider: true, typing: true, music: true })
     readonly property string dir: Quickshell.env("HOME") + "/.local/share/rice/sounds/sfx/"
     property var bank: null
+    property var bankComponent: null
+    property var bankIncubator: null
     property var lastAt: ({})
     readonly property var kinds: ({ click: "click", select: "click", done: "click", "switch-on": "switch", "switch-off": "switch",
                                     slide: "slider", type: "typing" })
@@ -66,9 +68,19 @@ Singleton {
     }
     Timer { interval: 1500; running: true; repeat: true; onTriggered: sfx.reload() }
 
+    function finishBankComponent() {
+        if (!bankComponent || bankComponent.status !== Component.Ready) return
+        bankIncubator = bankComponent.incubateObject(sfx, { sfx: sfx }, Qt.Asynchronous)
+        if (bankIncubator.status === Component.Ready) bank = bankIncubator.object
+        else bankIncubator.onStatusChanged = function(status) {
+            if (status === Component.Ready) bank = bankIncubator.object
+        }
+    }
+
     Component.onCompleted: {
-        // QtMultimedia is optional: without it the sounds still play (a little later) through pw-play
-        const c = Qt.createComponent("SfxBank.qml")
-        if (c.status === Component.Ready) bank = c.createObject(sfx, { sfx: sfx })
+        // Until QtMultimedia is ready (or if it is unavailable), play() uses pw-play/paplay.
+        bankComponent = Qt.createComponent("SfxBank.qml", Component.Asynchronous)
+        if (bankComponent.status === Component.Ready) finishBankComponent()
+        else bankComponent.statusChanged.connect(finishBankComponent)
     }
 }
