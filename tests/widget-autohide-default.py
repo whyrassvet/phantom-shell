@@ -24,21 +24,29 @@ with tempfile.TemporaryDirectory(prefix="widget-autohide-", dir="/tmp/opencode")
     for name in ("runtime", "config", "cache"):
         (p / name).mkdir()
     (p / "runtime").chmod(0o700)
-    for name in ("DesktopPage", "T", "Pill", "ToggleRow", "Tog", "SettingRow", "SegRow", "Seg"):
+    for name in ("DesktopPage", "T", "Btn", "Pill", "ToggleRow", "Tog", "SettingRow", "SegRow", "Seg"):
         shutil.copy(root / f"quickshell/rice-settings/{name}.qml", p)
-    (p / "qmldir").write_text("singleton Fonts 1.0 Fonts.qml\nsingleton Sfx 1.0 Sfx.qml\n" + "".join(f"{name} 1.0 {name}.qml\n" for name in ("DesktopPage", "T", "Pill", "ToggleRow", "Tog", "SettingRow", "SegRow", "Seg")))
+    (p / "qmldir").write_text("singleton Fonts 1.0 Fonts.qml\nsingleton Sfx 1.0 Sfx.qml\n" + "".join(f"{name} 1.0 {name}.qml\n" for name in ("DesktopPage", "T", "Btn", "Pill", "ToggleRow", "Tog", "SettingRow", "SegRow", "Seg")))
     (p / "Fonts.qml").write_text('pragma Singleton\nimport QtQuick\nQtObject { function family(k) { return "sans-serif" } }\n')
-    (p / "Sfx.qml").write_text('pragma Singleton\nimport QtQuick\nQtObject { function play(k) {} }\n')
+    (p / "Sfx.qml").write_text('pragma Singleton\nimport QtQuick\nQtObject { property int clicks: 0; function play(k) { if (k === "click") clicks++ } }\n')
     (p / "shell.qml").write_text('''import Quickshell
 import QtQuick
 ShellRoot {
     QtObject { id: ctl; property var dst: ({autoHide: true}); property string status: "" }
     DesktopPage { id: page; width: 800; height: 600; ctl: ctl }
+    function find(item, name) {
+        if (item.objectName === name) return item
+        for (const child of item.children) { const found = find(child, name); if (found) return found }
+        return null
+    }
     Timer { interval: 1000; running: true; onTriggered: {
         page.requestAutoHide(false)
         console.log("AUTOHIDE_WARNING", page.confirmDisableAutoHide, ctl.dst.autoHide)
-        page.confirmDisableAutoHide = false
-        console.log("AUTOHIDE_CANCEL", !page.confirmDisableAutoHide, ctl.dst.autoHide)
+        find(page, "cancelAutoHideWarning").clicked()
+        console.log("AUTOHIDE_CANCEL", !page.confirmDisableAutoHide, ctl.dst.autoHide, Sfx.clicks)
+        page.requestAutoHide(false)
+        find(page, "confirmAutoHideWarning").clicked()
+        console.log("AUTOHIDE_CONFIRM", !page.confirmDisableAutoHide, !ctl.dst.autoHide, Sfx.clicks)
         Qt.quit()
     } }
 }
@@ -50,4 +58,4 @@ ShellRoot {
         cmd += ["--unsetenv", k]
     result = subprocess.run(cmd + ["cage", "--", "qs", "-n", "-p", str(p)], text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=25)
     print(result.stdout)
-    assert result.returncode == 0 and "AUTOHIDE_WARNING true true" in result.stdout and "AUTOHIDE_CANCEL true true" in result.stdout
+    assert result.returncode == 0 and "AUTOHIDE_WARNING true true" in result.stdout and "AUTOHIDE_CANCEL true true 1" in result.stdout and "AUTOHIDE_CONFIRM true true 2" in result.stdout

@@ -240,37 +240,51 @@ Item {
         }
     }
 
-    Rectangle {
+    Item {
+        id: warningOverlay
         anchors.fill: parent
         z: 100
-        visible: page.confirmDisableAutoHide
-        color: "#b0000000"
-        MouseArea { anchors.fill: parent }
+        visible: opacity > 0.01
+        opacity: page.confirmDisableAutoHide ? 1 : 0
+        readonly property bool sfxOwn: true
+        Behavior on opacity { NumberAnimation { duration: 240; easing.type: Easing.OutCubic } }
+        Rectangle { anchors.fill: parent; color: Qt.rgba(0.01, 0.01, 0.02, 0.72) }
+        MouseArea { anchors.fill: parent; acceptedButtons: Qt.AllButtons; onWheel: function(w) { w.accepted = true } }
         Rectangle {
             anchors.centerIn: parent
             width: Math.min(440, parent.width - 32)
             height: warningContent.implicitHeight + 48
-            radius: 14
-            color: "#1a1a1a"
+            radius: 18
+            color: "#151517"
             border.width: 1
-            border.color: "#404040"
+            border.color: Qt.rgba(1, 1, 1, 0.12)
+            scale: page.confirmDisableAutoHide ? 1 : 0.96
+            Behavior on scale { NumberAnimation { duration: 240; easing.type: Easing.OutCubic } }
             Column {
                 id: warningContent
                 anchors { left: parent.left; right: parent.right; verticalCenter: parent.verticalCenter; margins: 24 }
                 spacing: 18
-                T { text: "Disable auto-hide?"; font.pixelSize: 18; font.bold: true }
+                T { kind: "title"; text: "Disable auto-hide?"; font.pixelSize: 18; font.bold: true }
                 T {
                     width: parent.width
                     text: "Keeping widgets visible behind windows, especially the visualizer with blur, can significantly increase GPU usage and power consumption."
-                    color: "#bdbdbd"
+                    color: "#a8a8b0"
+                    font.pixelSize: 13
+                    lineHeight: 1.15
                     wrapMode: Text.WordWrap
                 }
                 Row {
                     spacing: 10
-                    Pill { label: "Cancel"; onClicked: page.confirmDisableAutoHide = false }
-                    Pill {
-                        label: "Disable auto-hide"
-                        onClicked: { page.confirmDisableAutoHide = false; page.setAutoHide(false) }
+                    Btn {
+                        objectName: "cancelAutoHideWarning"
+                        text: "Cancel"
+                        onClicked: { Sfx.play("click"); page.confirmDisableAutoHide = false }
+                    }
+                    Btn {
+                        objectName: "confirmAutoHideWarning"
+                        text: "Disable auto-hide"
+                        primary: true
+                        onClicked: { Sfx.play("click"); page.confirmDisableAutoHide = false; page.setAutoHide(false) }
                     }
                 }
             }
