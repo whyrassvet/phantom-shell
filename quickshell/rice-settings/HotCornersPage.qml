@@ -78,14 +78,10 @@ Item {
                 GradientStop { position: 0; color: "#2a2540" }
                 GradientStop { position: 1; color: "#12131a" }
             }
-            readonly property string corner: page.v("corner", "bottom-right")
-            readonly property bool atBottom: corner.indexOf("bottom") === 0
-            readonly property bool atRight: corner.indexOf("right") > 0
-
             Rectangle {
                 width: 26; height: 26; radius: 13
-                x: scr.atRight ? scr.width - 13 : -13
-                y: scr.atBottom ? scr.height - 13 : -13
+                x: scr.width - 13
+                y: scr.height - 13
                 color: page.accent
                 opacity: 0.55
                 SequentialAnimation on opacity {
@@ -99,10 +95,8 @@ Item {
                 readonly property real s: Math.min(0.5, (scr.height - 24) / Math.max(1, prev.height))
                 width: prev.width * s
                 height: prev.height * s
-                x: scr.atRight ? scr.width - width - 12 : 12
-                y: scr.atBottom ? scr.height - height - 12 : 12
-                Behavior on x { NumberAnimation { duration: 260; easing.type: Easing.OutCubic } }
-                Behavior on y { NumberAnimation { duration: 260; easing.type: Easing.OutCubic } }
+                x: scr.width - width - 12
+                y: scr.height - height - 12
                 HotCornerPanel {
                     id: prev
                     scale: mini.s
@@ -115,12 +109,12 @@ Item {
                 }
             }
             Column {
-                x: scr.atRight ? 18 : scr.width - width - 18
+                x: 18
                 anchors.verticalCenter: parent.verticalCenter
                 spacing: 6
                 width: 210
                 T { text: "Touch the corner"; font.pixelSize: 18; font.bold: true }
-                T { width: parent.width; text: "Move the pointer into the " + scr.corner.replace("-", " ") + " corner to open the panel."; font.pixelSize: 12; color: "#b0b0bc"; wrapMode: Text.WordWrap }
+                T { width: parent.width; text: "Move the pointer into the bottom right corner to open the panel."; font.pixelSize: 12; color: "#b0b0bc"; wrapMode: Text.WordWrap }
                 Btn {
                     primary: true
                     text: "Open it now"
@@ -132,13 +126,6 @@ Item {
         // ---------- general ----------
         SectionTitle { text: "Hot corner" }
         ToggleRow { label: "Enable"; desc: "Show the panel when the pointer touches the corner"; checked: page.v("enabled", true) === true; onToggled: function(x) { page.setv("enabled", x ? "on" : "off") } }
-        SegRow {
-            label: "Corner"
-            options: [{ label: "Bottom right", value: "bottom-right" }, { label: "Bottom left", value: "bottom-left" },
-                      { label: "Top right", value: "top-right" }, { label: "Top left", value: "top-left" }]
-            current: page.v("corner", "bottom-right")
-            onChosen: function(x) { page.setv("corner", x) }
-        }
         SliderRow {
             label: "Open delay"
             desc: "How long the pointer must stay in the corner"

@@ -20,7 +20,7 @@ Item {
     readonly property real reveal: opened ? 1 : 0
     readonly property alias pressed: cornerMouse.pressed
     readonly property bool panelReady: control.status === Loader.Ready
-    readonly property bool enabledHere: cfg.enabled === true && (cfg.corner ?? "bottom-right") === "bottom-right"
+    readonly property bool enabledHere: cfg.enabled === true
     readonly property real scaleFactor: Math.max(0.75, Math.min(1.5, cfg.scale || 1))
     readonly property real panelWidth: Math.max(0, Math.min(width - 20, (control.item?.width ?? 400) * scaleFactor))
     readonly property real panelHeight: (control.item?.height ?? 0) * scaleFactor

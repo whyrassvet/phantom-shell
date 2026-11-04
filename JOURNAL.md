@@ -4,6 +4,14 @@
 
 ---
 
+## 2026-11-04 — фиксированный hot corner
+
+- Удалены выбор положения и связанная логика; общая и резервная панели и предпросмотр закреплены в нижнем правом углу. Старый параметр `corner` игнорируется и исчезает при сохранении настроек.
+- Файлы: `quickshell/rice-settings/HotCornersPage.qml`, `quickshell/rice-desktop/HotCorner.qml`, `quickshell/caelestia-bar/components/UnifiedCorner.qml`, `bin/rice-hotcorner`, `settings/rice/hotcorner.json`, тесты связанных панелей и совместимости. Копия `/tmp/opencode/phantom-fixed-corner-20261104/before.tar`.
+- Изолированные проверки связанных панелей со старым `top-left`, навигации настроек, сессии, скриншотов и совместимости конфига прошли. Установленная копия не изменена; реальный ввод и внешний вид требуют проверки.
+
+---
+
 ## 2026-11-04 — установка попаутов Flat
 
 - По разрешению пользователя установлен `~/.config/quickshell/caelestia-bar/shell.qml` с попаутами Flat как в Floating; прежний файл совпадал с предыдущим проектным. Копия `/tmp/opencode/phantom-flat-popouts-live-20261104/before.tar`.

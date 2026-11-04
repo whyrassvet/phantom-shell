@@ -86,7 +86,7 @@ SHOT_DIR = xdg_dir("PICTURES", "Pictures") + "/Screenshots"
 SECTIONS = ["awake", "wallpaper", "colors", "apps", "record", "shot", "toggles", "media"]
 TOGGLES = ["wifi", "bluetooth", "dnd", "gaming", "mic", "settings", "wallpaper", "lock"]
 DEFAULTS = {
-    "enabled": True, "corner": "bottom-right", "trigger": 4, "delay": 150, "close_on_leave": True,
+    "enabled": True, "trigger": 4, "delay": 150, "close_on_leave": True,
     "sections": ["awake", "wallpaper", "apps", "toggles"], "header": True,
     "apps": [],
     "toggles": ["wifi", "bluetooth", "dnd", "gaming", "settings"],
@@ -96,7 +96,7 @@ DEFAULTS = {
 }
 INTS = {"trigger": (1, 16), "delay": (0, 800), "width": (300, 680), "radius": (0, 36)}
 FLOATS = {"opacity": (0.3, 1.0), "speed": (0.5, 2.0), "card_alpha": (0.0, 0.2), "scale": (0.75, 1.5)}
-CHOICES = {"corner": ["bottom-right", "bottom-left", "top-right", "top-left"], "animation": ["grow", "slide", "scale", "fade"], "shot_overlay": ["dark", "light"]}
+CHOICES = {"animation": ["grow", "slide", "scale", "fade"], "shot_overlay": ["dark", "light"]}
 BOOLS = ("enabled", "close_on_leave", "audio", "rec_sound", "rec_mic", "clipboard", "header", "blur", "transparency", "tint")
 
 

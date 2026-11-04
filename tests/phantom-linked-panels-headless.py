@@ -19,7 +19,7 @@ with tempfile.TemporaryDirectory(prefix="phantom-linked-", dir="/tmp/opencode") 
     desktop = scratch / "config/quickshell/rice-desktop"
     shutil.copytree(ROOT / "quickshell/caelestia-bar", bar)
     shutil.copytree(ROOT / "quickshell/rice-desktop", desktop)
-    (scratch / "home/.config/rice/hotcorner.json").write_text(json.dumps({"enabled": True, "corner": "bottom-right", "sections": [], "header": False, "width": 400, "close_on_leave": False}))
+    (scratch / "home/.config/rice/hotcorner.json").write_text(json.dumps({"enabled": True, "corner": "top-left", "sections": [], "header": False, "width": 400, "close_on_leave": False}))
     (scratch / "home/.config/rice/dashboard.json").write_text(json.dumps({"speed": 1.25}))
     desktop_shell = desktop / "shell.qml"
     text = desktop_shell.read_text().replace('    HotCorner { id: hotCorner;', '''    IpcHandler {

@@ -3,7 +3,7 @@ import Quickshell.Io
 import Quickshell.Wayland
 import QtQuick
 
-// Hot corner: touch the chosen screen corner and the panel slides out (Settings > Hot corners).
+// Hot corner: touch the bottom-right screen corner and the panel slides out (Settings > Hot corners).
 PanelWindow {
     id: hc
     property var cfg: ({ enabled: false })
@@ -22,9 +22,6 @@ PanelWindow {
     property real t: 0
 
     readonly property real spd: cfg.speed ? cfg.speed : 1
-    readonly property string corner: cfg.corner ? cfg.corner : "bottom-right"
-    readonly property bool atBottom: corner.indexOf("bottom") === 0
-    readonly property bool atRight: corner.indexOf("right") > 0
     readonly property string anim: cfg.animation ? cfg.animation : "grow"
     readonly property int gap: 10
     readonly property int trig: cfg.trigger ? cfg.trigger : 4
@@ -41,11 +38,11 @@ PanelWindow {
         target: "hotCornerLink"
         function useUnified(): void {
             hc.unifiedDeadline = Date.now() + 3500
-            if (hc.atBottom && hc.atRight) { hc.unifiedManaged = true; hc.open = false }
+            hc.unifiedManaged = true; hc.open = false
         }
         function openLinked(screenName: string): void {
             const selected = Quickshell.screens.find(s => s.name === screenName)
-            if (!selected || !hc.cfg.enabled || !hc.atBottom || !hc.atRight)
+            if (!selected || !hc.cfg.enabled)
                 return
             hc.linkedScreen = selected
             hc.linked = true
@@ -63,7 +60,7 @@ PanelWindow {
     }
     Timer {
         interval: 1000; running: true; repeat: true
-        onTriggered: if (hc.unifiedManaged && (Date.now() > hc.unifiedDeadline || !hc.atBottom || !hc.atRight)) hc.unifiedManaged = false
+        onTriggered: if (hc.unifiedManaged && Date.now() > hc.unifiedDeadline) hc.unifiedManaged = false
     }
 
     // emphasized decelerate in, emphasized accelerate out (Material 3 motion)
@@ -123,7 +120,7 @@ PanelWindow {
 
     visible: cfg.enabled === true && !unifiedManaged
     color: "transparent"
-    anchors { bottom: hc.atBottom; top: !hc.atBottom; right: hc.atRight; left: !hc.atRight }
+    anchors { bottom: true; right: true }
     implicitWidth: pw + 2 * gap + 16
     implicitHeight: ph + 2 * gap + 16
     exclusionMode: ExclusionMode.Ignore
@@ -184,8 +181,8 @@ PanelWindow {
         id: trigger
         width: hc.trig
         height: hc.trig
-        x: hc.atRight ? parent.width - width : 0
-        y: hc.atBottom ? parent.height - height : 0
+        x: parent.width - width
+        y: parent.height - height
         HoverHandler {
             id: trigHover
             onHoveredChanged: { if (hovered) { leaveTimer.stop(); graceTimer.stop() } else if (hc.open && !hover.hovered) leaveTimer.restart() }
@@ -243,15 +240,15 @@ PanelWindow {
         readonly property bool grow: hc.anim === "grow"
         width: grow ? hc.pw * (0.62 + 0.38 * hc.t) : hc.pw
         height: grow ? Math.max(1, hc.ph * hc.t) : hc.ph
-        x: (hc.atRight ? parent.width - width - hc.gap : hc.gap)
-           + (hc.anim === "slide" ? (1 - hc.t) * (hc.atRight ? hc.pw + hc.gap + 4 : -(hc.pw + hc.gap + 4)) : 0)
-        y: hc.atBottom ? parent.height - height - hc.gap : hc.gap
+        x: parent.width - width - hc.gap
+           + (hc.anim === "slide" ? (1 - hc.t) * (hc.pw + hc.gap + 4) : 0)
+        y: parent.height - height - hc.gap
         visible: hc.t > 0.005
         clip: grow
         opacity: hc.anim === "fade" ? hc.t : (hc.anim === "scale" ? Math.min(1, hc.t * 3) : 1)
         transform: Scale {
-            origin.x: hc.atRight ? holder.width : 0
-            origin.y: hc.atBottom ? holder.height : 0
+            origin.x: holder.width
+            origin.y: holder.height
             xScale: hc.anim === "scale" ? 0.82 + 0.18 * hc.t : 1
             yScale: hc.anim === "scale" ? 0.82 + 0.18 * hc.t : 1
         }
@@ -288,7 +285,7 @@ PanelWindow {
             x: shape.radius; width: shape.width - 2 * shape.radius
             y: 0; height: 1
             z: 2
-            visible: !hc.atBottom || hc.anim !== "grow" || hc.t > 0.9
+            visible: hc.anim !== "grow" || hc.t > 0.9
             gradient: Gradient {
                 orientation: Gradient.Horizontal
                 GradientStop { position: 0; color: Qt.rgba(1, 1, 1, 0) }
@@ -306,8 +303,8 @@ PanelWindow {
             // content stays pinned to the corner while the shape reveals it
             transformOrigin: Item.TopLeft
             scale: hc.sc
-            x: hc.atRight ? holder.width - hc.pw : 0
-            y: hc.atBottom ? holder.height - hc.ph : 0
+            x: holder.width - hc.pw
+            y: holder.height - hc.ph
             onAct: function(cmd, arg, closeFirst) { hc.run(cmd, arg, closeFirst) }
             onLaunch: function(entry) { hc.open = false; entry.execute() }
         }
