@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# DarkShadow's Shell installer.
+# Phantom Shell installer.
 # Installs on Arch Linux and Arch-based distributions for the current user.
 set -Euo pipefail
 
@@ -14,7 +14,7 @@ HAVE_VERSION="$(tr -d ' \r\n' 2>/dev/null <"$HOME/.config/rice/version" || true)
 ASSUME_YES=0; DRY_RUN=0; MODE=install; SKIP_PKGS=0; PULLED=0; TAKE_SETTINGS_ARG=0
 usage() {
   cat <<U
-DarkShadow's Shell installer V$RICE_VERSION
+Phantom Shell installer V$RICE_VERSION
 
 Usage: ./install.sh [options]
   -y, --yes          install everything, no questions
@@ -273,7 +273,7 @@ put_wallpapers() {
 }
 quiet_fish() {
   mkdir -p "$HOME/.config/fish/conf.d"
-  printf '# DarkShadow'"'"'s Shell: no "Welcome to fish" message\nset -g fish_greeting\n' >"$HOME/.config/fish/conf.d/darkshadows.fish"
+  printf '# Phantom Shell: no "Welcome to fish" message\nset -g fish_greeting\n' >"$HOME/.config/fish/conf.d/darkshadows.fish"
 }
 step_fonts() {
   task "Fonts: Inter, Rubik, Nerd Font icons, clock fonts" timeout 400 "$ROOT/bin/rice-fonts"
@@ -444,14 +444,12 @@ step_finish() {
   fi
   if [ "$IN_HYPR" = 1 ] && [ "$DRY_RUN" != 1 ]; then
     task "Reloading Hyprland" t hyprctl reload
-    task "Restarting Waybar and the desktop widgets" restart_shell
+    task "Restarting the desktop widgets" restart_shell
   else
     note "Hyprland is not running here, so nothing was reloaded. Everything starts on your next login."
   fi
 }
 restart_shell() {
-  pkill -x waybar 2>/dev/null; pkill -x .waybar-wrapped 2>/dev/null; sleep 0.3
-  command -v waybar >/dev/null 2>&1 && detach waybar
   [ -x "$BIN/rice-desktop" ] && T=10 t "$BIN/rice-desktop" restart
   return 0
 }
@@ -585,9 +583,9 @@ if [ "$DRY_RUN" = 1 ]; then
   printf '  %s%sDry run finished.%s Nothing was changed.\n' "$CB" "$CW" "$C0"
 else
   if [ "$MODE" = update ] && ver_newer "$RICE_VERSION" "${HAVE_VERSION:-2.01}"; then
-    printf '  %s%sDarkShadow'"'"'s Shell updated to V%s%s  (was V%s)\n' "$CB" "$CW" "$RICE_VERSION" "$C0" "${HAVE_VERSION:-2.01}"
-  elif [ "$MODE" = update ]; then printf '  %s%sDarkShadow'"'"'s Shell V%s%s  newest version, refreshed\n' "$CB" "$CW" "$RICE_VERSION" "$C0"
-  else printf '  %s%sDarkShadow'"'"'s Shell V%s is installed.%s\n' "$CB" "$CW" "$RICE_VERSION" "$C0"; fi
+    printf '  %s%sPhantom Shell updated to V%s%s  (was V%s)\n' "$CB" "$CW" "$RICE_VERSION" "$C0" "${HAVE_VERSION:-unknown}"
+  elif [ "$MODE" = update ]; then printf '  %s%sPhantom Shell V%s%s  newest version, refreshed\n' "$CB" "$CW" "$RICE_VERSION" "$C0"
+  else printf '  %s%sPhantom Shell V%s is installed.%s\n' "$CB" "$CW" "$RICE_VERSION" "$C0"; fi
 fi
 hr
 if [ -n "$miss" ]; then warn "Still missing: $miss"; else ok "All needed programs are installed"; fi

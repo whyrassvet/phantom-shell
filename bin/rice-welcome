@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Welcome intro (full screen, once after DarkShadow's Shell is installed), then Settings opens with a short tour.
+# Welcome intro (full screen, once after Phantom Shell is installed), then Settings opens with a short tour.
 #   rice-welcome start    play it if it has not been seen yet (Hyprland runs this at login, the installer at the end)
 #   rice-welcome show     play it again now
 #   rice-welcome seen     mark it as seen (the intro does this itself)

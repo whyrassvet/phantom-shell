@@ -1,17 +1,9 @@
 # Customize
 
-Everything is in **Settings** (`SUPER+U`). The same actions exist as commands:
-
-```bash
-waybar-set style flat|floating|islands|island
-waybar-set group none|pills|segmented
-waybar-set opacity 0.9
-waybar-set island-width 1000      # width of "One island"
-waybar-set power-nudge 14         # gap left of the power button
-waybar-set power-size 18          # power button icon size
-waybar-set distro-icon on|off     # logo that matches your distro
-waybar-set autohide on|off
-```
+Open **Settings** with `Super+U`. In **Appearance > Bar**, choose Flat,
+Floating, Islands or One island for the Phantom bar. Additional bar settings
+are still being ported. The retained `waybar-set` commands control the legacy
+Waybar configuration, not the Phantom bar.
 
 ## Theme
 ```bash
@@ -37,10 +29,12 @@ rice-lock restore                   # give back your original hyprlock.conf and 
 
 ## Hot corner
 ```bash
-rice-hotcorner set corner bottom-right|bottom-left|top-right|top-left
 rice-hotcorner list sections awake,record,shot,toggles,media
 rice-hotcorner list toggles wifi,bluetooth,dnd,gaming,mic,settings,wallpaper,lock
 rice-hotcorner open          # open the panel now (bind it to a key if you like)
 rice-hotcorner shot region   # screenshot of a region
 rice-hotcorner record full   # start recording (run "record stop" to stop)
 ```
+
+The hot corner is fixed at the bottom right; the old `corner` setting no longer
+changes its position.

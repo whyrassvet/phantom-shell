@@ -25,7 +25,7 @@ def fix_requires(path):
         if os.path.exists(base + ".lua") or os.path.exists(os.path.join(base, "init.lua")):
             return m.group(0)
         changes.append("%s: module '%s' is not on this computer, turned it off" % (os.path.basename(path), name))
-        return "%s-- [DarkShadow's Shell] missing on this computer: %s" % (indent, m.group(0).strip())
+        return "%s-- [Phantom Shell] missing on this computer: %s" % (indent, m.group(0).strip())
     n = re.sub(r'^([ \t]*)require\(\s*"([^"]+)"\s*\)[^\n]*$', repl, s, flags=re.M)
     if n != s:
         open(path, "w").write(n)

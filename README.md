@@ -58,7 +58,7 @@
 
 **A launcher at your fingertips** — press `Super` to open the centered application launcher. It runs in the background and shares the bar's palette.
 
-**A desktop that changes with you** — choose wallpapers and themes through the shadows interface; Matugen carries the colors into the Phantom bar and launcher.
+**A desktop that changes with you** — choose wallpapers and themes through the shell interface; Matugen carries the colors into the Phantom bar and launcher.
 
 **Widgets and dashboard** — clock, calendar, system resources and an audio visualizer sit alongside the inherited dashboard and wallpaper picker.
 
@@ -112,7 +112,8 @@ See the [installation notes](docs/INSTALL.md). Final installation instructions a
 | `Super + D` | Open dashboard |
 | `Super + Alt + W` | Toggle desktop widget editor |
 | `Super + A` | Open hot corner panel |
-| `Super + Shift + S` / `Print` | Screenshot region / entire desktop |
+| `Super + Shift + S` / `Print` | Screenshot a selected region |
+| `Shift + Print` | Screenshot the entire desktop |
 
 For region screenshots, the screen is frozen during selection. The selection overlay defaults to dark; run `rice-hotcorner set shot_overlay light` to use a light overlay, or `rice-hotcorner set shot_overlay dark` to switch back.
 
@@ -127,7 +128,7 @@ For region screenshots, the screen is frozen during selection. The selection ove
 | `Super + 1…0` | Switch workspace |
 | `Super + Shift + 1…0` | Move window to workspace |
 | `Super + S` | Toggle special workspace |
-| `Super + Shift + S` or `Super + Shift + A` | Move window to special workspace |
+| `Super + Shift + A` | Move window to special workspace |
 | `Super + Shift + B` | Move window to current workspace |
 | `Super + scroll` | Switch workspaces |
 | `Super + left / right mouse` | Drag / resize window |

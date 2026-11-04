@@ -42,5 +42,5 @@ printf '@define-color ws_active %s;\n' "$ws" > "$HOME/.config/waybar/ws-active.c
 mkdir -p "$HOME/.cache"
 echo "$img" > "$HOME/.cache/hyprquickpaper-current"
 
-# recolor notifications and the lock screen (Shadow's Shell)
+# recolor notifications and the lock screen (Phantom Shell)
 "$HOME/.local/bin/rice-colors" refresh >/dev/null 2>&1 &

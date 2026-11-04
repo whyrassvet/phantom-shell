@@ -34,7 +34,7 @@ if "rice-colors\" scheme" not in s:
         changed = True
 hook = '"$HOME/.local/bin/rice-colors" refresh >/dev/null 2>&1 &'
 if hook not in s:
-    s = s.rstrip("\n") + "\n\n# recolor notifications and the lock screen (DarkShadow's Shell)\n" + hook + "\n"
+    s = s.rstrip("\n") + "\n\n# recolor notifications and the lock screen (Phantom Shell)\n" + hook + "\n"
     changed = True
 if changed:
     open(p, "w").write(s)

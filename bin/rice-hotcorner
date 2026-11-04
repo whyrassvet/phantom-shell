@@ -321,7 +321,7 @@ def toggle_awake():
     if not shutil.which("systemd-inhibit"):
         die("systemd-inhibit not found")
     os.makedirs(CACHE, exist_ok=True)
-    p = subprocess.Popen(["systemd-inhibit", "--what=idle:sleep", "--who=DarkShadow's Shell", "--why=Keep Awake",
+    p = subprocess.Popen(["systemd-inhibit", "--what=idle:sleep", "--who=Phantom Shell", "--why=Keep Awake",
                           "--mode=block", "sleep", "infinity"],
                          stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
     open(AWAKE_PID, "w").write(str(p.pid))

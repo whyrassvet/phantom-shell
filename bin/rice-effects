@@ -163,8 +163,9 @@ def kitty(fl):
         s = open(conf).read()
     except FileNotFoundError:
         s = ""
-    mark = "# DarkShadow's Shell: blur & transparency switch (keep last)"
-    lines = [l for l in s.split("\n") if l.strip() not in (KITTY_LINE, mark)]
+    mark = "# Phantom Shell: blur & transparency switch (keep last)"
+    old_mark = "# DarkShadow's Shell: blur & transparency switch (keep last)"
+    lines = [l for l in s.split("\n") if l.strip() not in (KITTY_LINE, mark, old_mark)]
     n = ("\n".join(lines).rstrip("\n") + "\n\n" if "".join(lines).strip() else "") + mark + "\n" + KITTY_LINE + "\n"
     if n != s:
         if s and not os.path.exists(conf + ".bak-effects"):

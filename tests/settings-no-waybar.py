@@ -46,6 +46,12 @@ class SettingsWithoutWaybar(unittest.TestCase):
         self.assertNotIn("post_hook", config["templates"]["waybar"])
         self.assertIn("output_path", config["templates"]["waybar"])
 
+    def test_installer_does_not_restart_waybar(self):
+        installer = (ROOT / "install.sh").read_text()
+        restart = installer.split("restart_shell() {", 1)[1].split("\n}", 1)[0]
+        self.assertNotIn("waybar", restart.lower())
+        self.assertIn('"$BIN/rice-desktop" restart', restart)
+
     def test_font_changes_do_not_launch_waybar(self):
         with tempfile.TemporaryDirectory() as tmp:
             home = Path(tmp)

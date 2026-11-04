@@ -7,4 +7,4 @@ about: Something does not work
 **Hyprland version** (`hyprctl version`):
 **What happened**:
 **What you expected**:
-**Log** (installer log in /tmp/shadows-shell-install-*.log, or terminal output):
+**Log** (installer log in /tmp/darkshadows-shell-install-*.log, or terminal output):

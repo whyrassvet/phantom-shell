@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""rice-sfx: interface sounds of DarkShadow's Shell (Settings > Sfx & sounds).
+"""rice-sfx: interface sounds of Phantom Shell (Settings > Sfx & sounds).
 
   rice-sfx state                   JSON with the settings and the sound packs
   rice-sfx set KEY VALUE           enabled on|off, volume 0-100, pack (see PACKS),

@@ -1,4 +1,4 @@
--- starts the desktop widgets, dock, hot corner and welcome screen (DarkShadow's Shell)
+-- starts the desktop widgets, dock, hot corner and welcome screen (Phantom Shell)
 hl.on("hyprland.start", function()
     hl.exec_cmd(os.getenv("HOME") .. "/.local/bin/rice-desktop start")
     -- your cursor from Settings > Cursors (Bibata Modern Ice by default)

@@ -1,4 +1,4 @@
--- keybinds that belong to DarkShadow's Shell (installed by install.sh, loaded from hyprland.lua)
+-- keybinds that belong to Phantom Shell (installed by install.sh, loaded from hyprland.lua)
 local bin = os.getenv("HOME") .. "/.local/bin/"
 
 -- wallpaper picker: unbind first so only ONE menu opens even if another config also binds SUPER + W

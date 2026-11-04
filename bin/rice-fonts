@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Installs the fonts DarkShadow's Shell uses (Inter, Rubik, Material Symbols Rounded and the six
+# Installs the fonts Phantom Shell uses (Inter, Rubik, Material Symbols Rounded and the six
 # lock screen clock fonts) for the current user.
 # Works on any distro (NixOS too): files go to ~/.local/share/fonts, no root needed.
 #   rice-fonts           install what is missing
