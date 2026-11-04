@@ -27,15 +27,18 @@ with tempfile.TemporaryDirectory(prefix="phantom-version-", dir="/tmp/opencode")
     repo = home / "phantom-shell"
     repo.mkdir()
     (repo / "install.sh").write_text("")
-    (repo / "VERSION").write_text("0.1.1-alpha\n")
-    (repo / "CHANGELOG.md").write_text("## v0.1.1-alpha\n- Example change\n")
+    (repo / "VERSION").write_text("0.1.1-beta\n")
+    (repo / "CHANGELOG.md").write_text("## v0.1.1-beta\n- Example change\n")
+    for args in (("init", "-q"), ("config", "user.email", "test@example.org"), ("config", "user.name", "Test"),
+                 ("add", "."), ("commit", "-qm", "release"), ("tag", "v0.1.1-beta")):
+        subprocess.run(["git", "-C", str(repo), *args], check=True)
     (rice / "repo").write_text(str(repo))
     (rice / "version").write_text("0.1.0\n")
     env = {**os.environ, "HOME": str(home)}
     cmd = [sys.executable, str(root / "bin/rice-update"), "check", "--json", "--offline"]
     state = json.loads(subprocess.check_output(cmd, env=env))
-    assert state["installed"] == "0.1.0" and state["latest"] == "0.1.1-alpha" and state["update"] and state["news"] == ["Example change"]
-    (rice / "version").write_text("0.1.1-alpha\n")
+    assert state["installed"] == "0.1.0" and state["latest"] == "0.1.1-beta" and state["update"] and state["news"] == ["Example change"]
+    (rice / "version").write_text("0.1.1-beta\n")
     state = json.loads(subprocess.check_output(cmd, env=env))
-    assert not state["update"] and state["latest"] == "0.1.1-alpha"
+    assert not state["update"] and state["latest"] == "0.1.1-beta"
 print("Version and offline update checks passed")

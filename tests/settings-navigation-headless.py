@@ -16,6 +16,14 @@ with tempfile.TemporaryDirectory(prefix="phantom-settings-navigation-", dir="/tm
     marker = "    function startTour() { page = 0; tour.start() }"
     assert text.count(marker) == 1
     instrument = '''    Timer {
+        function findNamed(item, name) {
+            if (item.objectName === name) return item;
+            for (const child of item.children || []) {
+                const found = findNamed(child, name);
+                if (found) return found;
+            }
+            return null;
+        }
         property int step: 0
         interval: 150
         repeat: true
@@ -47,9 +55,29 @@ with tempfile.TemporaryDirectory(prefix="phantom-settings-navigation-", dir="/tm
                 if (!win.expandedGroups.Appearance) console.log("NAV_ERROR expand");
                 win.runSearch("notifications");
                 if (!win.results.some(r => r.page === 8)) console.log("NAV_ERROR search");
+                win.page = 15;
                 const update = updatePage;
                 if (!update || update.checked || update.checking) console.log("NAV_ERROR update initial");
-                else update.check();
+                else {
+                    if (!update.prefsReady || update.prefs.notifications || !update.prefs.beta) console.log("NAV_ERROR update prefs initial");
+                    const feature = findNamed(update, "updateMajorOnly");
+                    if (!feature || feature.enabled) console.log("NAV_ERROR update feature disabled");
+                    update.setPreference("notifications", true);
+                }
+            } else if (step === visiblePages.length + 1) {
+                const update = updatePage;
+                if (update.prefsBusy || update.prefs.notifications !== true) return;
+                const feature = findNamed(update, "updateMajorOnly");
+                if (!feature || !feature.enabled) console.log("NAV_ERROR update feature enabled");
+                update.setPreference("major_only", true);
+            } else if (step === visiblePages.length + 2) {
+                const update = updatePage;
+                if (update.prefsBusy || update.prefs.major_only !== true) return;
+                update.setPreference("beta", false);
+            } else if (step === visiblePages.length + 3) {
+                const update = updatePage;
+                if (update.prefsBusy || update.prefs.beta !== false) return;
+                update.check();
             } else {
                 const update = updatePage;
                 if (update.checking) return;
@@ -79,7 +107,21 @@ with tempfile.TemporaryDirectory(prefix="phantom-settings-navigation-", dir="/tm
         (p / name).mkdir()
     (p / "home/.local/bin").mkdir(parents=True)
     update = p / "home/.local/bin/rice-update"
-    update.write_text('#!/bin/sh\nprintf \'%s\\n\' \'{"installed":"1.0","latest":"9.0","update":true,"news":["First change","Second change"],"checked":1700000000,"error":""}\'\n')
+    update.write_text('''#!/usr/bin/env python3
+import json, os, sys
+p = os.path.join(os.environ["HOME"], "preferences.json")
+if sys.argv[1] == "settings":
+    try:
+        with open(p) as f: prefs = json.load(f)
+    except FileNotFoundError:
+        prefs = {"notifications": False, "major_only": False, "beta": True}
+    if len(sys.argv) == 4:
+        prefs[sys.argv[2]] = sys.argv[3] == "on"
+        with open(p, "w") as f: json.dump(prefs, f)
+    print(json.dumps(prefs))
+else:
+    print(json.dumps({"installed":"1.0","latest":"9.0","update":True,"news":["First change","Second change"],"checked":1700000000,"error":""}))
+''')
     update.chmod(0o755)
     (p / "runtime").chmod(0o700)
     args = ["bwrap", "--ro-bind", "/", "/", "--bind", tmp, tmp, "--dev", "/dev", "--proc", "/proc", "--unshare-net", "--unshare-pid"]

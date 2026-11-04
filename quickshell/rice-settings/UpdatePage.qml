@@ -9,14 +9,42 @@ Item {
     property bool checked: false
     property bool checking: false
     property string failure: ""
+    property var prefs: ({ notifications: false, major_only: false, beta: true })
+    property bool prefsReady: false
+    property string prefsError: ""
+    readonly property bool prefsBusy: prefsProc.running
     readonly property bool available: checked && !failure && updateInfo.update === true
     readonly property var notes: checked && !failure && Array.isArray(updateInfo.news) ? updateInfo.news : []
 
     function check() {
-        if (checking) return
+        if (checking || prefsProc.running) return
         checking = true
         failure = ""
         checkProc.running = true
+    }
+    function setPreference(name, value) {
+        if (prefsProc.running) return
+        if (name === "beta") { checked = false; failure = "" }
+        prefsError = ""
+        prefsProc.command = ["bash", "-c", 'exec "$HOME/.local/bin/rice-update" settings "$1" "$2"', "settings", name, value ? "on" : "off"]
+        prefsProc.running = true
+    }
+    Component.onCompleted: prefsProc.running = true
+    Process {
+        id: prefsProc
+        command: ["bash", "-c", 'exec "$HOME/.local/bin/rice-update" settings']
+        stdout: StdioCollector {
+            onStreamFinished: {
+                try {
+                    const result = JSON.parse(text)
+                    if (typeof result.notifications !== "boolean" || typeof result.major_only !== "boolean" || typeof result.beta !== "boolean") throw new Error("Invalid settings")
+                    page.prefs = result
+                    page.prefsReady = true
+                    page.prefsError = ""
+                } catch (e) { page.prefsError = "Could not load or save update settings." }
+            }
+        }
+        onExited: function(code) { if (code !== 0) page.prefsError = "Could not load or save update settings." }
     }
     Process {
         id: checkProc
@@ -78,7 +106,7 @@ Item {
                     }
                     T {
                         width: parent.width; wrapMode: Text.WordWrap; font.pixelSize: 12; color: page.failure ? "#e6a4a4" : "#8a8a92"
-                        text: page.failure ? page.failure : page.checking ? "Contacting the update source..." : !page.checked ? "Check when you want. No background checks are enabled here." : page.available ? "An update is ready to install." : "No update is currently available."
+                        text: page.failure ? page.failure : page.checking ? "Contacting the update source..." : !page.checked ? "Check for a release in your selected channel." : page.available ? "An update is ready to install." : "No update is currently available."
                     }
                     Btn {
                         objectName: "updateInstall"
@@ -90,7 +118,7 @@ Item {
                     Btn {
                         objectName: "updateCheck"
                         width: parent.width; primary: !page.available
-                        enabled: !page.checking; opacity: enabled ? 1 : 0.55
+                        enabled: !page.checking && !page.prefsBusy; opacity: enabled ? 1 : 0.55
                         icon: "\uf021"; text: page.checking ? "Checking..." : page.checked ? "Check again" : "Check for updates"
                         onClicked: page.check()
                     }
@@ -130,7 +158,7 @@ Item {
                     Rectangle { width: parent.width; height: 1; color: Qt.rgba(1, 1, 1, 0.07) }
                     T { text: "UPDATE SOURCE"; color: "#8a8a92"; font.pixelSize: 10; font.letterSpacing: 1.1 }
                     T { text: "Phantom Shell"; font.pixelSize: 13; font.bold: true }
-                    T { width: parent.width; text: "Updates are checked using your configured repository."; wrapMode: Text.WordWrap; color: "#8a8a92"; font.pixelSize: 12 }
+                    T { width: parent.width; text: "Version tags from your configured repository · " + (page.prefs.beta ? "Stable and beta" : "Stable only"); wrapMode: Text.WordWrap; color: "#8a8a92"; font.pixelSize: 12 }
                     T {
                         visible: page.checked && !page.failure && !!page.updateInfo.checked
                         text: "Last checked: " + new Date(page.updateInfo.checked * 1000).toLocaleString(Qt.locale(), Locale.ShortFormat)
@@ -139,5 +167,28 @@ Item {
                 }
             }
         }
+        SectionTitle { text: "Update preferences"; sub: "Choose which releases to follow and when to be notified." }
+        ToggleRow {
+            objectName: "updateNotifications"
+            label: "Update notifications"; desc: "Periodically check for new releases in the background"
+            enabled: page.prefsReady && !prefsProc.running; opacity: enabled ? 1 : 0.5
+            checked: page.prefs.notifications === true
+            onToggled: function(v) { page.setPreference("notifications", v) }
+        }
+        ToggleRow {
+            objectName: "updateMajorOnly"
+            label: "Feature releases only"; desc: "Notify for 0.5.x after 0.4.x, not for patch updates"
+            enabled: page.prefsReady && page.prefs.notifications && !prefsProc.running; opacity: enabled ? 1 : 0.45
+            checked: page.prefs.major_only === true
+            onToggled: function(v) { page.setPreference("major_only", v) }
+        }
+        ToggleRow {
+            objectName: "updateBeta"
+            label: "Include beta releases"; desc: "Off: stable releases only · On: stable and beta releases"
+            enabled: page.prefsReady && !prefsProc.running && !page.checking; opacity: enabled ? 1 : 0.5
+            checked: page.prefs.beta === true
+            onToggled: function(v) { page.setPreference("beta", v) }
+        }
+        T { visible: page.prefsError.length > 0; text: page.prefsError; color: "#e6a4a4"; font.pixelSize: 12 }
     }
 }

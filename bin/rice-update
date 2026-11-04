@@ -10,9 +10,12 @@
 import fcntl
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
+import tarfile
+import tempfile
 import time
 from phantom_version import clean, key
 
@@ -28,6 +31,68 @@ EVERY = 15 * 60            # GitHub is asked every 15 minutes
 TICK = 30                  # a check from the About tab of the dashboard is noticed within this many seconds
 APP = "Phantom Shell"
 ICON = HOME + "/.local/share/rice/icon.png"
+PREFERENCES = DIR + "/update-settings.json"
+DEFAULTS = {"notifications": False, "major_only": False, "beta": True}
+
+
+def preferences():
+    try:
+        with open(PREFERENCES) as f:
+            saved = json.load(f)
+        return {k: saved.get(k) if isinstance(saved.get(k), bool) else v for k, v in DEFAULTS.items()}
+    except (OSError, ValueError, AttributeError):
+        return DEFAULTS.copy()
+
+
+def set_preference(name, value):
+    if name not in DEFAULTS or value not in ("on", "off"):
+        raise ValueError("Invalid update setting")
+    prefs = preferences()
+    prefs[name] = value == "on"
+    os.makedirs(DIR, exist_ok=True)
+    fd, tmp = tempfile.mkstemp(prefix=".update-settings-", dir=DIR)
+    try:
+        with os.fdopen(fd, "w") as f:
+            json.dump(prefs, f)
+        os.replace(tmp, PREFERENCES)
+    finally:
+        if os.path.exists(tmp):
+            os.unlink(tmp)
+    if name == "notifications" and prefs[name]:
+        start_watch()
+    return prefs
+
+
+def start_watch():
+    if preferences()["notifications"]:
+        subprocess.Popen([sys.executable, os.path.abspath(__file__), "watch"],
+                         start_new_session=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+
+def release_tag(name, beta):
+    version = clean(name)
+    if not version or not re.fullmatch(r"[vV]?\d+\.\d+\.\d+(?:-beta(?:\.[0-9A-Za-z-]+)*)?", name):
+        return ""
+    if not beta and "-" in version:
+        return ""
+    return version
+
+
+def releases(r, beta, offline=False):
+    if offline:
+        result = git(r, "show-ref", "--tags", "--dereference", timeout=10)
+    else:
+        result = git(r, "ls-remote", "--tags", "origin", timeout=25)
+    if result.returncode and not (offline and result.returncode == 1):
+        raise RuntimeError(result.stderr.strip() or "Could not list release tags")
+    refs = {}
+    for line in result.stdout.splitlines():
+        parts = line.split()
+        if len(parts) == 2 and parts[1].startswith("refs/tags/"):
+            refs[parts[1][10:]] = parts[0]
+    candidates = [(key(v), name, v, refs.get(name + "^{}", sha))
+                  for name, sha in refs.items() if (v := release_tag(name, beta))]
+    return max(candidates) if candidates else None
 
 
 def repo():
@@ -43,7 +108,8 @@ def repo():
 
 def installed():
     try:
-        return clean(open(INSTALLED).read()) or "0.0.0"
+        with open(INSTALLED) as f:
+            return clean(f.read()) or "0.0.0"
     except OSError:
         return "0.0.0"   # installed version is unknown
 
@@ -69,55 +135,32 @@ def news(text, version):
 
 
 def latest(offline=False):
-    """newest version: GitHub (through your repo's git remote), else the raw file, else your repo.
-    Also: how many new commits GitHub has that this computer does not (an update without a new number)."""
+    """Select a versioned tag without changing the user's worktree or branch."""
+    latest.ahead, latest.sha, latest.log, latest.tag = 0, "", "", ""
     r = repo()
-    found, err = [], ""
-    latest.ahead, latest.sha, latest.log = 0, "", ""
-    if r and os.path.isdir(r + "/.git") and shutil.which("git"):
-        try:
-            if not offline:
-                f = git(r, "fetch", "--quiet")
-                if f.returncode != 0:
-                    err = (f.stderr.strip().splitlines() or ["git fetch failed"])[-1]
-            refs = []
-            u = git(r, "rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}", timeout=5)
-            if u.returncode == 0 and u.stdout.strip():
-                refs.append(u.stdout.strip())
-            refs += ["origin/main", "origin/master"]
-            for ref in refs:
-                s = git(r, "show", ref + ":VERSION", timeout=5)
-                if s.returncode == 0 and clean(s.stdout):
-                    found.append(clean(s.stdout))
-                    a = git(r, "rev-list", "--count", "HEAD.." + ref, timeout=5)
-                    latest.ahead = int(a.stdout.strip() or 0) if a.returncode == 0 else 0
-                    h = git(r, "rev-parse", "--short", ref, timeout=5)
-                    latest.sha = h.stdout.strip() if h.returncode == 0 else ""
-                    cl = git(r, "show", ref + ":CHANGELOG.md", timeout=5)
-                    latest.log = cl.stdout if cl.returncode == 0 else ""
-                    break
-        except Exception as e:
-            err = str(e)
-    if not found and not offline and shutil.which("curl"):
-        try:
-            c = subprocess.run(["curl", "-fsSL", "--max-time", "15", RAW], capture_output=True, text=True, timeout=20)
-            if c.returncode == 0 and clean(c.stdout):
-                found.append(clean(c.stdout))
-                err = ""
-        except Exception as e:
-            err = err or str(e)
-    if r:
-        try:
-            found.append(clean(open(r + "/VERSION").read()))   # pulled but not installed yet
-        except OSError:
-            pass
-        if not latest.log:
-            try:
-                latest.log = open(r + "/CHANGELOG.md").read()
-            except OSError:
-                pass
-    found = [v for v in found if v]
-    return (max(found, key=key) if found else ""), err
+    if not r or not os.path.isdir(r + "/.git") or not shutil.which("git"):
+        return "", "A Git repository with an origin remote is required."
+    try:
+        selected = releases(r, preferences()["beta"], offline)
+        if not selected:
+            return "", "No releases found for the selected channel."
+        _, tag, version, ref = selected
+        if not offline:
+            fetched = git(r, "fetch", "--quiet", "--no-tags", "--no-write-fetch-head", "origin", "refs/tags/" + tag, timeout=45)
+            if fetched.returncode:
+                return "", fetched.stderr.strip() or "Could not fetch release."
+        checked = git(r, "show", ref + ":VERSION", timeout=5)
+        if checked.returncode or clean(checked.stdout) != version:
+            return "", "Release tag and VERSION do not match."
+        h = git(r, "rev-parse", "--short", ref + "^{commit}", timeout=5)
+        cl = git(r, "show", ref + ":CHANGELOG.md", timeout=5)
+        latest.sha = h.stdout.strip() if h.returncode == 0 else ""
+        latest.object = ref
+        latest.log = cl.stdout if cl.returncode == 0 else ""
+        latest.tag = tag
+        return version, ""
+    except (OSError, subprocess.SubprocessError, RuntimeError) as e:
+        return "", str(e)
 
 
 def check(offline=False):
@@ -126,12 +169,13 @@ def check(offline=False):
     newer = bool(new) and key(new) > key(have)
     ahead = getattr(latest, "ahead", 0)
     out = {"installed": have, "latest": new or have, "update": newer or ahead > 0,
-           "changes": ahead, "commit": getattr(latest, "sha", ""),
+           "changes": ahead, "commit": getattr(latest, "sha", ""), "tag": getattr(latest, "tag", ""),
            "news": news(getattr(latest, "log", ""), new or have)[:4],
-           "checked": int(time.time()), "error": err if not new else ""}
+           "checked": int(time.time()), "error": err if not new else "", "channel": "beta" if preferences()["beta"] else "stable"}
     os.makedirs(CACHE, exist_ok=True)
     try:
-        json.dump(out, open(STATE, "w"))
+        with open(STATE, "w") as f:
+            json.dump(out, f)
     except OSError:
         pass
     return out
@@ -183,16 +227,27 @@ def notify_bg(st):
 
 
 def maybe_notify(st):
-    """show the popup once per new version / new push"""
-    if not st or not st.get("update"):
+    """Notify only about selected versions, once per version."""
+    prefs = preferences()
+    version = clean(st.get("latest", "")) if st else ""
+    if not prefs["notifications"] or not st or not st.get("update") or not version:
         return
+    if not prefs["beta"] and "-" in version:
+        return
+    parsed = key(version)
+    if prefs["major_only"]:
+        have = key(st.get("installed", ""))
+        if not have or parsed[:2] <= have[:2]:
+            return
     try:
-        told = open(NOTIFIED).read().strip()
+        with open(NOTIFIED) as f:
+            told = f.read().strip()
     except OSError:
         told = ""
-    tag = "%s %s" % (st.get("latest", ""), st.get("commit", ""))
+    tag = "%s.%s" % parsed[:2] if prefs["major_only"] else version
     if told != tag:
-        open(NOTIFIED, "w").write(tag)
+        with open(NOTIFIED, "w") as f:
+            f.write(tag)
         notify_bg(st)
 
 
@@ -212,7 +267,7 @@ def watch():
         return  # already running
     time.sleep(FIRST_WAIT)
     last, seen = 0.0, 0.0
-    while True:
+    while preferences()["notifications"]:
         try:
             if time.time() - last >= EVERY:
                 last = time.time()
@@ -237,8 +292,37 @@ def run(args):
         print("  git clone https://github.com/whyrassvet/phantom-shell ~/phantom-shell")
         input("Press Enter to close")
         sys.exit(1)
-    os.chdir(r)
-    code = subprocess.call(["./install.sh", "--update"] + args)
+    version, error = latest()
+    if error or not version:
+        print("Could not select a release: " + (error or "no release found"))
+        return
+    if key(version) <= key(installed()):
+        print("No newer release is available for the selected channel.")
+        return
+    print("Installing release %s (%s channel)." % (version, "beta" if preferences()["beta"] else "stable"), flush=True)
+    with tempfile.TemporaryDirectory(prefix="phantom-release-") as tmp:
+        archive = subprocess.run(["git", "-C", r, "archive", latest.object], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        if archive.returncode:
+            print("Could not prepare the release: " + archive.stderr.decode(errors="replace"))
+            return
+        import io
+        with tarfile.open(fileobj=io.BytesIO(archive.stdout)) as tar:
+            tar.extractall(tmp, filter="data")
+        env = dict(os.environ, PHANTOM_UPDATE_REPO=r)
+        try:
+            code = subprocess.call([tmp + "/install.sh", "--update", "--pulled"] + args, cwd=tmp, env=env)
+        finally:
+            # Older release installers do not know PHANTOM_UPDATE_REPO and may
+            # remember the temporary extraction instead of the real repository.
+            marker = os.path.join(DIR, "repo")
+            try:
+                with open(marker) as f:
+                    remembered = f.read().strip()
+                if remembered == tmp:
+                    with open(marker, "w") as f:
+                        f.write(r + "\n")
+            except FileNotFoundError:
+                pass
     print()
     try:
         input("Press Enter to close")
@@ -262,6 +346,15 @@ def main(a):
             print("Up to date: V%s%s" % (st["installed"], ("  (could not check: %s)" % st["error"]) if st["error"] else ""))
     elif cmd == "watch":
         watch()
+    elif cmd == "ensure-watch":
+        start_watch()
+    elif cmd == "settings":
+        try:
+            prefs = set_preference(a[2], a[3]) if len(a) == 4 else preferences()
+            print(json.dumps(prefs))
+        except (ValueError, OSError) as e:
+            print(str(e), file=sys.stderr)
+            sys.exit(1)
     elif cmd == "notify":
         st = check(offline="--offline" in a)
         if not st["news"]:

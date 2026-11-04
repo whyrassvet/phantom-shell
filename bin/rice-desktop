@@ -5,6 +5,7 @@ running() { pgrep -f "quickshell/rice-desktop" >/dev/null; }
 [ "$1" = start ] && "$HOME/.local/bin/desktop-set" edit off >/dev/null 2>&1
 case "$1" in
   start|ensure)
+    [ -x "$HOME/.local/bin/rice-update" ] && "$HOME/.local/bin/rice-update" ensure-watch >/dev/null 2>&1 &
     "$HOME/.local/bin/waybar-autohide" ensure >/dev/null 2>&1 &
     [ -x "$HOME/.local/bin/rice-ws-watch" ] && setsid -f "$HOME/.local/bin/rice-ws-watch" >/dev/null 2>&1
     [ -x "$HOME/.local/bin/rice-welcome" ] && "$HOME/.local/bin/rice-welcome" start >/dev/null 2>&1 &
@@ -21,6 +22,7 @@ case "$1" in
     pkill -f "\.local/bin/rice-update watch" 2>/dev/null
     sleep 0.2
     [ -x "$HOME/.local/bin/rice-ws-watch" ] && setsid -f "$HOME/.local/bin/rice-ws-watch" >/dev/null 2>&1
+    [ -x "$HOME/.local/bin/rice-update" ] && "$HOME/.local/bin/rice-update" ensure-watch >/dev/null 2>&1 &
     for _ in 1 2 3 4 5 6 7 8 9 10; do running || break; sleep 0.2; done
     setsid -f qs -n -p "$dir" >/dev/null 2>&1
     ;;

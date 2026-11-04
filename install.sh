@@ -410,7 +410,7 @@ patch_colors() {
 fixup() { python3 "$ROOT/install/lib/fixup.py" >"$1"; }
 # extra cursor themes from GitHub into ~/.local/share/icons (skips the ones you have; offline is fine)
 cursor_packs() { t "$BIN/rice-cursor" get all --missing >"$1" 2>&1; }
-remember_repo() { mkdir -p "$HOME/.config/rice"; echo "$ROOT" >"$HOME/.config/rice/repo"; }
+remember_repo() { mkdir -p "$HOME/.config/rice"; echo "${PHANTOM_UPDATE_REPO:-$ROOT}" >"$HOME/.config/rice/repo"; }
 remember_version() { mkdir -p "$HOME/.config/rice"; echo "$RICE_VERSION" >"$HOME/.config/rice/version"; }
 first_backup() { mkdir -p "$HOME/.config/rice" "$HOME/.cache/rice"; [ -f "$HOME/.config/rice/.first-backup" ] || echo "$BK" >"$HOME/.config/rice/.first-backup"; }
 
