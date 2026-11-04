@@ -1,6 +1,6 @@
 #!/bin/sh
 # rice-run: runs one of the shell's tools with a full PATH.
-#   rice-run TOOL [ARGS...]      e.g. rice-run rice-notify keep
+#   rice-run TOOL [ARGS...]      e.g. rice-run rice-sound notify
 # swaync can be started by D-Bus or systemd with a very short PATH,
 # so the scripts it runs on a new or clicked notification go through this first.
 #

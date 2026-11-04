@@ -10,7 +10,6 @@ Item {
     property string acc: "#d4d4d4"
     property string accFg: "#0d0d0d"
     property real baseRadius: 18
-    property real op: 0.8                  // panel opacity (outline look)
     property real pop: 0.85                // popup opacity
     property bool shadowOn: true
     property real iconSize: 36
@@ -64,7 +63,6 @@ Item {
              : m.look === "light" ? Qt.rgba(0.965, 0.96, 0.957, Math.max(m.pop, 0.9))
              : m.look === "solid" ? m.bgc(1)
              : m.look === "glass" ? m.bgc(Math.min(m.pop, 0.62))
-             : m.look === "outline" ? m.bgc(m.op)
              : m.bgc(m.pop)
         border.width: (m.look === "minimal" || m.look === "island" || (m.edge === "none" && m.look !== "glow" && m.look !== "outline")) ? 0 : 1
         border.color: (m.look === "outline" || m.look === "glow" || m.edge === "accent") ? m.acc

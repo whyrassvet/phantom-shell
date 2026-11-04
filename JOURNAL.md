@@ -4,6 +4,14 @@
 
 ---
 
+## 2026-11-04 — очистка настроек центра уведомлений
+
+- Удалены старые разделы центра SwayNC, его виджетов и стиля, NcMini, генератор компоновки, стилей и удержания уведомлений; старые стили центра и его конфигурация очищены. Разделы Position, Popups, Colors, Font и Transparency & blur сохранены; Gap from edge относился только к центру и убран.
+- Файлы: `quickshell/rice-settings/{NotificationsPage,PopupMock,NcMini}.qml`, `bin/{rice-notify,rice-run}`, `config/swaync/`, `config/hypr/rice-notify.lua`, `settings/rice/notify.json`, `docs/CUSTOMIZE.md`, `tests/phantom-notification-settings.py`. Копия до изменений: `/tmp/opencode/phantom-notification-settings-20261104/before.tar`.
+- Проверены миграция старого стиля и генерация попапов, навигация настроек, приватная D-Bus шина уведомлений Phantom, синтаксис Lua и `git diff --check`. Настройки попапов относятся к SwayNC, не к Phantom; реальный вид и SwayNC не проверены, установленная копия не менялась.
+
+---
+
 ## 2026-11-04 — подтверждение скриншотов
 
 - Пользователь подтвердил работу установленных изменений и попросил коммит. Отдельная проверка разных масштабов мониторов не проводилась; предыдущий запуск hyprpicker в headless Cage не прошёл.

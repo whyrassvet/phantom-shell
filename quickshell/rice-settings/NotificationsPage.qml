@@ -8,7 +8,6 @@ Item {
     property var ns: ({})
 
     function v(k, d) { return ns[k] !== undefined ? ns[k] : d }
-    readonly property bool deck: v("layout", "deck") === "deck"
     function norm(value) { return value === "on" ? true : value === "off" ? false : value }
     function setv(key, value) {
         const n = Object.assign({}, ns)
@@ -37,6 +36,14 @@ Item {
     PageScroll {
         anchors.fill: parent
 
+        T {
+            width: parent.width
+            text: "These popup settings apply to SwayNC, not Phantom notifications."
+            color: "#e0a050"
+            font.pixelSize: 12
+            wrapMode: Text.WordWrap
+        }
+
         // ---------- live preview ----------
         Rectangle {
             id: stage
@@ -62,12 +69,10 @@ Item {
 
             PopupMock {
                 id: mock
-                readonly property string ps: page.v("popup_style", "match")
-                look: ps === "match" ? page.v("style", "glass") : ps
+                look: page.v("popup_style", "glass")
                 acc: page.v("accent", true) ? page.v("accent_color", "#d4d4d4") : "#F6F5F4"
                 accFg: page.v("accent", true) ? page.v("on_accent", "#0d0d0d") : "#0d0d0d"
                 baseRadius: page.v("radius", 18) * 0.85
-                op: page.v("opacity", 0.8)
                 pop: page.v("popup_opacity", 0.85)
                 surface: page.v("colors", "graphite")
                 edge: page.v("border", "subtle")
@@ -76,7 +81,7 @@ Item {
                 fs: page.v("font_size", 13) / 13
                 iconSize: Math.max(26, Math.min(46, page.v("icon_size", 40)))
                 width: Math.min(stage.width - 28, page.v("popup_width", 360) * 0.85)
-                height: (look === "pill" || look === "minimal") ? 56 : (page.v("compact", false) ? 66 : 78)
+                height: (look === "pill" || look === "minimal") ? 56 : 78
                 x: page.v("pos_x", "right") === "left" ? 14 : (page.v("pos_x", "right") === "center" ? (stage.width - width) / 2 : stage.width - width - 14)
                 y: page.v("pos_y", "top") === "top" ? 14 : stage.height - height - 14
                 Behavior on x { NumberAnimation { duration: 280; easing.type: Easing.OutCubic } }
@@ -88,20 +93,10 @@ Item {
         Row {
             spacing: 10
             Btn { primary: true; icon: ""; text: "Send test notification"; onClicked: page.tool("test") }
-            Btn { icon: ""; text: "Open panel"; onClicked: page.tool("panel") }
-        }
-
-        // ---------- clicking ----------
-        SectionTitle { text: "Clicking a notification"; sub: "The sound for new notifications is in Sfx & sounds now." }
-        ToggleRow {
-            label: "Keep notifications when clicked"
-            desc: "Clicking opens the app and the notification stays in the center (close it with its X or Clear all)"
-            checked: page.v("keep_clicked", true)
-            onToggled: function(x) { page.setv("keep_clicked", x ? "on" : "off") }
         }
 
         // ---------- position ----------
-        SectionTitle { text: "Position"; sub: "Where popups appear. The Deck notification center has its own side below." }
+        SectionTitle { text: "Position"; sub: "Where popups appear." }
         SegRow {
             label: "Horizontal"
             desc: "Side of the screen"
@@ -116,75 +111,6 @@ Item {
             current: page.v("pos_y", "top")
             onChosen: function(x) { page.setv("pos_y", x) }
         }
-        SliderRow {
-            label: "Gap from edge"
-            desc: "Space between the panel and the screen edge"
-            from: 0; to: 60; step: 1; unit: " px"
-            value: page.v("margin", 10)
-            onCommitted: function(x) { page.setv("margin", Math.round(x)) }
-        }
-
-        // ---------- panel ----------
-        SectionTitle { text: "Notification center"; sub: "The panel that opens from the bell in Waybar. Deck: switches and power modes on top, volume and power buttons at the bottom." }
-        NcMini {
-            visible: page.deck
-            width: Math.min(parent.width, 600)
-            x: (parent.width - width) / 2
-            ns: page.ns
-        }
-        SegRow {
-            label: "Layout"
-            desc: "Deck is the new one"
-            options: [{ label: "Deck", value: "deck" }, { label: "Controls top", value: "controls-top" }, { label: "Controls bottom", value: "controls-bottom" }, { label: "Minimal", value: "minimal" }]
-            current: page.v("layout", "deck")
-            onChosen: function(x) { page.setv("layout", x) }
-        }
-        SegRow {
-            visible: page.deck
-            label: "Side"
-            desc: "Where the notification center opens"
-            options: [{ label: "Left", value: "left" }, { label: "Right", value: "right" }]
-            current: page.v("cc_side", "right")
-            onChosen: function(x) { page.setv("cc_side", x) }
-        }
-        ToggleRow {
-            visible: page.deck
-            label: "Floating"
-            desc: "A gap all around and round corners. Off: flat against the screen edge, full height"
-            checked: page.v("cc_float", true) === true
-            onToggled: function(x) { page.setv("cc_float", x ? "on" : "off") }
-        }
-        SliderRow {
-            label: "Width"
-            from: 300; to: 700; step: 10; unit: " px"
-            value: page.v("panel_width", 440)
-            onCommitted: function(x) { page.setv("panel_width", Math.round(x)) }
-        }
-        ToggleRow {
-            label: "Full height"
-            desc: "From the top to the bottom of the screen (floating keeps the gap). Off: use the height below"
-            checked: page.v("fit", true) === true
-            onToggled: function(x) { page.setv("fit", x ? "on" : "off") }
-        }
-        SliderRow {
-            label: "Height"
-            desc: "Used when full height is off"
-            from: 300; to: 1400; step: 20; unit: " px"
-            value: page.v("panel_height", 820)
-            onCommitted: function(x) { page.setv("panel_height", Math.round(x)) }
-        }
-
-        SectionTitle { text: "Widgets"; sub: "What the notification center shows." }
-        ToggleRow { visible: page.deck; label: "Switches"; desc: "Wi-Fi, Bluetooth, Do Not Disturb, night light, keep awake"; checked: page.v("w_quick", true) === true; onToggled: function(x) { page.setv("w_quick", x ? "on" : "off") } }
-        ToggleRow { visible: page.deck; label: "Power modes"; desc: page.v("have_power_profiles", true) ? "Power saver, Balanced, Performance" : "Needs power-profiles-daemon (not found)"; checked: page.v("w_power", true) === true; onToggled: function(x) { page.setv("w_power", x ? "on" : "off") } }
-        ToggleRow { visible: page.deck; label: "Brightness"; desc: page.v("have_backlight", false) ? "Screen brightness" : "Only on screens with a backlight (laptops)"; checked: page.v("w_brightness", true) === true; onToggled: function(x) { page.setv("w_brightness", x ? "on" : "off") } }
-        ToggleRow { visible: page.deck; label: "Power buttons"; desc: "Lock, sleep, log out, restart, shut down (the last three ask first)"; checked: page.v("w_session", true) === true; onToggled: function(x) { page.setv("w_session", x ? "on" : "off") } }
-        ToggleRow { label: "Title & Clear all"; desc: "Header with a button that clears everything"; checked: page.v("w_title", true) === true; onToggled: function(x) { page.setv("w_title", x ? "on" : "off") } }
-        ToggleRow { visible: !page.deck; label: "Do Not Disturb"; desc: "Switch that silences popups"; checked: page.v("w_dnd", true) === true; onToggled: function(x) { page.setv("w_dnd", x ? "on" : "off") } }
-        ToggleRow { label: "Media player"; desc: "Cover, title and controls of what is playing"; checked: page.v("w_media", true) === true; onToggled: function(x) { page.setv("w_media", x ? "on" : "off") } }
-        ToggleRow { label: "Volume slider"; desc: "Output volume"; checked: page.v("w_volume", true) === true; onToggled: function(x) { page.setv("w_volume", x ? "on" : "off") } }
-        ToggleRow { visible: !page.deck; label: "Quick buttons"; desc: "Power, Settings and your own buttons"; checked: page.v("w_buttons", true) === true; onToggled: function(x) { page.setv("w_buttons", x ? "on" : "off") } }
-
         // ---------- popups ----------
         SectionTitle { text: "Popups"; sub: "The small cards that appear when something arrives." }
         Flow {
@@ -193,12 +119,12 @@ Item {
             spacing: 10
             Repeater {
                 model: [
-                    { k: "match", n: "Same as panel" }, { k: "glass", n: "Glass" }, { k: "solid", n: "Solid" },
+                    { k: "glass", n: "Glass" }, { k: "solid", n: "Solid" },
                     { k: "minimal", n: "Minimal" }, { k: "pill", n: "Pill" }, { k: "accent", n: "Accent bar" },
                     { k: "glow", n: "Glow" }, { k: "island", n: "Island" }, { k: "light", n: "Light" }
                 ]
                 delegate: Rectangle {
-                    readonly property bool on: page.v("popup_style", "match") === modelData.k
+                    readonly property bool on: page.v("popup_style", "glass") === modelData.k
                     width: (styles.width - 20) / 3
                     height: 96
                     radius: 14
@@ -220,11 +146,10 @@ Item {
                             anchors.centerIn: parent
                             width: parent.width - 16
                             height: (look === "pill" || look === "minimal") ? 30 : 38
-                            look: modelData.k === "match" ? page.v("style", "glass") : modelData.k
+                            look: modelData.k
                             acc: page.v("accent", true) ? page.v("accent_color", "#d4d4d4") : "#F6F5F4"
                             accFg: page.v("on_accent", "#0d0d0d")
                             baseRadius: Math.min(12, page.v("radius", 18) * 0.6)
-                            op: page.v("opacity", 0.8)
                             pop: page.v("popup_opacity", 0.85)
                             surface: page.v("colors", "graphite")
                             edge: page.v("border", "subtle")
@@ -275,7 +200,7 @@ Item {
         ToggleRow { label: "Show images"; desc: "Album covers, screenshots and avatars"; checked: page.v("images", true) === true; onToggled: function(x) { page.setv("images", x ? "on" : "off") } }
 
         // ---------- style ----------
-        SectionTitle { text: "Colors"; sub: "Base color of popups and the panel. Popup styles Island and Light keep their own." }
+        SectionTitle { text: "Colors"; sub: "Base color of popups. Popup styles Island and Light keep their own." }
         SegRow {
             label: "Surface"
             options: [{ label: "Black", value: "black" }, { label: "Graphite", value: "graphite" }, { label: "Slate", value: "slate" },
@@ -286,14 +211,14 @@ Item {
         ToggleRow { label: "Accent color"; desc: "Buttons, switches and icons follow your Theme"; checked: page.v("accent", true) === true; onToggled: function(x) { page.setv("accent", x ? "on" : "off") } }
         SegRow {
             label: "Border"
-            desc: "Edge around popups and the panel"
+            desc: "Edge around popups"
             options: [{ label: "Subtle", value: "subtle" }, { label: "Accent", value: "accent" }, { label: "None", value: "none" }]
             current: page.v("border", "subtle")
             onChosen: function(x) { page.setv("border", x) }
         }
         ToggleRow { label: "Shadow"; desc: "Small shadow under popups (off looks cleaner)"; checked: page.v("shadow", false) === true; onToggled: function(x) { page.setv("shadow", x ? "on" : "off") } }
 
-        SectionTitle { text: "Text" }
+        SectionTitle { text: "Font" }
         SegRow {
             label: "Font"
             desc: "Sans uses Inter, Rounded uses Rubik (they fall back if missing)"
@@ -316,31 +241,7 @@ Item {
             value: page.v("popup_opacity", 0.85)
             onCommitted: function(x) { page.setv("popup_opacity", x.toFixed(2)) }
         }
-        SliderRow {
-            label: "Panel opacity"
-            desc: "The notification center"
-            from: 0.3; to: 1.0; step: 0.02; decimals: 2
-            value: page.v("opacity", 0.8)
-            onCommitted: function(x) { page.setv("opacity", x.toFixed(2)) }
-        }
         ToggleRow { label: "Blur popups"; desc: "Blur the desktop behind popups"; checked: page.v("blur_popups", true) === true; onToggled: function(x) { page.setv("blur_popups", x ? "on" : "off") } }
-        ToggleRow { label: "Blur panel"; desc: "Blur the desktop behind the notification center"; checked: page.v("blur", true) === true; onToggled: function(x) { page.setv("blur", x ? "on" : "off") } }
-
-        SectionTitle { text: "Notification center style"; sub: "Look of the panel. Popups use it too when their style is Same as panel." }
-        SegRow {
-            label: "Look"
-            desc: "Glass is translucent, Solid is opaque, Outline uses the accent"
-            options: [{ label: "Glass", value: "glass" }, { label: "Solid", value: "solid" }, { label: "Outline", value: "outline" }]
-            current: page.v("style", "glass")
-            onChosen: function(x) { page.setv("style", x) }
-        }
-        SliderRow {
-            label: "Corner radius"
-            from: 0; to: 32; step: 1; unit: " px"
-            value: page.v("radius", 18)
-            onCommitted: function(x) { page.setv("radius", Math.round(x)) }
-        }
-        ToggleRow { label: "Compact"; desc: "Less padding, more notifications on screen"; checked: page.v("compact", false) === true; onToggled: function(x) { page.setv("compact", x ? "on" : "off") } }
 
         Row {
             spacing: 10
