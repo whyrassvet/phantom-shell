@@ -4,6 +4,13 @@
 
 ---
 
+## 2026-11-04 — установка настроек попапов Phantom
+
+- По просьбе пользователя установлены `quickshell/caelestia-bar/{shell.qml,components/NotificationCard.qml,services/PopupSettings.qml,services/NotifData.qml,services/Colours.qml}`, `quickshell/rice-settings/NotificationsPage.qml` и `bin/rice-notify`; личный `notify.json` не изменён. Резервная копия: `/tmp/opencode/phantom-popup-settings-live-20261104/before.tar`.
+- Файлы сверены, бар автоматически загрузил конфигурацию и сохранил владение уведомлениями, `hyprctl configerrors` пуст. Тестовое уведомление создало слой `phantom-notifications` на обоих подключённых экранах; известные предупреждения `Time.qml` остаются. Внешний вид, работа переключателей, блюр, действия и критические уведомления ожидают проверки пользователем.
+
+---
+
 ## 2026-11-04 — настройки попапов Phantom
 
 - Подключены проектные настройки положения, ширины, времени и критических уведомлений, стиля, изображений и размера иконок, цвета, шрифта, прозрачности и блюра к Phantom; попапы вынесены в отдельный слой `phantom-notifications`. Настройки SwayNC больше не применяются со страницы; старый файл `notify.json` читается без замены личных значений.
