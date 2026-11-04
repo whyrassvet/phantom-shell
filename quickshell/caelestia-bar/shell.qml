@@ -337,14 +337,13 @@ ShellRoot {
                     id: popoutHover
                 }
 
-                // A clipped reveal grows down from the bar. The flared top
-                // corners join the popout to its lower edge like Caelestia.
+                // A clipped reveal grows down from the bar with a small gap.
                 Item {
                     id: revealArea
 
                     readonly property real joinRadius: Tokens.rounding.extraLarge
 
-                    y: BarConfig.topGap + BarConfig.thickness + (BarConfig.style === "flat" ? 0 : 4)
+                    y: BarConfig.topGap + BarConfig.thickness + 4
                     width: pops.width
                     height: pops.height * popoutWin.reveal
                     clip: true
@@ -363,16 +362,16 @@ ShellRoot {
                             strokeWidth: 1
                             strokeColor: Colours.outline
                             fillColor: barBackground.color
-                            startX: BarConfig.style === "flat" ? 0 : popoutBackground.corner
+                            startX: popoutBackground.corner
                             startY: 0
-                            PathLine { x: popoutBackground.width - (BarConfig.style === "flat" ? 0 : popoutBackground.corner); y: 0 }
-                            PathQuad { x: popoutBackground.width; y: BarConfig.style === "flat" ? 0 : popoutBackground.corner; controlX: popoutBackground.width; controlY: 0 }
+                            PathLine { x: popoutBackground.width - popoutBackground.corner; y: 0 }
+                            PathQuad { x: popoutBackground.width; y: popoutBackground.corner; controlX: popoutBackground.width; controlY: 0 }
                             PathLine { x: popoutBackground.width; y: popoutBackground.height - popoutBackground.corner }
                             PathQuad { x: popoutBackground.width - popoutBackground.corner; y: popoutBackground.height; controlX: popoutBackground.width; controlY: popoutBackground.height }
                             PathLine { x: popoutBackground.corner; y: popoutBackground.height }
                             PathQuad { x: 0; y: popoutBackground.height - popoutBackground.corner; controlX: 0; controlY: popoutBackground.height }
-                            PathLine { x: 0; y: BarConfig.style === "flat" ? 0 : popoutBackground.corner }
-                            PathQuad { x: BarConfig.style === "flat" ? 0 : popoutBackground.corner; y: 0; controlX: 0; controlY: 0 }
+                            PathLine { x: 0; y: popoutBackground.corner }
+                            PathQuad { x: popoutBackground.corner; y: 0; controlX: 0; controlY: 0 }
                         }
                     }
 
@@ -385,50 +384,6 @@ ShellRoot {
                         width: implicitWidth
                         height: implicitHeight
                         y: -(1 - popoutWin.reveal) * height
-                    }
-                }
-
-                Shape {
-                    x: revealArea.x - revealArea.joinRadius
-                    y: BarConfig.topGap + BarConfig.thickness
-                    width: revealArea.width + 2 * revealArea.joinRadius
-                    height: Math.min(revealArea.joinRadius, revealArea.height)
-                    visible: BarConfig.style === "flat" && height > 0 && revealArea.width > 0
-                    clip: true
-
-                    ShapePath {
-                        strokeWidth: 0
-                        fillColor: barBackground.color
-                        startX: 0
-                        startY: 0
-                        PathQuad { x: revealArea.joinRadius; y: revealArea.joinRadius; controlX: revealArea.joinRadius; controlY: 0 }
-                        PathLine { x: revealArea.joinRadius; y: 0 }
-                        PathLine { x: 0; y: 0 }
-                    }
-                    ShapePath {
-                        strokeWidth: 0
-                        fillColor: barBackground.color
-                        startX: revealArea.width + revealArea.joinRadius
-                        startY: 0
-                        PathLine { x: revealArea.width + revealArea.joinRadius; y: revealArea.joinRadius }
-                        PathQuad { x: revealArea.width + 2 * revealArea.joinRadius; y: 0; controlX: revealArea.width + revealArea.joinRadius; controlY: 0 }
-                        PathLine { x: revealArea.width + revealArea.joinRadius; y: 0 }
-                    }
-                    ShapePath {
-                        strokeWidth: 1
-                        strokeColor: Colours.outline
-                        fillColor: "transparent"
-                        startX: 0
-                        startY: 0
-                        PathQuad { x: revealArea.joinRadius; y: revealArea.joinRadius; controlX: revealArea.joinRadius; controlY: 0 }
-                    }
-                    ShapePath {
-                        strokeWidth: 1
-                        strokeColor: Colours.outline
-                        fillColor: "transparent"
-                        startX: revealArea.width + revealArea.joinRadius
-                        startY: revealArea.joinRadius
-                        PathQuad { x: revealArea.width + 2 * revealArea.joinRadius; y: 0; controlX: revealArea.width + revealArea.joinRadius; controlY: 0 }
                     }
                 }
 

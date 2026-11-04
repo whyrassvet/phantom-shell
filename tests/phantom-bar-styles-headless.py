@@ -89,13 +89,13 @@ with tempfile.TemporaryDirectory(prefix="phantom-styles-", dir="/tmp/opencode") 
                     console.log("STYLE_CHECK", expected, BarConfig.style === expected,
                         bar.width > 0, barInputRegion.width === bar.width,
                         reservation.exclusiveZone === BarConfig.thickness + BarConfig.topGap,
-                        revealArea.y === BarConfig.thickness + BarConfig.topGap + (expected === "flat" ? 0 : 4),
+                        revealArea.y === BarConfig.thickness + BarConfig.topGap + 4,
                         expected === "flat" ? bar.width === scope.modelData.width : true,
                         expected === "floating" ? bar.width < scope.modelData.width : true,
                         expected === "island" ? bar.width < scope.modelData.width : true);
                     console.log("STYLE_DIMENSIONS", expected, bar.width, bar.contentWidth, scope.modelData.width, popoutWin.width);
                     console.log("STYLE_OUTLINE", expected, barBackground.border.width === 1 && barBackground.border.color === Colours.outline);
-                    console.log("POPOUT_OUTLINE", expected, popoutFill.strokeWidth === 1 && popoutFill.strokeColor === Colours.outline);
+                    console.log("POPOUT_OUTLINE", expected, popoutFill.strokeWidth === 1 && popoutFill.strokeColor === Colours.outline && popoutFill.startX === popoutBackground.corner);
                 }
             }
 '''
