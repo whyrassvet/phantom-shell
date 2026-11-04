@@ -16,6 +16,25 @@ Rectangle {
     border.color: Colours.outline
     focus: visible
     Keys.onEscapePressed: screenState.sidebar = false
+    property var pendingDismissals: []
+    readonly property int dismissDuration: 240
+
+    function dismiss(items): void {
+        const pending = pendingDismissals.slice();
+        for (const n of items) if (n && !pending.includes(n)) pending.push(n);
+        if (pending.length === 0) return;
+        pendingDismissals = pending;
+        dismissTimer.restart();
+    }
+    Timer {
+        id: dismissTimer
+        interval: root.dismissDuration
+        onTriggered: {
+            const pending = root.pendingDismissals;
+            root.pendingDismissals = [];
+            for (const n of pending) if (n && !n.closed) n.close();
+        }
+    }
 
     Text {
         id: heading
@@ -38,11 +57,26 @@ Rectangle {
             color: Colours.palette.m3outline
         }
         model: Notifs.notClosed
-        delegate: NotificationCard {
+        delegate: Item {
+            id: entry
             required property var modelData
             width: ListView.view.width
-            notif: modelData
-            cardColor: root.cardColor
+            height: dismissing ? 0 : card.implicitHeight
+            opacity: dismissing ? 0 : 1
+            property bool dismissing: root.pendingDismissals.includes(modelData)
+            Behavior on height { NumberAnimation { duration: root.dismissDuration; easing.type: Easing.InOutCubic } }
+            Behavior on opacity { NumberAnimation { duration: root.dismissDuration; easing.type: Easing.OutCubic } }
+            NotificationCard {
+                id: card
+                width: parent.width
+                x: entry.dismissing ? 24 : 0
+                notif: entry.modelData
+                cardColor: root.cardColor
+                animatedDismiss: true
+                enabled: !entry.dismissing
+                onDismissRequested: root.dismiss([entry.modelData])
+                Behavior on x { NumberAnimation { duration: root.dismissDuration; easing.type: Easing.OutCubic } }
+            }
         }
     }
     Rectangle {
@@ -57,6 +91,6 @@ Rectangle {
         Accessible.role: Accessible.Button
         Accessible.name: "Clear all notifications"
         Text { anchors.centerIn: parent; text: "󰆴"; font.family: "JetBrainsMono Nerd Font"; font.pixelSize: 20; color: "#F6F5F4" }
-        MouseArea { id: clearMouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: { for (const n of Notifs.notClosed.slice()) n.close(); } }
+        MouseArea { id: clearMouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: root.dismiss(Notifs.notClosed.slice()) }
     }
 }

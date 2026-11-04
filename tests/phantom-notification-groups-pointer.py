@@ -26,10 +26,20 @@ QtObject { property color outline: "#333333"; property var palette: ({m3onSurfac
     (stubs / "ScreenState.qml").write_text('import QtQuick\nQtObject { property bool sidebar: true }\n')
     panel = (root / "quickshell/caelestia-bar/components/NotificationPanel.qml").read_text()
     panel = panel.replace("import qs.services", 'import "stubs"')
-    panel = panel.replace("delegate: NotificationCard {", "delegate: Rectangle {")
-    panel = panel.replace("            notif: modelData\n            cardColor: root.cardColor", '            height: 50\n            color: root.cardColor\n            objectName: "card-" + modelData.appName')
+    panel = panel.replace("NotificationCard {", "StubCard {")
     panel = panel.replace("id: notifications\n", 'id: notifications\n        objectName: "notificationList"\n')
     (path / "NotificationPanel.qml").write_text(panel)
+    (path / "StubCard.qml").write_text('''import QtQuick
+Rectangle {
+    property var notif
+    property color cardColor
+    property bool animatedDismiss
+    signal dismissRequested()
+    implicitHeight: 50
+    height: implicitHeight
+    color: cardColor
+    objectName: "card-" + notif.appName
+}''')
     (path / "tst_list.qml").write_text('''import QtQuick
 import QtTest
 import "stubs"
@@ -48,8 +58,20 @@ TestCase {
         compare(list.itemAtIndex(1).modelData.appName, "App A")
         compare(list.itemAtIndex(2).modelData.appName, "App A")
         verify(button.y > list.y + list.height)
+        const first = list.itemAtIndex(0)
+        findChild(first, "card-App A").dismissRequested()
+        compare(Notifs.closedCount, 0)
+        wait(100)
+        verify(first.opacity < 1 && first.opacity > 0)
+        verify(first.height < 50 && first.height > 0)
+        tryCompare(Notifs, "closedCount", 1, 1000)
         mouseClick(button)
-        compare(Notifs.closedCount, 4)
+        compare(Notifs.closedCount, 1)
+        const newNotice = {appName: "New", close: () => Notifs.closedCount += 100}
+        Notifs.notClosed = [newNotice, ...Notifs.notClosed]
+        tryCompare(Notifs, "closedCount", 5, 1000)
+        wait(100)
+        compare(Notifs.closedCount, 5)
     }
 }''')
     env = {"PATH": os.environ["PATH"], "HOME": tmp, "QT_QPA_PLATFORM": "offscreen", "QT_QUICK_BACKEND": "software", "XDG_RUNTIME_DIR": tmp}

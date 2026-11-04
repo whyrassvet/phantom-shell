@@ -4,6 +4,14 @@
 
 ---
 
+## 2026-11-04 — анимация удаления уведомлений
+
+- Добавлены исчезновение, сдвиг вправо и схлопывание карточки за 240 мс при единичном и массовом удалении; очистка сохраняет пришедшие во время анимации новые уведомления. Обновлены `quickshell/caelestia-bar/components/{NotificationPanel,NotificationCard}.qml` и `tests/phantom-notification-groups-pointer.py`.
+- Прошли синтетические проверки промежуточной геометрии и прозрачности, удаления и нового уведомления, headless объединённого центра и приватной D-Bus. По разрешению пользователя два QML установлены с сохранением отличающихся fallback попапов, бар перечитал конфигурацию, PID 1339 владеет уведомлениями; прежние предупреждения `Time.qml` сохраняются. Реальные клики и внешний вид не проверены.
+- Копии: `/tmp/opencode/phantom-notification-dismiss-20261104/project-before.tar`, `/tmp/opencode/phantom-notification-dismiss-live-20261104/installed-before.tar`.
+
+---
+
 ## 2026-11-04 — установка плоского списка и DND
 
 - По разрешению пользователя установлены `~/.config/quickshell/caelestia-bar/components/{NotificationPanel,UnifiedCorner}.qml` и `~/.local/bin/rice-hotcorner`. Все прежние файлы совпадали с прошлой проектной версией; копия `/tmp/opencode/phantom-notification-list-live-20261104/installed-before.tar`.

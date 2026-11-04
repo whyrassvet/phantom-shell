@@ -12,8 +12,10 @@ Rectangle {
     required property NotifData notif
     property bool popup: false
     property bool expanded: !popup
+    property bool animatedDismiss: false
     property color cardColor: Qt.rgba(1, 1, 1, 0.05)
     signal dismissed()
+    signal dismissRequested()
     readonly property string look: popup ? PopupSettings.get("popup_style", "glass") : ""
     readonly property string surface: PopupSettings.get("colors", "black")
     readonly property color accent: PopupSettings.get("accent", true) ? Colours.palette.m3primary : "#f6f5f4"
@@ -74,7 +76,7 @@ Rectangle {
             Text {
                 width: 28; height: 28; text: "×"; color: root.foreground; font.pixelSize: 22
                 horizontalAlignment: Text.AlignHCenter
-                MouseArea { anchors.fill: parent; onClicked: root.notif?.close() }
+                MouseArea { anchors.fill: parent; onClicked: { if (root.animatedDismiss) root.dismissRequested(); else root.notif?.close(); } }
             }
         }
         Text {
