@@ -9,6 +9,8 @@ Item {
     property bool checked: false
     property bool checking: false
     property string failure: ""
+    readonly property bool available: checked && !failure && updateInfo.update === true
+    readonly property var notes: checked && !failure && Array.isArray(updateInfo.news) ? updateInfo.news : []
 
     function check() {
         if (checking) return
@@ -32,26 +34,107 @@ Item {
     }
     PageScroll {
         anchors.fill: parent
-        SectionTitle { text: "Update"; sub: "Check for Phantom Shell updates when you choose." }
-        Rectangle {
-            width: parent.width; height: contents.implicitHeight + 36; radius: 14
-            color: "#121212"; border.width: 1; border.color: Qt.rgba(1, 1, 1, 0.06)
-            Column {
-                id: contents
-                x: 18; y: 18; width: parent.width - 36; spacing: 12
-                T { text: "Phantom Shell"; font.pixelSize: 18; font.bold: true }
-                T {
-                    width: parent.width; wrapMode: Text.WordWrap; color: "#b0b0bc"; font.pixelSize: 13
-                    text: page.checking ? "Checking for updates..." : page.failure ? "Check failed: " + page.failure : !page.checked ? "Check for the latest version." : page.updateInfo.update ? "Update available: " + (page.updateInfo.latest || "unknown") : "Phantom Shell is up to date."
-                }
-                T { visible: page.checked; text: "Installed: " + (page.updateInfo.installed || "unknown"); color: "#8a8a92"; font.pixelSize: 12 }
-                Row {
-                    spacing: 8
-                    Btn { text: page.checking ? "Checking..." : "Check for updates"; primary: true; onClicked: page.check() }
+        SectionTitle { text: "Update"; sub: "Keep Phantom Shell up to date, on your terms." }
+
+        Flow {
+            id: layout
+            width: parent.width
+            spacing: 12
+            property bool stacked: width < 720
+            property real cardWidth: stacked ? width : Math.floor((width - spacing) * 0.42)
+
+            Rectangle {
+                width: layout.cardWidth
+                height: summary.implicitHeight + 40
+                radius: 16; color: "#121212"
+                border.width: 1; border.color: Qt.rgba(1, 1, 1, 0.07)
+                Column {
+                    id: summary
+                    x: 20; y: 20; width: parent.width - 40; spacing: 16
+                    Row {
+                        spacing: 10
+                        Rectangle {
+                            width: 36; height: 36; radius: 12
+                            color: page.available ? Qt.rgba(0.55, 0.85, 0.65, 0.12) : Qt.rgba(1, 1, 1, 0.06)
+                            T { anchors.centerIn: parent; kind: "icon"; text: page.available ? "\uf062" : "\uf021"; font.pixelSize: 15; color: page.available ? "#a4ddb3" : "#c8c8ce" }
+                        }
+                        T {
+                            anchors.verticalCenter: parent.verticalCenter
+                            text: page.checking ? "Checking..." : page.failure ? "Check failed" : !page.checked ? "Ready to check" : page.available ? "Update available" : "You're up to date"
+                            font.bold: true; font.pixelSize: 14
+                            color: page.available ? "#a4ddb3" : "#F6F5F4"
+                        }
+                    }
+                    Rectangle { width: parent.width; height: 1; color: Qt.rgba(1, 1, 1, 0.07) }
+                    Column {
+                        width: parent.width; spacing: 5
+                        T { text: "INSTALLED VERSION"; color: "#8a8a92"; font.pixelSize: 10; font.letterSpacing: 1.1 }
+                        T { objectName: "updateInstalled"; text: page.checked ? (page.updateInfo.installed || "Unknown") : "—"; font.pixelSize: 17; font.bold: true }
+                    }
+                    Column {
+                        width: parent.width; spacing: 5
+                        T { text: "LATEST VERSION"; color: "#8a8a92"; font.pixelSize: 10; font.letterSpacing: 1.1 }
+                        T { objectName: "updateLatest"; text: page.checked && !page.failure ? (page.updateInfo.latest || "Unknown") : "—"; font.pixelSize: 25; font.bold: true; color: page.available ? "#a4ddb3" : "#F6F5F4" }
+                    }
+                    T {
+                        width: parent.width; wrapMode: Text.WordWrap; font.pixelSize: 12; color: page.failure ? "#e6a4a4" : "#8a8a92"
+                        text: page.failure ? page.failure : page.checking ? "Contacting the update source..." : !page.checked ? "Check when you want. No background checks are enabled here." : page.available ? "An update is ready to install." : "No update is currently available."
+                    }
                     Btn {
-                        visible: page.checked && !page.failure && page.updateInfo.update === true
-                        text: "Update now"
+                        objectName: "updateInstall"
+                        visible: page.available && !page.checking
+                        width: parent.width; primary: true; icon: "\uf019"; text: "Update now"
                         onClicked: Quickshell.execDetached(["bash", "-c", 't="${TERMINAL:-kitty}"; command -v "$t" >/dev/null || t=kitty; exec "$t" -e "$HOME/.local/bin/rice-update"'])
+                    }
+                    T { visible: page.available; width: parent.width; wrapMode: Text.WordWrap; text: "The updater opens in a terminal."; color: "#8a8a92"; font.pixelSize: 11 }
+                    Btn {
+                        objectName: "updateCheck"
+                        width: parent.width; primary: !page.available
+                        enabled: !page.checking; opacity: enabled ? 1 : 0.55
+                        icon: "\uf021"; text: page.checking ? "Checking..." : page.checked ? "Check again" : "Check for updates"
+                        onClicked: page.check()
+                    }
+                }
+            }
+            Rectangle {
+                width: layout.stacked ? layout.width : layout.width - layout.cardWidth - layout.spacing
+                height: details.implicitHeight + 40
+                radius: 16; color: "#121212"
+                border.width: 1; border.color: Qt.rgba(1, 1, 1, 0.07)
+                Column {
+                    id: details
+                    x: 20; y: 20; width: parent.width - 40; spacing: 14
+                    T { text: "Release notes"; font.pixelSize: 17; font.bold: true }
+                    T {
+                        width: parent.width; wrapMode: Text.WordWrap; color: "#8a8a92"; font.pixelSize: 12
+                        text: !page.checked ? "Check for updates to see what's new." : page.failure ? "Release notes are unavailable. Try checking again." : page.notes.length === 0 ? "No release notes are available for this version." : "Latest available changes"
+                    }
+                    Rectangle {
+                        visible: page.notes.length > 0 && !page.failure
+                        width: parent.width; height: notesColumn.implicitHeight + 28; radius: 12
+                        color: Qt.rgba(1, 1, 1, 0.035); border.width: 1; border.color: Qt.rgba(1, 1, 1, 0.06)
+                        Column {
+                            id: notesColumn
+                            x: 14; y: 14; width: parent.width - 28; spacing: 10
+                            T { text: page.updateInfo.latest || "Latest"; font.bold: true; font.pixelSize: 14; color: page.available ? "#a4ddb3" : "#F6F5F4" }
+                            Repeater {
+                                model: page.notes
+                                Row {
+                                    width: notesColumn.width; spacing: 9
+                                    T { text: "•"; color: "#a4ddb3"; font.pixelSize: 13 }
+                                    T { width: parent.width - 20; text: modelData; textFormat: Text.PlainText; wrapMode: Text.WordWrap; color: "#c2c2c8"; font.pixelSize: 12 }
+                                }
+                            }
+                        }
+                    }
+                    Rectangle { width: parent.width; height: 1; color: Qt.rgba(1, 1, 1, 0.07) }
+                    T { text: "UPDATE SOURCE"; color: "#8a8a92"; font.pixelSize: 10; font.letterSpacing: 1.1 }
+                    T { text: "Phantom Shell"; font.pixelSize: 13; font.bold: true }
+                    T { width: parent.width; text: "Updates are checked using your configured repository."; wrapMode: Text.WordWrap; color: "#8a8a92"; font.pixelSize: 12 }
+                    T {
+                        visible: page.checked && !page.failure && !!page.updateInfo.checked
+                        text: "Last checked: " + new Date(page.updateInfo.checked * 1000).toLocaleString(Qt.locale(), Locale.ShortFormat)
+                        color: "#8a8a92"; font.pixelSize: 11
                     }
                 }
             }

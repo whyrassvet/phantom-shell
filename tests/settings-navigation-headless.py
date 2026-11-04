@@ -55,6 +55,15 @@ with tempfile.TemporaryDirectory(prefix="phantom-settings-navigation-", dir="/tm
                 if (update.checking) return;
                 if (!update.checked || update.failure || update.updateInfo.latest !== "9.0" || !update.updateInfo.update)
                     console.log("NAV_ERROR update check");
+                if (!update.available || update.notes.length !== 2)
+                    console.log("NAV_ERROR update notes");
+                update.failure = "Network error";
+                if (update.available || update.notes.length !== 0)
+                    console.log("NAV_ERROR update failure");
+                update.failure = "";
+                update.updateInfo = ({ installed: "9.0", latest: "9.0", update: false, news: [] });
+                if (update.available || update.notes.length !== 0)
+                    console.log("NAV_ERROR update current");
                 win.buildIndex();
                 const missing = visiblePages.filter(i => !win.searchIndex.some(e => e.page === i && e.kind === "page"));
                 console.log("NAV_RESULT", visiblePages.length, missing.length,
@@ -70,7 +79,7 @@ with tempfile.TemporaryDirectory(prefix="phantom-settings-navigation-", dir="/tm
         (p / name).mkdir()
     (p / "home/.local/bin").mkdir(parents=True)
     update = p / "home/.local/bin/rice-update"
-    update.write_text('#!/bin/sh\nprintf \'%s\\n\' \'{"installed":"1.0","latest":"9.0","update":true,"error":""}\'\n')
+    update.write_text('#!/bin/sh\nprintf \'%s\\n\' \'{"installed":"1.0","latest":"9.0","update":true,"news":["First change","Second change"],"checked":1700000000,"error":""}\'\n')
     update.chmod(0o755)
     (p / "runtime").chmod(0o700)
     args = ["bwrap", "--ro-bind", "/", "/", "--bind", tmp, tmp, "--dev", "/dev", "--proc", "/proc", "--unshare-net", "--unshare-pid"]
