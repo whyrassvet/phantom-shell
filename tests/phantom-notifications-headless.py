@@ -16,6 +16,14 @@ with tempfile.TemporaryDirectory(prefix="phantom-notifs-", dir="/tmp/opencode") 
     bar = scratch / "bar"
     shutil.copytree(ROOT / "quickshell/caelestia-bar", bar)
     shutil.copytree(ROOT / "quickshell/rice-desktop", scratch / "rice-desktop")
+    card = bar / "components/NotificationCard.qml"
+    card_text = card.read_text()
+    assert 'id: actionLabel;' in card_text and 'font.family: root.popup ? "" : root.family' in card_text
+    card_text = card_text.replace('    id: root\n', '    id: root\n    property var testFonts: [appText.font.family, summaryText.font.family, bodyText.font.family]\n', 1)
+    card_text = card_text.replace('Text { width: parent.width; color: root.secondary;', 'Text { id: appText; width: parent.width; color: root.secondary;', 1)
+    card_text = card_text.replace('Text { width: parent.width; color: root.foreground;', 'Text { id: summaryText; width: parent.width; color: root.foreground;', 1)
+    card_text = card_text.replace('            text: root.notif?.body ?? ""', '            id: bodyText\n            text: root.notif?.body ?? ""', 1)
+    card.write_text(card_text)
     shell = bar / "shell.qml"
     text = shell.read_text()
     marker = "            onFullscreenChanged: {"
@@ -49,6 +57,13 @@ with tempfile.TemporaryDirectory(prefix="phantom-notifs-", dir="/tmp/opencode") 
                 }
             }
 ''' + marker)
+    text = text.replace(marker, '''            Loader {
+                id: centerFontTest
+                active: Notifs.notClosed.length > 0
+                sourceComponent: NotificationCard { visible: false; notif: Notifs.notClosed[0] }
+            }
+''' + marker)
+    text = text.replace('console.log("NOTIFICATION_PANEL",', 'console.log("CENTER_FONTS", JSON.stringify(centerFontTest.item.testFonts));\n                    PopupSettings.values = Object.assign({}, PopupSettings.values, {font: "sans"});\n                    console.log("CENTER_FONTS_CHANGED", JSON.stringify(centerFontTest.item.testFonts));\n                    console.log("NOTIFICATION_PANEL",', 1)
     shell.write_text(text)
     for name in ("home", "runtime", "config", "cache", "state", "data"):
         (scratch / name).mkdir()
@@ -82,11 +97,14 @@ with tempfile.TemporaryDirectory(prefix="phantom-notifs-", dir="/tmp/opencode") 
         assert geometry and float(geometry[1]) == (float(geometry[2]) - 360) / 2, result.stdout
         assert "POPUP_STYLE glass" in result.stdout, result.stdout
         assert "POPUP_APPEARANCE black 0.3 Rubik 14 false" in result.stdout, result.stdout
+        assert 'CENTER_FONTS ["Rubik","Rubik","Rubik"]' in result.stdout, result.stdout
     else:
         assert "POPUP_SETTINGS 420 12" in result.stdout and "true 12000" in result.stdout, result.stdout
         assert "POPUP_STYLE pill" in result.stdout, result.stdout
         assert "POPUP_APPEARANCE white 0.5 JetBrainsMono Nerd Font 17 true" in result.stdout, result.stdout
+        assert 'CENTER_FONTS ["JetBrainsMono Nerd Font","JetBrainsMono Nerd Font","JetBrainsMono Nerd Font"]' in result.stdout, result.stdout
     assert "NOTIFICATION_PANEL true 1" in result.stdout, result.stdout
+    assert 'CENTER_FONTS_CHANGED ["Inter","Inter","Inter"]' in result.stdout, result.stdout
     assert "NOTIFICATION_CLEAR 0" in result.stdout, result.stdout
     assert (scratch / "home/sound-calls").read_text().splitlines() == ["phantom-notify PhantomTest"]
     for error in ("ReferenceError", "TypeError", "Binding loop detected", "Failed to load configuration"):

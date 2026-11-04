@@ -70,8 +70,8 @@ Rectangle {
             }
             Column {
                 width: parent.width - (root.popup ? Math.max(20, Math.min(72, Number(PopupSettings.get("icon_size", 42)))) : 36) - 52
-                Text { width: parent.width; color: root.secondary; text: (root.notif?.appName ?? "") + " · " + (root.notif?.timeStr ?? ""); elide: Text.ElideRight; font.family: root.popup ? root.family : ""; font.pixelSize: root.popup ? Math.max(9, root.textSize - 2) : 11 }
-                Text { width: parent.width; color: root.foreground; text: root.notif?.summary ?? ""; elide: Text.ElideRight; font.family: root.popup ? root.family : ""; font.pixelSize: root.popup ? root.textSize : 14; font.bold: true }
+                Text { width: parent.width; color: root.secondary; text: (root.notif?.appName ?? "") + " · " + (root.notif?.timeStr ?? ""); elide: Text.ElideRight; font.family: root.family; font.pixelSize: root.popup ? Math.max(9, root.textSize - 2) : 11 }
+                Text { width: parent.width; color: root.foreground; text: root.notif?.summary ?? ""; elide: Text.ElideRight; font.family: root.family; font.pixelSize: root.popup ? root.textSize : 14; font.bold: true }
             }
             Text {
                 width: 28; height: 28; text: "×"; color: root.foreground; font.pixelSize: 22
@@ -83,7 +83,7 @@ Rectangle {
             width: parent.width
             text: root.notif?.body ?? ""
             color: root.secondary
-            font.family: root.popup ? root.family : ""
+            font.family: root.family
             font.pixelSize: root.popup ? root.textSize : 12
             textFormat: Text.MarkdownText
             wrapMode: Text.WrapAtWordBoundaryOrAnywhere
@@ -103,7 +103,7 @@ Rectangle {
                     height: 30
                     radius: 15
                     color: Colours.palette.m3secondaryContainer
-                    Text { id: actionLabel; anchors.centerIn: parent; text: parent.modelData.text; color: Colours.palette.m3onSecondaryContainer }
+                    Text { id: actionLabel; anchors.centerIn: parent; text: parent.modelData.text; color: Colours.palette.m3onSecondaryContainer; font.family: root.popup ? "" : root.family }
                     MouseArea { anchors.fill: parent; onClicked: parent.modelData.invoke() }
                 }
             }
