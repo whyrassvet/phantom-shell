@@ -85,6 +85,17 @@ with tempfile.TemporaryDirectory(prefix="phantom-settings-navigation-", dir="/tm
                     console.log("NAV_ERROR update check");
                 if (!update.available || update.notes.length !== 2)
                     console.log("NAV_ERROR update notes");
+                const footer = findNamed(update, "updatePreferences");
+                const history = findNamed(update, "updateHistoryScroll");
+                if (!footer || Math.abs(footer.y + footer.height - update.height + 12) > 1)
+                    console.log("NAV_ERROR update footer geometry");
+                if (!history || update.history.length !== 8 || history.contentHeight <= history.height)
+                    console.log("NAV_ERROR update history scroll");
+                else {
+                    history.contentY = Math.min(80, history.contentHeight - history.height);
+                    if (history.contentY <= 0 || Math.abs(footer.y + footer.height - update.height + 12) > 1)
+                        console.log("NAV_ERROR update scrolling");
+                }
                 update.failure = "Network error";
                 if (update.available || update.notes.length !== 0)
                     console.log("NAV_ERROR update failure");
@@ -119,8 +130,12 @@ if sys.argv[1] == "settings":
         prefs[sys.argv[2]] = sys.argv[3] == "on"
         with open(p, "w") as f: json.dump(prefs, f)
     print(json.dumps(prefs))
+elif sys.argv[1] == "--help":
+    print("rice-update history")
+elif sys.argv[1] == "history":
+    print(json.dumps([{"version": "installed", "lines": ["Previously installed"]}]))
 else:
-    print(json.dumps({"installed":"1.0","latest":"9.0","update":True,"news":["First change","Second change"],"checked":1700000000,"error":""}))
+    print(json.dumps({"installed":"1.0","latest":"9.0","update":True,"news":["First change","Second change"],"history":[{"version":str(i),"lines":["An earlier change", "Another change"]} for i in range(8)],"checked":1700000000,"error":""}))
 ''')
     update.chmod(0o755)
     (p / "runtime").chmod(0o700)

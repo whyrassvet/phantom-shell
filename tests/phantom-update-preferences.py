@@ -118,6 +118,13 @@ class UpdateTests(unittest.TestCase):
             update.start_watch()
             self.assertEqual(popen.call_count, 1)
 
+    def test_history_uses_installed_tag_and_checked_release(self):
+        self.assertEqual(update.installed_history()[0]["version"], "0.4.0-beta")
+        entries = update.changelog_entries("# Changelog\n## v0.5.0\n- First\n* Second\n## v0.4.0\n- Older\n")
+        self.assertEqual(entries, [{"version": "v0.5.0", "lines": ["First", "Second"]},
+                                   {"version": "v0.4.0", "lines": ["Older"]}])
+        self.assertEqual(update.check()["history"][0]["version"], "0.4.0-beta")
+
 
 if __name__ == "__main__":
     unittest.main()

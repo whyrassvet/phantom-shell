@@ -4,6 +4,7 @@
   rice-update               install the newest version (runs ./install.sh --update in the repo)
   rice-update check [--json] [--offline]
                             compare your version with the newest one on GitHub
+  rice-update history       print installed release changelog as JSON
   rice-update watch         background: checks after login and every 15 minutes, shows a notification
   rice-update notify        show the "Update is Available!" notification now (to try it)
 """
@@ -134,6 +135,32 @@ def news(text, version):
     return out
 
 
+def changelog_entries(text):
+    """Preserve the order and text of version sections in CHANGELOG.md."""
+    entries, current = [], None
+    for line in (text or "").splitlines():
+        heading = re.match(r"^##\s+(.+?)\s*$", line)
+        if heading:
+            current = {"version": heading.group(1), "lines": []}
+            entries.append(current)
+        elif current and line.strip():
+            current["lines"].append(re.sub(r"^\s*[-*]\s+", "", line.strip()))
+    return entries
+
+
+def installed_history():
+    """Read the installed release's notes without fetching or modifying the repo."""
+    r = repo()
+    version = installed()
+    if not r or not os.path.exists(os.path.join(r, ".git")):
+        return []
+    for tag in ("v" + version, version):
+        result = git(r, "show", "refs/tags/" + tag + ":CHANGELOG.md", timeout=5)
+        if result.returncode == 0:
+            return changelog_entries(result.stdout)
+    return []
+
+
 def latest(offline=False):
     """Select a versioned tag without changing the user's worktree or branch."""
     latest.ahead, latest.sha, latest.log, latest.tag = 0, "", "", ""
@@ -170,7 +197,7 @@ def check(offline=False):
     ahead = getattr(latest, "ahead", 0)
     out = {"installed": have, "latest": new or have, "update": newer or ahead > 0,
            "changes": ahead, "commit": getattr(latest, "sha", ""), "tag": getattr(latest, "tag", ""),
-           "news": news(getattr(latest, "log", ""), new or have)[:4],
+           "news": news(getattr(latest, "log", ""), new or have)[:4], "history": changelog_entries(getattr(latest, "log", "")),
            "checked": int(time.time()), "error": err if not new else "", "channel": "beta" if preferences()["beta"] else "stable"}
     os.makedirs(CACHE, exist_ok=True)
     try:
@@ -355,6 +382,8 @@ def main(a):
         except (ValueError, OSError) as e:
             print(str(e), file=sys.stderr)
             sys.exit(1)
+    elif cmd == "history":
+        print(json.dumps(installed_history()))
     elif cmd == "notify":
         st = check(offline="--offline" in a)
         if not st["news"]:
