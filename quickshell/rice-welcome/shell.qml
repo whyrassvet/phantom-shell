@@ -13,7 +13,7 @@ ShellRoot {
     readonly property string home: Quickshell.env("HOME")
     readonly property string user: Quickshell.env("USER")
     property string distro: "Linux"
-    readonly property string version: "0.3.0-beta"
+    readonly property string version: "0.4.0-beta"
     property bool leaving: false
 
     // distro logo (Nerd Font "font logos"): the same ones as the bar and the dashboard

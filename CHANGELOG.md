@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.4.0-beta
+- Add Dock size controls and adjust hover handling to prevent repeated opening and closing.
+- Open the dashboard by dragging up from the bottom edge or pressing Super+D.
+- Group Settings navigation and add a dedicated manual Update page.
+- Fix the hot corner to the bottom right and refine bar popout and session panel outlines.
+- Beta pre-release: clean installation, full desktop acceptance, real dock hover and multi-monitor scenarios remain unverified.
+
 ## v0.3.0-beta
 - Replace the SwayNC notification center with Phantom notifications, integrated quick toggles, sounds and appearance settings.
 - Add individual notification cards with animated dismissal, a clear button and the selected notification font.
