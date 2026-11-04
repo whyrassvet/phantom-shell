@@ -321,8 +321,8 @@ def apply(c, reload_hypr=False):
 def test():
     # plain D-Bus call, works without notify-send
     quiet(["busctl", "--user", "call", "org.freedesktop.Notifications", "/org/freedesktop/Notifications",
-           "org.freedesktop.Notifications", "Notify", "susssasa{sv}i", "DarkShadow's Shell", "0",
-           (HOME + "/.face") if os.path.exists(HOME + "/.face") else "dialog-information", "Hello from DarkShadow's Shell",
+           "org.freedesktop.Notifications", "Notify", "susssasa{sv}i", "Phantom Shell", "0",
+           (HOME + "/.face") if os.path.exists(HOME + "/.face") else "dialog-information", "Hello from Phantom Shell",
            "This is how your notifications look. Change them in Settings > Notifications.", "0", "0", "6000"])
 
 

@@ -181,12 +181,12 @@ def profile_set(name):
     if name not in ("power-saver", "balanced", "performance"):
         sys.exit("profile: power-saver|balanced|performance")
     if not shutil.which("powerprofilesctl"):
-        bg(["notify-send", "-a", "DarkShadow's Shell", "Power modes need power-profiles-daemon",
+        bg(["notify-send", "-a", "Phantom Shell", "Power modes need power-profiles-daemon",
             "Install it with your package manager (Arch: power-profiles-daemon)"])
         return
     r = run(["powerprofilesctl", "set", name], 10)
     if r is None or r.returncode != 0:
-        bg(["notify-send", "-a", "DarkShadow's Shell", "Could not switch the power mode",
+        bg(["notify-send", "-a", "Phantom Shell", "Could not switch the power mode",
             (r.stderr.strip() if r else "") or "Is power-profiles-daemon running?"])
 
 

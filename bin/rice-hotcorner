@@ -128,10 +128,10 @@ def bg(cmd):
 def notify(title, body, icon="dialog-information"):
     if shutil.which("notify-send"):
         # resident: clicking it in the notification center does not remove it
-        bg(["notify-send", "-a", "DarkShadow's Shell", "-h", "boolean:resident:true", "-i", icon, title, body])
+        bg(["notify-send", "-a", "Phantom Shell", "-h", "boolean:resident:true", "-i", icon, title, body])
     else:
         bg(["busctl", "--user", "call", "org.freedesktop.Notifications", "/org/freedesktop/Notifications",
-            "org.freedesktop.Notifications", "Notify", "susssasa{sv}i", "DarkShadow's Shell", "0", icon, title, body, "0", "0", "5000"])
+            "org.freedesktop.Notifications", "Notify", "susssasa{sv}i", "Phantom Shell", "0", icon, title, body, "0", "0", "5000"])
 
 
 # ---------------- settings ----------------

@@ -12,7 +12,7 @@ Item {
         { k: "dashboard", n: "Dashboard", d: "Weather, you, clock, calendar, usage and music" },
         { k: "wallpaper", n: "Wallpaper", d: "Every wallpaper, search, random and color schemes" },
         { k: "performance", n: "Performance", d: "CPU, GPU, storage, network, memory and battery" },
-        { k: "about", n: "About", d: "This computer, your distro and DarkShadow's Shell" }
+        { k: "about", n: "About", d: "This computer, your distro and Phantom Shell" }
     ]
     readonly property var looks: [
         { k: "shadow", n: "Shadow", d: "Black glass, colors from your wallpaper" },

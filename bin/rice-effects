@@ -102,7 +102,7 @@ def bg(cmd):
 
 
 def notify(title, body):
-    bg(["notify-send", "-a", "DarkShadow's Shell", "-h", "boolean:resident:true", "-i", "input-gaming", title, body])
+    bg(["notify-send", "-a", "Phantom Shell", "-h", "boolean:resident:true", "-i", "input-gaming", title, body])
 
 
 # ---------------- Hyprland ----------------

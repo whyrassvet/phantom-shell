@@ -4,6 +4,13 @@
 
 ---
 
+## 2026-11-04 — название в превью и уведомлениях
+
+- Название Phantom Shell заменило старое в `quickshell/rice-settings/{PopupMock,DashboardPage}.qml` и уведомлениях `bin/rice-{hotcorner,notify,services,effects,calendar}`. Исторические записи и служебные идентификаторы не менялись.
+- Прошли `tests/phantom-notification-branding.py`, `tests/phantom-screenshots.py`, `tests/phantom-notification-settings.py`, `bash -n bin/rice-calendar` и `git diff --check`. Реальная сессия и внешний вид не проверены, установленная копия не менялась. Копия до изменений: `/tmp/opencode/phantom-branding-20261104/project-before.tar`.
+
+---
+
 ## 2026-11-04 — звук уведомлений подтверждён и дефолты сохранены
 
 - Пользователь подтвердил работу установленного звука Phantom. Bubble и 40% сохранены в проектном `settings/rice/notify.json`, дефолтах и сбросе `bin/rice-notify`, fallback `bin/rice-sound` и `quickshell/rice-settings/SoundsPage.qml`.
