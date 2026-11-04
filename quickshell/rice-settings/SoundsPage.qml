@@ -179,9 +179,9 @@ Item {
                     name: modelData.k
                     label: modelData.n
                     bars: modelData.b
-                    selected: page.nv("sound", "glass") === modelData.k
+                    selected: page.nv("sound", "bubble") === modelData.k
                     onPicked: {
-                        if (modelData.k !== "off") page.previewNote(modelData.k, page.nv("sound_volume", 70))
+                        if (modelData.k !== "off") page.previewNote(modelData.k, page.nv("sound_volume", 40))
                         if (!selected) page.setn("sound", modelData.k)
                     }
                 }
@@ -191,10 +191,10 @@ Item {
             label: "Notification sound volume"
             desc: "How loud the notification sound is, on top of your system volume"
             from: 0; to: 100; step: 5; unit: " %"
-            value: page.nv("sound_volume", 70)
+            value: page.nv("sound_volume", 40)
             onCommitted: function(x) {
                 page.setn("sound_volume", Math.round(x))
-                if (page.nv("sound", "glass") !== "off") page.previewNote(page.nv("sound", "glass"), Math.round(x))
+                if (page.nv("sound", "bubble") !== "off") page.previewNote(page.nv("sound", "bubble"), Math.round(x))
             }
         }
         Item { width: 1; height: 10 }

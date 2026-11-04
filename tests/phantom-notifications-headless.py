@@ -21,6 +21,20 @@ with tempfile.TemporaryDirectory(prefix="phantom-notifs-", dir="/tmp/opencode") 
     marker = "            onFullscreenChanged: {"
     assert text.count(marker) == 1
     text = text.replace(marker, '''            Timer {
+                interval: 1400; running: true
+                onTriggered: {
+                    Notifs.dnd = true;
+                    Quickshell.execDetached(["notify-send", "--app-name=DndTest", "DND notification"]);
+                }
+            }
+            Timer {
+                interval: 1900; running: true
+                onTriggered: {
+                    Notifs.dnd = false;
+                    Quickshell.execDetached(["notify-send", "--app-name=SilentTest", "--hint=boolean:suppress-sound:true", "Silent notification"]);
+                }
+            }
+            Timer {
                 interval: 2500; running: true
                 onTriggered: {
                     console.log("NOTIFICATION_TEST", Notifs.notClosed.length, Notifs.notClosed[0]?.summary, Notifs.popups.length);
@@ -29,7 +43,7 @@ with tempfile.TemporaryDirectory(prefix="phantom-notifs-", dir="/tmp/opencode") 
                     console.log("POPUP_APPEARANCE", notificationPopups.children[0]?.surface, notificationPopups.children[0]?.popupOpacity, notificationPopups.children[0]?.family, notificationPopups.children[0]?.textSize, notificationPopups.children[0]?.layer.enabled);
                     popoutWin.sessionState.sidebar = true;
                     console.log("NOTIFICATION_PANEL", popoutWin.sessionState.sidebar, Notifs.popups.length);
-                    Notifs.notClosed[0].close();
+                    for (const n of Notifs.notClosed.slice()) n.close();
                     console.log("NOTIFICATION_CLEAR", Notifs.notClosed.length);
                     Qt.quit();
                 }
@@ -39,6 +53,10 @@ with tempfile.TemporaryDirectory(prefix="phantom-notifs-", dir="/tmp/opencode") 
     for name in ("home", "runtime", "config", "cache", "state", "data"):
         (scratch / name).mkdir()
     (scratch / "home/.config/rice").mkdir(parents=True)
+    (scratch / "home/.local/bin").mkdir(parents=True)
+    sound = scratch / "home/.local/bin/rice-sound"
+    sound.write_text('#!/bin/sh\nprintf "%s\\n" "$*" >> "$HOME/sound-calls"\n')
+    sound.chmod(0o755)
     if not TEST_DEFAULTS:
         (scratch / "home/.config/rice/notify.json").write_text('{"pos_x":"left","pos_y":"bottom","popup_width":420,"timeout":12,"popup_style":"pill","colors":"white","popup_opacity":0.5,"font":"mono","font_size":17,"shadow":true}')
     (scratch / "runtime").chmod(0o700)
@@ -57,7 +75,7 @@ with tempfile.TemporaryDirectory(prefix="phantom-notifs-", dir="/tmp/opencode") 
     args += ["dbus-run-session", f"--config-file={bus_config}", "--", "sh", "-c", 'cage -- "$1" & pid=$!; sleep 1; notify-send --app-name=PhantomTest "Private notification" "Test body"; wait "$pid"', "test", str(ROOT / "bin/phantom-bar")]
     result = subprocess.run(args, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=20)
     assert result.returncode == 0, result.stdout
-    assert "NOTIFICATION_TEST 1 Private notification 1" in result.stdout, result.stdout
+    assert "NOTIFICATION_TEST 3 Silent notification 2" in result.stdout, result.stdout
     if TEST_DEFAULTS:
         assert "POPUP_SETTINGS 360" in result.stdout and "false 6000" in result.stdout, result.stdout
         geometry = re.search(r"POPUP_SETTINGS 360 ([\d.]+) [\d.]+ false 6000 ([\d.]+)", result.stdout)
@@ -68,8 +86,9 @@ with tempfile.TemporaryDirectory(prefix="phantom-notifs-", dir="/tmp/opencode") 
         assert "POPUP_SETTINGS 420 12" in result.stdout and "true 12000" in result.stdout, result.stdout
         assert "POPUP_STYLE pill" in result.stdout, result.stdout
         assert "POPUP_APPEARANCE white 0.5 JetBrainsMono Nerd Font 17 true" in result.stdout, result.stdout
-    assert "NOTIFICATION_PANEL true 0" in result.stdout, result.stdout
+    assert "NOTIFICATION_PANEL true 1" in result.stdout, result.stdout
     assert "NOTIFICATION_CLEAR 0" in result.stdout, result.stdout
+    assert (scratch / "home/sound-calls").read_text().splitlines() == ["phantom-notify PhantomTest"]
     for error in ("ReferenceError", "TypeError", "Binding loop detected", "Failed to load configuration"):
         assert error not in result.stdout, result.stdout
     print("Private D-Bus notification received; live notification service untouched.")

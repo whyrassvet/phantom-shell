@@ -4,6 +4,27 @@
 
 ---
 
+## 2026-11-04 — звук уведомлений подтверждён и дефолты сохранены
+
+- Пользователь подтвердил работу установленного звука Phantom. Bubble и 40% сохранены в проектном `settings/rice/notify.json`, дефолтах и сбросе `bin/rice-notify`, fallback `bin/rice-sound` и `quickshell/rice-settings/SoundsPage.qml`.
+- Прошли `tests/phantom-notification-settings.py`, `tests/phantom-notification-sound.py`, два варианта `tests/phantom-notifications-headless.py` и `git diff --check`. Личный конфиг и установленные файлы дефолтов не менялись; чистая установка, реальное переключение громкости и DND отдельно не проверены. Копии `/tmp/opencode/phantom-notification-sound-20261104/`.
+
+---
+
+## 2026-11-04 — живая проверка звука Phantom
+
+- По разрешению установлены `~/.local/bin/rice-sound` и `~/.config/quickshell/caelestia-bar/services/Notifs.qml`; предыдущие файлы совпадали с HEAD и сохранены в `/tmp/opencode/phantom-notification-sound-20261104/installed-before.tar`.
+- Бар загрузил конфигурацию, владеет уведомлениями, DND выключен; тестовое уведомление вызвало скрипт и обновило `sound.last`. Реальная слышимость ожидает подтверждения пользователя, значения по умолчанию пока не менялись. Прежние предупреждения `Time.qml` сохраняются.
+
+---
+
+## 2026-11-04 — подключение звука Phantom подготовлено
+
+- `quickshell/caelestia-bar/services/Notifs.qml` вызывает `bin/rice-sound` при получении уведомления, учитывая DND Phantom и hint `suppress-sound`. Добавлен режим `phantom-notify`, использующий существующие звук, громкость и фильтры без проверки SwayNC.
+- Проверены обычное уведомление, DND и silent hint на приватной D-Bus, выбор Bubble/40%, off, нулевая громкость, тихие приложения и ограничение частоты. Звук в реальной сессии и установленная копия не проверены; дефолты отложены до подтверждения. Тесты: `tests/phantom-notifications-headless.py`, `tests/phantom-notification-sound.py`. Копия: `/tmp/opencode/phantom-notification-sound-20261104/before.tar`.
+
+---
+
 ## 2026-11-04 — текущие настройки уведомлений по умолчанию
 
 - Текущие значения страницы Notifications пользователя перенесены в проектные `settings/rice/notify.json`, значения сброса `bin/rice-notify` и fallback QML. Звуковые настройки из другого раздела не переносились; личный конфиг и установленная копия не менялись.

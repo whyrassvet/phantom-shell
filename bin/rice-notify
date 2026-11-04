@@ -33,7 +33,7 @@ DEFAULTS = {
     "popup_style": "glass", "accent": True,
     "colors": "black", "font": "rounded", "font_size": 14, "popup_opacity": 0.3, "blur_popups": True,
     "border": "subtle", "shadow": False,
-    "sound": "glass", "sound_volume": 70,
+    "sound": "bubble", "sound_volume": 40,
 }
 INTS = {"popup_width": (260, 600),
         "timeout": (2, 30), "icon_size": (20, 72), "font_size": (10, 18),

@@ -12,6 +12,7 @@ popup_defaults = {
     "critical_sticky": True, "icon_size": 42, "images": True, "popup_style": "glass",
     "accent": True, "colors": "black", "font": "rounded", "font_size": 14,
     "popup_opacity": 0.3, "blur_popups": True, "border": "subtle", "shadow": False,
+    "sound": "bubble", "sound_volume": 40,
 }
 shipped = json.loads((root / "settings/rice/notify.json").read_text())
 assert all(shipped[k] == v for k, v in popup_defaults.items())

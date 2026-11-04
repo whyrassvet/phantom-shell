@@ -95,6 +95,9 @@ Singleton {
         onNotification: notif => {
             notif.tracked = true;
 
+            if (!root.dnd && !notif.hints?.["suppress-sound"])
+                Quickshell.execDetached([`${Paths.home}/.local/bin/rice-sound`, "phantom-notify", notif.appName || ""]);
+
             const comp = notifComp.createObject(root, {
                 popup: root.shouldShowPopup(),
                 notification: notif
