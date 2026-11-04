@@ -95,6 +95,7 @@ with tempfile.TemporaryDirectory(prefix="phantom-styles-", dir="/tmp/opencode") 
                         expected === "island" ? bar.width < scope.modelData.width : true);
                     console.log("STYLE_DIMENSIONS", expected, bar.width, bar.contentWidth, scope.modelData.width, popoutWin.width);
                     console.log("STYLE_OUTLINE", expected, barBackground.border.width === 1 && barBackground.border.color === Colours.outline);
+                    console.log("POPOUT_OUTLINE", expected, popoutFill.strokeWidth === 1 && popoutFill.strokeColor === Colours.outline);
                 }
             }
 '''
@@ -134,6 +135,7 @@ with tempfile.TemporaryDirectory(prefix="phantom-styles-", dir="/tmp/opencode") 
                             and f"STYLE_POWER_MARGIN {style} true" in current
                             and f"STYLE_POWER_ICON {style} true" in current
                             and f"STYLE_OUTLINE {style} true" in current
+                            and f"POPOUT_OUTLINE {style} true" in current
                             and f"STYLE_WORKSPACE_PADDING {style} true" in current):
                         break
                     time.sleep(0.1)
@@ -145,6 +147,7 @@ with tempfile.TemporaryDirectory(prefix="phantom-styles-", dir="/tmp/opencode") 
                 assert f"STYLE_ENTRIES {style} true true true" in result, result
                 assert f"STYLE_POWER_MARGIN {style} true" in result, result
                 assert f"STYLE_POWER_ICON {style} true" in result, result
+                assert f"POPOUT_OUTLINE {style} true" in result, result
                 assert f"STYLE_WORKSPACE_PADDING {style} true" in result, result
             for error in ("ReferenceError", "TypeError", "Failed to load configuration"):
                 assert error not in result, result

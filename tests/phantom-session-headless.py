@@ -52,6 +52,7 @@ with tempfile.TemporaryDirectory(prefix="phantom-session-test-", dir="/tmp/openc
                         console.log("SESSION_BUTTON", popoutWin.sessionState.session, sessionPanel.visible, sessionPanel.width > 0, sessionPanel.height > 0);
                         console.log("SESSION_SURFACE", sessionBackground.visible, sessionBackground.width > 0, sessionBackground.height > sessionPanel.height, sessionFill.fillColor === barBackground.color);
                         console.log("SESSION_CONTOUR", sessionBackground.ear === 24, sessionBackground.corner === 28, sessionBackground.height === sessionPanel.height + 80);
+                        console.log("SESSION_OUTLINE", sessionFill.strokeWidth === 1, sessionFill.strokeColor === Colours.outline);
                         console.log("SESSION_FOCUS_OPEN", popoutWin.WlrLayershell.keyboardFocus === WlrKeyboardFocus.Exclusive);
                         console.log("SESSION_DRAG_REGION_CLOSED", sessionDragRegion.width === 0, sessionDragRegion.height === 0);
                         corner.testPressed = true;
@@ -98,7 +99,7 @@ with tempfile.TemporaryDirectory(prefix="phantom-session-test-", dir="/tmp/openc
                     break
                 time.sleep(0.1)
             result = log.read_text(errors="replace")
-            for expected in ("SESSION_BUTTON true true true true", "SESSION_SURFACE true true true true", "SESSION_CONTOUR true true true", "SESSION_FOCUS_OPEN true", "SESSION_DRAG_REGION_CLOSED true true", "SESSION_DRAG_REGION_HELD true true", "SESSION_DRAG true false", "SESSION_SHORT_DRAG false", "SESSION_FOCUS_CLOSED true", "POWER_EDGE_SHORT false", "POWER_EDGE_DRAG true false false"):
+            for expected in ("SESSION_BUTTON true true true true", "SESSION_SURFACE true true true true", "SESSION_CONTOUR true true true", "SESSION_OUTLINE true true", "SESSION_FOCUS_OPEN true", "SESSION_DRAG_REGION_CLOSED true true", "SESSION_DRAG_REGION_HELD true true", "SESSION_DRAG true false", "SESSION_SHORT_DRAG false", "SESSION_FOCUS_CLOSED true", "POWER_EDGE_SHORT false", "POWER_EDGE_DRAG true false false"):
                 assert expected in result, result
             for expected in ('LOGOUT_UWSM ["uwsm","stop"]', 'LOGOUT_OTHER ["logout"]', 'LOGOUT_CUSTOM ["custom","arg"]'):
                 assert expected in result, result
