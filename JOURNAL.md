@@ -4,6 +4,14 @@
 
 ---
 
+## 2026-11-04 — текущие настройки уведомлений по умолчанию
+
+- Текущие значения страницы Notifications пользователя перенесены в проектные `settings/rice/notify.json`, значения сброса `bin/rice-notify` и fallback QML. Звуковые настройки из другого раздела не переносились; личный конфиг и установленная копия не менялись.
+- Проверены совпадение сохранённого конфига и дефолтов, reset и пустой конфиг, headless-карточка Phantom без файла и с пользовательским файлом, частная D-Bus, навигация и `git diff --check`. Реальный вид и чистая установка отдельно не проверялись.
+- Файлы: `settings/rice/notify.json`, `bin/rice-notify`, `quickshell/caelestia-bar/{shell.qml,components/NotificationCard.qml}`, `quickshell/rice-settings/NotificationsPage.qml`, тесты. Копия: `/tmp/opencode/phantom-notification-defaults-20261104/before.tar`.
+
+---
+
 ## 2026-11-04 — установка настроек попапов Phantom
 
 - По просьбе пользователя установлены `quickshell/caelestia-bar/{shell.qml,components/NotificationCard.qml,services/PopupSettings.qml,services/NotifData.qml,services/Colours.qml}`, `quickshell/rice-settings/NotificationsPage.qml` и `bin/rice-notify`; личный `notify.json` не изменён. Резервная копия: `/tmp/opencode/phantom-popup-settings-live-20261104/before.tar`.

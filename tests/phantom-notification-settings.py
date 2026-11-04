@@ -7,6 +7,14 @@ import subprocess
 import tempfile
 
 root = Path(__file__).resolve().parents[1]
+popup_defaults = {
+    "pos_x": "center", "pos_y": "top", "popup_width": 360, "timeout": 6,
+    "critical_sticky": True, "icon_size": 42, "images": True, "popup_style": "glass",
+    "accent": True, "colors": "black", "font": "rounded", "font_size": 14,
+    "popup_opacity": 0.3, "blur_popups": True, "border": "subtle", "shadow": False,
+}
+shipped = json.loads((root / "settings/rice/notify.json").read_text())
+assert all(shipped[k] == v for k, v in popup_defaults.items())
 page = (root / "quickshell/rice-settings/NotificationsPage.qml").read_text()
 for title in ("Position", "Popups", "Colors", "Font", "Transparency & blur"):
     assert f'text: "{title}"' in page, title
@@ -18,8 +26,13 @@ with tempfile.TemporaryDirectory(prefix="notify-settings-", dir="/tmp/opencode")
     env = dict(os.environ, HOME=home, PATH="/usr/bin:/bin")
     rice = Path(home) / ".config/rice"
     rice.mkdir(parents=True)
-    (rice / "notify.json").write_text(json.dumps({"popup_style": "match", "style": "solid", "w_media": True}))
     tool = root / "bin/rice-notify"
+    state = json.loads(subprocess.check_output([tool, "state"], env=env, text=True))
+    assert all(state[k] == v for k, v in popup_defaults.items())
+    subprocess.run([tool, "reset"], env=env, check=True)
+    reset = json.loads((rice / "notify.json").read_text())
+    assert all(reset[k] == v for k, v in popup_defaults.items())
+    (rice / "notify.json").write_text(json.dumps({"popup_style": "match", "style": "solid", "w_media": True}))
     state = json.loads(subprocess.check_output([tool, "state"], env=env, text=True))
     assert state["popup_style"] == "solid"
     assert "style" not in state and "w_media" not in state

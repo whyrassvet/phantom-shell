@@ -65,16 +65,16 @@ Item {
                 acc: page.v("accent", true) ? page.v("accent_color", "#d4d4d4") : "#F6F5F4"
                 accFg: page.v("accent", true) ? page.v("on_accent", "#0d0d0d") : "#0d0d0d"
                 baseRadius: page.v("radius", 18) * 0.85
-                pop: page.v("popup_opacity", 0.85)
-                surface: page.v("colors", "graphite")
+                pop: page.v("popup_opacity", 0.3)
+                surface: page.v("colors", "black")
                 edge: page.v("border", "subtle")
                 shadowOn: page.v("shadow", false) === true
-                fam: page.famFor(page.v("font", "sans"))
-                fs: page.v("font_size", 13) / 13
-                iconSize: Math.max(26, Math.min(46, page.v("icon_size", 40)))
+                fam: page.famFor(page.v("font", "rounded"))
+                fs: page.v("font_size", 14) / 13
+                iconSize: Math.max(26, Math.min(46, page.v("icon_size", 42)))
                 width: Math.min(stage.width - 28, page.v("popup_width", 360) * 0.85)
                 height: (look === "pill" || look === "minimal") ? 56 : 78
-                x: page.v("pos_x", "right") === "left" ? 14 : (page.v("pos_x", "right") === "center" ? (stage.width - width) / 2 : stage.width - width - 14)
+                x: page.v("pos_x", "center") === "left" ? 14 : (page.v("pos_x", "center") === "center" ? (stage.width - width) / 2 : stage.width - width - 14)
                 y: page.v("pos_y", "top") === "top" ? 14 : stage.height - height - 14
                 Behavior on x { NumberAnimation { duration: 280; easing.type: Easing.OutCubic } }
                 Behavior on y { NumberAnimation { duration: 280; easing.type: Easing.OutCubic } }
@@ -93,7 +93,7 @@ Item {
             label: "Horizontal"
             desc: "Side of the screen"
             options: [{ label: "Left", value: "left" }, { label: "Middle", value: "center" }, { label: "Right", value: "right" }]
-            current: page.v("pos_x", "right")
+            current: page.v("pos_x", "center")
             onChosen: function(x) { page.setv("pos_x", x) }
         }
         SegRow {
@@ -142,11 +142,11 @@ Item {
                             acc: page.v("accent", true) ? page.v("accent_color", "#d4d4d4") : "#F6F5F4"
                             accFg: page.v("on_accent", "#0d0d0d")
                             baseRadius: Math.min(12, page.v("radius", 18) * 0.6)
-                            pop: page.v("popup_opacity", 0.85)
-                            surface: page.v("colors", "graphite")
+                            pop: page.v("popup_opacity", 0.3)
+                            surface: page.v("colors", "black")
                             edge: page.v("border", "subtle")
                             shadowOn: false
-                            fam: page.famFor(page.v("font", "sans"))
+                            fam: page.famFor(page.v("font", "rounded"))
                             iconSize: 22
                             showBody: false
                             fs: 0.8
@@ -186,7 +186,7 @@ Item {
         SliderRow {
             label: "Icon size"
             from: 20; to: 72; step: 2; unit: " px"
-            value: page.v("icon_size", 40)
+            value: page.v("icon_size", 42)
             onCommitted: function(x) { page.setv("icon_size", Math.round(x)) }
         }
         ToggleRow { label: "Show images"; desc: "Album covers, screenshots and avatars"; checked: page.v("images", true) === true; onToggled: function(x) { page.setv("images", x ? "on" : "off") } }
@@ -197,7 +197,7 @@ Item {
             label: "Surface"
             options: [{ label: "Black", value: "black" }, { label: "Graphite", value: "graphite" }, { label: "Slate", value: "slate" },
                       { label: "White", value: "white" }, { label: "Tinted", value: "tinted" }]
-            current: page.v("colors", "graphite")
+            current: page.v("colors", "black")
             onChosen: function(x) { page.setv("colors", x) }
         }
         ToggleRow { label: "Accent color"; desc: "Buttons, switches and icons follow your Theme"; checked: page.v("accent", true) === true; onToggled: function(x) { page.setv("accent", x ? "on" : "off") } }
@@ -215,13 +215,13 @@ Item {
             label: "Font"
             desc: "Sans uses Inter, Rounded uses Rubik (they fall back if missing)"
             options: [{ label: "Sans", value: "sans" }, { label: "Rounded", value: "rounded" }, { label: "Mono", value: "mono" }, { label: "System", value: "system" }]
-            current: page.v("font", "sans")
+            current: page.v("font", "rounded")
             onChosen: function(x) { page.setv("font", x) }
         }
         SliderRow {
             label: "Text size"
             from: 10; to: 18; step: 1; unit: " px"
-            value: page.v("font_size", 13)
+            value: page.v("font_size", 14)
             onCommitted: function(x) { page.setv("font_size", Math.round(x)) }
         }
 
@@ -230,7 +230,7 @@ Item {
             label: "Popup opacity"
             desc: "Lower is more see-through"
             from: 0.3; to: 1.0; step: 0.02; decimals: 2
-            value: page.v("popup_opacity", 0.85)
+            value: page.v("popup_opacity", 0.3)
             onCommitted: function(x) { page.setv("popup_opacity", x.toFixed(2)) }
         }
         ToggleRow { label: "Blur popups"; desc: "Blur the desktop behind popups"; checked: page.v("blur_popups", true) === true; onToggled: function(x) { page.setv("blur_popups", x ? "on" : "off") } }

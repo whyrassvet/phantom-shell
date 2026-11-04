@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Exercise the notification server on a private bus, never the live session."""
 import os
+import re
 from pathlib import Path
 import shutil
 import subprocess
@@ -8,6 +9,7 @@ import tempfile
 
 ROOT = Path(__file__).resolve().parent.parent
 STAGE = Path(os.environ["PHANTOM_TEST_STAGE"]).resolve()
+TEST_DEFAULTS = os.environ.get("PHANTOM_TEST_DEFAULTS") == "1"
 
 with tempfile.TemporaryDirectory(prefix="phantom-notifs-", dir="/tmp/opencode") as tmp:
     scratch = Path(tmp)
@@ -22,7 +24,7 @@ with tempfile.TemporaryDirectory(prefix="phantom-notifs-", dir="/tmp/opencode") 
                 interval: 2500; running: true
                 onTriggered: {
                     console.log("NOTIFICATION_TEST", Notifs.notClosed.length, Notifs.notClosed[0]?.summary, Notifs.popups.length);
-                    console.log("POPUP_SETTINGS", notificationPopups.width, notificationPopups.x, notificationPopups.y, notificationPopups.atBottom, Notifs.notClosed[0].timer.interval);
+                    console.log("POPUP_SETTINGS", notificationPopups.width, notificationPopups.x, notificationPopups.y, notificationPopups.atBottom, Notifs.notClosed[0].timer.interval, scope.modelData.width);
                     console.log("POPUP_STYLE", notificationPopups.children[0]?.look);
                     console.log("POPUP_APPEARANCE", notificationPopups.children[0]?.surface, notificationPopups.children[0]?.popupOpacity, notificationPopups.children[0]?.family, notificationPopups.children[0]?.textSize, notificationPopups.children[0]?.layer.enabled);
                     popoutWin.sessionState.sidebar = true;
@@ -37,7 +39,8 @@ with tempfile.TemporaryDirectory(prefix="phantom-notifs-", dir="/tmp/opencode") 
     for name in ("home", "runtime", "config", "cache", "state", "data"):
         (scratch / name).mkdir()
     (scratch / "home/.config/rice").mkdir(parents=True)
-    (scratch / "home/.config/rice/notify.json").write_text('{"pos_x":"left","pos_y":"bottom","popup_width":420,"timeout":12,"popup_style":"pill","colors":"white","popup_opacity":0.5,"font":"mono","font_size":17,"shadow":true}')
+    if not TEST_DEFAULTS:
+        (scratch / "home/.config/rice/notify.json").write_text('{"pos_x":"left","pos_y":"bottom","popup_width":420,"timeout":12,"popup_style":"pill","colors":"white","popup_opacity":0.5,"font":"mono","font_size":17,"shadow":true}')
     (scratch / "runtime").chmod(0o700)
     (scratch / "state/phantom-shell").mkdir()
     bus_config = scratch / "session.conf"
@@ -55,9 +58,16 @@ with tempfile.TemporaryDirectory(prefix="phantom-notifs-", dir="/tmp/opencode") 
     result = subprocess.run(args, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=20)
     assert result.returncode == 0, result.stdout
     assert "NOTIFICATION_TEST 1 Private notification 1" in result.stdout, result.stdout
-    assert "POPUP_SETTINGS 420 12" in result.stdout and "true 12000" in result.stdout, result.stdout
-    assert "POPUP_STYLE pill" in result.stdout, result.stdout
-    assert "POPUP_APPEARANCE white 0.5 JetBrainsMono Nerd Font 17 true" in result.stdout, result.stdout
+    if TEST_DEFAULTS:
+        assert "POPUP_SETTINGS 360" in result.stdout and "false 6000" in result.stdout, result.stdout
+        geometry = re.search(r"POPUP_SETTINGS 360 ([\d.]+) [\d.]+ false 6000 ([\d.]+)", result.stdout)
+        assert geometry and float(geometry[1]) == (float(geometry[2]) - 360) / 2, result.stdout
+        assert "POPUP_STYLE glass" in result.stdout, result.stdout
+        assert "POPUP_APPEARANCE black 0.3 Rubik 14 false" in result.stdout, result.stdout
+    else:
+        assert "POPUP_SETTINGS 420 12" in result.stdout and "true 12000" in result.stdout, result.stdout
+        assert "POPUP_STYLE pill" in result.stdout, result.stdout
+        assert "POPUP_APPEARANCE white 0.5 JetBrainsMono Nerd Font 17 true" in result.stdout, result.stdout
     assert "NOTIFICATION_PANEL true 0" in result.stdout, result.stdout
     assert "NOTIFICATION_CLEAR 0" in result.stdout, result.stdout
     for error in ("ReferenceError", "TypeError", "Binding loop detected", "Failed to load configuration"):

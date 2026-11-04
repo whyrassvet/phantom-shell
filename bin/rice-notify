@@ -28,10 +28,10 @@ WAYBAR_COLORS = HOME + "/.config/waybar/colors.css"
 BEGIN, END = "/* rice-notify */", "/* end-rice-notify */"
 
 DEFAULTS = {
-    "pos_x": "right", "pos_y": "top",
-    "popup_width": 360, "timeout": 6, "critical_sticky": True, "icon_size": 40, "images": True,
+    "pos_x": "center", "pos_y": "top",
+    "popup_width": 360, "timeout": 6, "critical_sticky": True, "icon_size": 42, "images": True,
     "popup_style": "glass", "accent": True,
-    "colors": "graphite", "font": "sans", "font_size": 13, "popup_opacity": 0.85, "blur_popups": True,
+    "colors": "black", "font": "rounded", "font_size": 14, "popup_opacity": 0.3, "blur_popups": True,
     "border": "subtle", "shadow": False,
     "sound": "glass", "sound_volume": 70,
 }

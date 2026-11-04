@@ -94,7 +94,7 @@ ShellRoot {
                 }
                 Column {
                     id: notificationPopups
-                    readonly property string horizontal: PopupSettings.get("pos_x", "right")
+                    readonly property string horizontal: PopupSettings.get("pos_x", "center")
                     readonly property bool atBottom: PopupSettings.get("pos_y", "top") === "bottom"
                     width: Math.min(Math.max(260, Math.min(600, Number(PopupSettings.get("popup_width", 360)))), scope.modelData.width - 24)
                     x: horizontal === "left" ? 12 : horizontal === "center" ? (scope.modelData.width - width) / 2 : scope.modelData.width - width - 12
