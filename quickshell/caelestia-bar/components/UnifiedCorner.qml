@@ -161,7 +161,7 @@ Item {
             source: "file://" + Quickshell.shellDir + "/../rice-desktop/HotCornerPanel.qml"
             onLoaded: {
                 item.cfg = Qt.binding(() => root.cfg);
-                item.st = Qt.binding(() => root.status);
+                item.st = Qt.binding(() => Object.assign({}, root.status, { dnd: Notifs.dnd }));
                 // Keep the content populated while the tile collapses; otherwise the
                 // panel resets its sections as soon as opened turns false.
                 item.open = Qt.binding(() => root.opened || closeHold.running);

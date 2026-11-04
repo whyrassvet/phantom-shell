@@ -209,8 +209,13 @@ def bt_on():
     return code == 0 and re.search(r"Powered:\s*yes", out) is not None
 
 
+def dnd_ipc(method):
+    config = os.path.join(os.environ.get("XDG_CONFIG_HOME") or os.path.join(HOME, ".config"), "quickshell", "caelestia-bar")
+    return q(["qs", "ipc", "-p", config, "call", "notifs", method])
+
+
 def dnd_on():
-    code, out = q(["swaync-client", "-D"])
+    code, out = dnd_ipc("isDndEnabled")
     return code == 0 and out.strip() == "true"
 
 
@@ -543,7 +548,7 @@ def main(argv):
     elif cmd == "awake":
         toggle_awake()
     elif cmd == "dnd":
-        q(["swaync-client", "-d"])
+        dnd_ipc("toggleDnd")
     elif cmd == "wifi":
         q(["nmcli", "radio", "wifi", "off" if wifi_on() else "on"], timeout=8)
     elif cmd == "bluetooth":

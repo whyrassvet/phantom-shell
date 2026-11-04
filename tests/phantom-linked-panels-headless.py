@@ -41,6 +41,8 @@ with tempfile.TemporaryDirectory(prefix="phantom-linked-", dir="/tmp/opencode") 
                 function state(): string { return JSON.stringify({open: corner.opened, sidebar: popoutWin.sessionState.sidebar, ready: corner.panelReady, enabled: corner.enabledHere}) }
                 function panel(): string { return JSON.stringify(corner.testPanel()) }
                 function backgrounds(): string { return JSON.stringify(corner.testBackgrounds()) }
+                function dndState(): string { return JSON.stringify(corner.testDndState()) }
+                function toggleDnd(): void { corner.run("dnd", "", false) }
                 function close(): void { corner.close() }
             }
 ''' + marker))
@@ -60,6 +62,7 @@ with tempfile.TemporaryDirectory(prefix="phantom-linked-", dir="/tmp/opencode") 
     function testPanel(): var {
         return { visible: panelWindow.visible, namespace: panelWindow.WlrLayershell.namespace, notifications: shownNotifications, contentOpen: control.item ? control.item.open : false, notificationHeight: notificationHeight, width: panelWindow.implicitWidth, height: panelWindow.implicitHeight };
     }
+    function testDndState(): var { return { service: Notifs.dnd, button: control.item.st.dnd }; }
     function close(): void''')
     text = text.replace('        NotificationPanel {\n', '        NotificationPanel {\n            id: notifCard\n', 1)
     corner.write_text(text)
@@ -91,6 +94,15 @@ sleep 0.6
 printf 'BAR_STATE '; qs ipc -p "$2" call linkedTest state
 printf 'BACKGROUNDS '; qs ipc -p "$2" call linkedTest backgrounds
 printf 'BOTH_PANEL '; qs ipc -p "$2" call linkedTest panel
+printf 'DND_INITIAL '; qs ipc -p "$2" call linkedTest dndState
+qs ipc -p "$2" call linkedTest toggleDnd
+printf 'DND_BUTTON_ON '; qs ipc -p "$2" call linkedTest dndState
+qs ipc -p "$2" call notifs disableDnd
+printf 'DND_EXTERNAL_OFF '; qs ipc -p "$2" call linkedTest dndState
+"$4" dnd
+printf 'DND_FALLBACK_ON '; qs ipc -p "$2" call linkedTest dndState
+"$4" dnd
+printf 'DND_FALLBACK_OFF '; qs ipc -p "$2" call linkedTest dndState
 qs ipc -p "$2" call linkedTest close
 sleep 0.15
 printf 'CLOSED_PANEL '; qs ipc -p "$2" call linkedTest panel
@@ -102,12 +114,17 @@ printf 'FALLBACK_STATE '; qs ipc -p "$1" call linkedTest state
 kill "$desktop"
 wait
 '''
-    args += ["dbus-run-session", f"--config-file={bus_config}", "--", "cage", "--", "sh", "-c", command, "test", str(desktop), str(bar), str(ROOT / "bin/phantom-bar")]
+    args += ["dbus-run-session", f"--config-file={bus_config}", "--", "cage", "--", "sh", "-c", command, "test", str(desktop), str(bar), str(ROOT / "bin/phantom-bar"), str(ROOT / "bin/rice-hotcorner")]
     result = subprocess.run(args, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=25)
     assert 'DESKTOP_STATE {"managed":true,"visible":false,"enabled":true}' in result.stdout, result.stdout
     assert 'HOVER_ONLY {"open":true,"sidebar":false,"ready":true,"enabled":true}' in result.stdout, result.stdout
     assert 'SHORT_DRAG {"open":false,"sidebar":false,"ready":true,"enabled":true}' in result.stdout, result.stdout
     assert 'BAR_STATE {"open":true,"sidebar":true,"ready":true,"enabled":true}' in result.stdout, result.stdout
+    assert 'DND_INITIAL {"service":false,"button":false}' in result.stdout, result.stdout
+    assert 'DND_BUTTON_ON {"service":true,"button":true}' in result.stdout, result.stdout
+    assert 'DND_EXTERNAL_OFF {"service":false,"button":false}' in result.stdout, result.stdout
+    assert 'DND_FALLBACK_ON {"service":true,"button":true}' in result.stdout, result.stdout
+    assert 'DND_FALLBACK_OFF {"service":false,"button":false}' in result.stdout, result.stdout
     assert 'CLOSED_STATE {"open":false,"sidebar":false,"ready":true,"enabled":true}' in result.stdout, result.stdout
     assert 'FALLBACK_STATE {"managed":false,"visible":true,"enabled":true}' in result.stdout, result.stdout
     backgrounds = json.loads(next(line.split(" ", 1)[1] for line in result.stdout.splitlines() if line.startswith("BACKGROUNDS ")))
