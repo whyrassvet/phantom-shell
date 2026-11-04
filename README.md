@@ -109,7 +109,7 @@ See the [installation notes](docs/INSTALL.md). Final installation instructions a
 | `Super + E` | Open file manager |
 | `Super + R` | Open configured application menu |
 | `Super + W` | Open wallpapers |
-| `Super + Alt + D` | Open dashboard |
+| `Super + D` | Open dashboard |
 | `Super + Alt + W` | Toggle desktop widget editor |
 | `Super + A` | Open hot corner panel |
 | `Super + Shift + S` / `Print` | Screenshot region / entire desktop |

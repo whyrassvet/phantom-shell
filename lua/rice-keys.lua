@@ -23,5 +23,5 @@ hl.bind("SUPER + SHIFT + R",   hl.dsp.exec_cmd(bin .. "rice-hotcorner record reg
 hl.bind("SUPER + A",           hl.dsp.exec_cmd(bin .. "rice-hotcorner open"))
 -- widget editor on the desktop (Esc or Done to finish)
 hl.bind("SUPER + ALT + W",     hl.dsp.exec_cmd(bin .. "desktop-set edit toggle"))
--- dashboard (also: point at the middle of the bar edge)
-hl.bind("SUPER + ALT + D",     hl.dsp.exec_cmd(bin .. "rice-dashboard open"))
+-- dashboard (also: drag up from the middle half of the bottom edge)
+hl.bind("SUPER + D",           hl.dsp.exec_cmd(bin .. "rice-dashboard open"))

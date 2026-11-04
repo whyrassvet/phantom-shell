@@ -78,7 +78,7 @@ Item {
                 x: 20; anchors.verticalCenter: parent.verticalCenter
                 spacing: 4
                 T { text: "Dashboard"; font.pixelSize: 20; font.bold: true }
-                T { kind: "reading"; width: 170; wrapMode: Text.WordWrap; text: "Touch the bottom edge of the screen or press SUPER + ALT + D. SUPER + W opens Wallpaper."; font.pixelSize: 11; color: "#a0a0aa" }
+                T { kind: "reading"; width: 170; wrapMode: Text.WordWrap; text: "Drag up from the middle of the bottom edge or press SUPER + D. SUPER + W opens Wallpaper."; font.pixelSize: 11; color: "#a0a0aa" }
             }
             Column {
                 anchors.right: parent.right; anchors.rightMargin: 20
@@ -163,7 +163,7 @@ Item {
         // ---------- behaviour ----------
         SectionTitle { text: "Opening" }
         ToggleRow { label: "Dashboard"; desc: "Turn the whole dashboard on or off"; checked: page.v("enabled", true) === true; onToggled: function(x) { page.setv("enabled", x) } }
-        ToggleRow { label: "Open from the bottom edge"; desc: "Push the pointer against the middle of the bottom edge of the screen to open it"; checked: page.v("edge", true) === true; onToggled: function(x) { page.setv("edge", x) } }
+        ToggleRow { label: "Open with bottom-edge drag"; desc: "Hold the left mouse button in the middle half of the bottom edge and drag upward"; checked: page.v("edge", true) === true; onToggled: function(x) { page.setv("edge", x) } }
         ToggleRow { label: "SUPER + W opens Wallpaper"; desc: "Off: SUPER + W opens the old wallpaper picker"; checked: page.v("wallpaper_key", true) === true; onToggled: function(x) { page.setv("wallpaper_key", x) } }
         ToggleRow { label: "Close when the pointer leaves"; desc: "After you have been inside it. Otherwise click outside or press Esc"; checked: page.v("close_on_leave", true) === true; onToggled: function(x) { page.setv("close_on_leave", x) } }
 

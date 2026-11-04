@@ -4,6 +4,14 @@
 
 ---
 
+## 2026-11-04 — жест дашборда и Super+D
+
+- Наведение заменено на протягивание вверх левой кнопкой из центральной половины нижнего края; существующий переключатель `edge` включает жест. Сочетание Super+Alt+D заменено на Super+D, Super+W сохранён.
+- Файлы: `quickshell/rice-desktop/Dashboard.qml`, `quickshell/rice-settings/DashboardPage.qml`, обе копии `rice-keys.lua`, `README.md`, `tests/phantom-dashboard-gesture-pointer.py`. Копия `/tmp/opencode/phantom-dashboard-gesture-20261104/before.tar`.
+- Синтетические тесты жеста, настройки, загрузка desktop/settings и синтаксис QML/Lua прошли. В изолированном Cage XWayland не запустился, но загрузка Quickshell прошла. Установленная копия, реальный ввод, комбинация клавиш и несколько мониторов требуют проверки; личные конфиги не изменены.
+
+---
+
 ## 2026-11-04 — установка групп настроек
 
 - По разрешению пользователя установлены `shell.qml` и новый `UpdatePage.qml` настроек; старая версия shell совпадала с предыдущим проектом, новая страница отсутствовала. Копия `/tmp/opencode/phantom-settings-groups-live-20261104/before.tar`.

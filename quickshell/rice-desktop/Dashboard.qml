@@ -3,7 +3,7 @@ import Quickshell.Io
 import Quickshell.Wayland
 import QtQuick
 
-// The dashboard. It slides up out of the bottom edge (SUPER + ALT + D, or SUPER + W for wallpapers).
+// The dashboard. It slides up out of the bottom edge (SUPER + D, or SUPER + W for wallpapers).
 // Tabs: Dashboard, Wallpaper, Performance, About. Settings > Dashboard.
 PanelWindow {
     id: db
@@ -149,29 +149,31 @@ PanelWindow {
     Item { id: whole; anchors.fill: parent }
     Item { id: nothing; width: 0; height: 0 }
 
-    // ---------------- open by touching the bottom edge ----------------
+    // ---------------- open by dragging up from the bottom edge ----------------
     readonly property bool edgeOn: cfg.edge !== false
     Item {
         id: edge
-        // the middle of the bottom edge, as wide as the dashboard; the corners stay free for the hot corner
-        width: Math.min(db.width - 360, (db.wantW + 2 * db.earR) * db.sc)
+        // The middle two quarters of the current screen, independent of dashboard width.
+        width: db.width / 2
         height: 2
         x: (db.width - width) / 2
         y: db.height - height
         HoverHandler {
             id: edgeHover
             enabled: db.edgeOn
-            onHoveredChanged: {
-                if (hovered) { if (!db.open) edgeTimer.restart() }
-                else edgeTimer.stop()
-                db.pointerMoved()
+            onHoveredChanged: db.pointerMoved()
+        }
+        MouseArea {
+            id: edgeDrag
+            anchors.fill: parent
+            enabled: db.edgeOn && !db.open
+            acceptedButtons: Qt.LeftButton
+            property real startY: 0
+            onPressed: function(mouse) { startY = mouse.y }
+            onPositionChanged: function(mouse) {
+                if (pressed && startY - mouse.y >= 30) db.show("", true)
             }
         }
-    }
-    Timer {
-        id: edgeTimer
-        interval: Math.max(1, db.cfg.delay !== undefined ? db.cfg.delay : 150)
-        onTriggered: if (!db.open && edgeHover.hovered) db.show("", true)
     }
 
     // wallpaper preview (Wallpaper tab): shown behind the desktop while you pick, dropped when you leave
