@@ -8,7 +8,8 @@ import tempfile
 root = Path(__file__).resolve().parent.parent
 desktop = (root / "quickshell/rice-desktop/shell.qml").read_text()
 settings = (root / "quickshell/rice-settings/shell.qml").read_text()
-assert desktop.count("screen: root.scr") == 12
+assert desktop.count("screen: root.scr") == 11
+assert "screen: hotCorner.linkedScreen ?? root.scr" in desktop
 assert 'screens[i].name === primaryMonitor' in desktop
 assert 'screens.length > 0 ? screens[0] : null' in desktop
 assert '{ name: "Monitors"' in settings and 'MonitorsPage { id: monitorPage' in settings

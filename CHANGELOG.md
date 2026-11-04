@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.3.0-beta
+- Replace the SwayNC notification center with Phantom notifications, integrated quick toggles, sounds and appearance settings.
+- Add individual notification cards with animated dismissal, a clear button and the selected notification font.
+- Link the notification and control centers, improve their backgrounds and layer animations, and add theme-aware outlines.
+- Freeze the desktop during region screenshots and update screenshot shortcuts.
+- Fix logout for UWSM sessions and update Phantom branding in notifications.
+- Beta pre-release: clean installation, full desktop acceptance and several multi-monitor and visual scenarios remain unverified.
+
 ## v0.2.2-alpha
 - Add expandable per-application volume controls to the bar audio popout.
 - Remove the unused Rofi integration and use the Phantom application launcher instead.
