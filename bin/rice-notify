@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""rice-notify: notification popups (swaync). Settings > Notifications.
+"""rice-notify: Phantom notification popup settings. Settings > Notifications.
 
-  rice-notify state | set KEY VALUE | apply | reset | restore | test
+  rice-notify state | set KEY VALUE | apply | reset | test
 """
 import fcntl
 import json
@@ -342,9 +342,7 @@ def main(argv):
     lk = open(DIR + "/.notify.lock", "w")
     fcntl.flock(lk, fcntl.LOCK_EX)
     if cmd == "apply":
-        c = load()
-        save(c)
-        apply(c, reload_hypr="--reload" in argv)
+        pass  # Phantom watches notify.json directly; no SwayNC or Hyprland changes.
     elif cmd == "set":
         if len(argv) < 4 or argv[2] not in DEFAULTS:
             die("usage: rice-notify set KEY VALUE   keys: " + " ".join(DEFAULTS))
@@ -362,13 +360,11 @@ def main(argv):
         else:
             c[k] = int(clamp(float(v), *INTS[k]))
         save(c)
-        apply(c)
     elif cmd == "reset":
         if os.path.exists(CFG):
             os.remove(CFG)
         c = load()
         save(c)
-        apply(c)
     elif cmd == "restore":
         for p, b in ((SWCFG, ".bak-rice-notify"), (SWCSS, ".bak-rice-notify"), (HLUA, ".bak-notify")):
             if os.path.exists(p + b):

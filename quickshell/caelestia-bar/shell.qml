@@ -73,6 +73,48 @@ ShellRoot {
                 mask: Region {}
             }
 
+            // Notifications use their own layer so popup blur is independent of the bar.
+            PanelWindow {
+                id: notificationWindow
+                screen: scope.modelData
+                anchors.top: true
+                anchors.bottom: true
+                anchors.left: true
+                anchors.right: true
+                color: "transparent"
+                visible: !ShellState.forScreen(scope.modelData).sidebar && Notifs.popups.length > 0
+                exclusionMode: ExclusionMode.Ignore
+                WlrLayershell.layer: WlrLayer.Top
+                WlrLayershell.namespace: "phantom-notifications"
+                mask: Region {
+                    x: Math.floor(notificationPopups.x)
+                    y: Math.floor(notificationPopups.y)
+                    width: Math.ceil(notificationPopups.width)
+                    height: Math.ceil(notificationPopups.height)
+                }
+                Column {
+                    id: notificationPopups
+                    readonly property string horizontal: PopupSettings.get("pos_x", "right")
+                    readonly property bool atBottom: PopupSettings.get("pos_y", "top") === "bottom"
+                    width: Math.min(Math.max(260, Math.min(600, Number(PopupSettings.get("popup_width", 360)))), scope.modelData.width - 24)
+                    x: horizontal === "left" ? 12 : horizontal === "center" ? (scope.modelData.width - width) / 2 : scope.modelData.width - width - 12
+                    y: atBottom ? scope.modelData.height - height - 12 : BarConfig.topGap + BarConfig.thickness + 12
+                    height: Math.min(implicitHeight, scope.modelData.height - BarConfig.thickness - 24)
+                    clip: true
+                    spacing: 8
+                    visible: !ShellState.forScreen(scope.modelData).sidebar && Notifs.popups.length > 0
+                    Repeater {
+                        model: Notifs.popups.filter(n => !n.closed)
+                        NotificationCard {
+                            required property var modelData
+                            width: notificationPopups.width
+                            notif: modelData
+                            popup: true
+                        }
+                    }
+                }
+            }
+
             // Draw the bar and popouts together so neither is blurred behind the other.
             // Only the bar and visible popout receive input; empty space stays click-through.
             StyledWindow {
@@ -147,12 +189,6 @@ ShellRoot {
                         width: popoutWin.sessionState.session ? Math.ceil(sessionPanel.width) : 0
                         height: popoutWin.sessionState.session ? Math.ceil(sessionPanel.height) : 0
                     }
-                    Region {
-                        x: Math.floor(notificationPopups.x)
-                        y: Math.floor(notificationPopups.y)
-                        width: notificationPopups.visible ? Math.ceil(notificationPopups.width) : 0
-                        height: notificationPopups.visible ? Math.ceil(notificationPopups.height) : 0
-                    }
                 }
 
                 property var sessionState: ShellState.forScreen(scope.modelData)
@@ -207,26 +243,6 @@ ShellRoot {
                     anchors.fill: parent
                     screenState: popoutWin.sessionState
                     targetScreen: scope.modelData
-                }
-
-                Column {
-                    id: notificationPopups
-                    x: parent.width - width - 12
-                    y: BarConfig.topGap + BarConfig.thickness + 12
-                    width: Math.min(360, parent.width - 24)
-                    height: Math.min(implicitHeight, parent.height - y)
-                    clip: true
-                    spacing: 8
-                    visible: !popoutWin.sessionState.sidebar
-                    Repeater {
-                        model: Notifs.popups.filter(n => !n.closed)
-                        NotificationCard {
-                            required property var modelData
-                            width: notificationPopups.width
-                            notif: modelData
-                            popup: true
-                        }
-                    }
                 }
 
                 Shape {

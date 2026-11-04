@@ -99,20 +99,23 @@ Singleton {
     }
 
     function reloadHyprRules(): void {
-        let rule, barRule, trEnabled;
+        let rule, barRule, popupRule, trEnabled;
         if (Hypr.usingLua) {
             rule = `eval hl.layer_rule({ match = { namespace = "(caelestia-popouts|phantom-app-launcher)" }, %1 = %2 })`;
             barRule = `eval hl.layer_rule({ match = { namespace = "(caelestia-bar|phantom-corner)" }, %1 = %2 })`;
+            popupRule = `eval hl.layer_rule({ match = { namespace = "phantom-notifications" }, %1 = %2 })`;
             trEnabled = transparency.enabled;
         } else {
             rule = "keyword layerrule %1 %2, match:namespace (caelestia-popouts|phantom-app-launcher)";
             barRule = "keyword layerrule %1 %2, match:namespace (caelestia-bar|phantom-corner)";
+            popupRule = "keyword layerrule %1 %2, match:namespace phantom-notifications";
             trEnabled = transparency.enabled ? 1 : 0;
         }
         // The shared bar surface also contains the hot-corner panels, whose
         // configured opacity can be lower than the bar's transparency base.
         const alpha = Math.max(0, transparency.base - 0.03);
-        Hypr.extras.batchMessage([rule.arg("blur").arg(trEnabled), rule.arg("ignore_alpha").arg(alpha), barRule.arg("blur").arg(trEnabled), barRule.arg("ignore_alpha").arg(Math.min(0.1, alpha))]);
+        const popupBlur = PopupSettings.get("blur_popups", true) && transparency.enabled;
+        Hypr.extras.batchMessage([rule.arg("blur").arg(trEnabled), rule.arg("ignore_alpha").arg(alpha), barRule.arg("blur").arg(trEnabled), barRule.arg("ignore_alpha").arg(Math.min(0.1, alpha)), popupRule.arg("blur").arg(Hypr.usingLua ? popupBlur : (popupBlur ? 1 : 0)), popupRule.arg("ignore_alpha").arg(0.01)]);
     }
 
     function requestReloadHyprRules(): void {
@@ -125,6 +128,8 @@ Singleton {
     }
 
     Component.onCompleted: root.requestReloadHyprRules()
+
+    Connections { target: PopupSettings; function onValuesChanged(): void { root.requestReloadHyprRules(); } }
 
     Connections {
         function onConfigReloaded(): void {

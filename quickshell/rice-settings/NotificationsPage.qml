@@ -36,14 +36,6 @@ Item {
     PageScroll {
         anchors.fill: parent
 
-        T {
-            width: parent.width
-            text: "These popup settings apply to SwayNC, not Phantom notifications."
-            color: "#e0a050"
-            font.pixelSize: 12
-            wrapMode: Text.WordWrap
-        }
-
         // ---------- live preview ----------
         Rectangle {
             id: stage
@@ -247,15 +239,6 @@ Item {
             spacing: 10
             topPadding: 8
             Btn { text: "Reset"; onClicked: { page.tool("reset"); page.ctl.status = "Notifications reset"; refresh.restart() } }
-            Btn { text: "Restore my original files"; onClicked: { page.tool("restore"); page.ctl.status = "Original swaync files restored" } }
-        }
-        T {
-            visible: page.ns.installed === false
-            width: parent.width
-            text: "swaync was not found. Install SwayNotificationCenter to use these settings."
-            color: "#e0a050"
-            font.pixelSize: 12
-            wrapMode: Text.WordWrap
         }
     }
 }

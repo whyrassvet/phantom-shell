@@ -23,6 +23,10 @@ with tempfile.TemporaryDirectory(prefix="notify-settings-", dir="/tmp/opencode")
     state = json.loads(subprocess.check_output([tool, "state"], env=env, text=True))
     assert state["popup_style"] == "solid"
     assert "style" not in state and "w_media" not in state
+    subprocess.run([tool, "set", "popup_width", "420"], env=env, check=True)
+    assert json.loads((rice / "notify.json").read_text())["popup_width"] == 420
+    assert not (Path(home) / ".config/swaync").exists()
+    assert not (Path(home) / ".config/hypr").exists()
     for style in ("glass", "solid", "minimal", "pill", "accent", "glow", "island", "light"):
         # Run the generator directly: no swaync-client or Hyprland reload.
         script = "import runpy; m=runpy.run_path(%r); c=m['load'](); c['popup_style']=%r; print(m['css'](c)); print(m['lua_text'](c))" % (str(tool), style)
