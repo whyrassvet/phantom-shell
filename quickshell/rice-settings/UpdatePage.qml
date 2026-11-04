@@ -147,7 +147,7 @@ Item {
                                 Btn {
                                     objectName: "updateCheck"
                                     width: parent.width; primary: !page.available
-                                    enabled: !page.checking && !page.prefsBusy; opacity: enabled ? 1 : 0.55
+                                    enabled: !page.checking && !page.prefsBusy
                                     icon: "\uf021"; text: page.checking ? "Checking..." : "Check for updates"
                                     onClicked: page.check()
                                 }
@@ -229,21 +229,21 @@ Item {
                 ToggleRow {
                     objectName: "updateNotifications"
                     label: "Update notifications"; desc: "Periodically check for new releases in the background"
-                    enabled: page.prefsReady && !prefsProc.running; opacity: enabled ? 1 : 0.5
+                    enabled: page.prefsReady && !prefsProc.running; opacity: page.prefsReady ? 1 : 0.5
                     checked: page.prefs.notifications === true
                     onToggled: function(v) { page.setPreference("notifications", v) }
                 }
                 ToggleRow {
                     objectName: "updateMajorOnly"
                     label: "Feature releases only"; desc: "Notify for 0.5.x after 0.4.x, not for patch updates"
-                    enabled: page.prefsReady && page.prefs.notifications && !prefsProc.running; opacity: enabled ? 1 : 0.45
+                    enabled: page.prefsReady && page.prefs.notifications && !prefsProc.running; opacity: page.prefsReady && page.prefs.notifications ? 1 : 0.45
                     checked: page.prefs.major_only === true
                     onToggled: function(v) { page.setPreference("major_only", v) }
                 }
                 ToggleRow {
                     objectName: "updateBeta"
                     label: "Include beta releases"; desc: "Off: stable releases only · On: stable and beta releases"
-                    enabled: page.prefsReady && !prefsProc.running && !page.checking; opacity: enabled ? 1 : 0.5
+                    enabled: page.prefsReady && !prefsProc.running && !page.checking; opacity: page.prefsReady ? 1 : 0.5
                     checked: page.prefs.beta === true
                     onToggled: function(v) { page.setPreference("beta", v) }
                 }

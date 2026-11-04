@@ -25,6 +25,8 @@ with tempfile.TemporaryDirectory(prefix="phantom-settings-navigation-", dir="/tm
             return null;
         }
         property int step: 0
+        property bool sawPreferenceBusy: false
+        property bool sawFeatureBusy: false
         interval: 150
         repeat: true
         running: true
@@ -66,18 +68,39 @@ with tempfile.TemporaryDirectory(prefix="phantom-settings-navigation-", dir="/tm
                 }
             } else if (step === visiblePages.length + 1) {
                 const update = updatePage;
-                if (update.prefsBusy || update.prefs.notifications !== true) return;
+                if (update.prefsBusy) {
+                    sawPreferenceBusy = true;
+                    const notification = findNamed(update, "updateNotifications");
+                    const beta = findNamed(update, "updateBeta");
+                    const check = findNamed(update, "updateCheck");
+                    if (notification.enabled || beta.enabled || check.enabled || notification.opacity !== 1 || beta.opacity !== 1 || check.opacity !== 1)
+                        console.log("NAV_ERROR update busy appearance");
+                    return;
+                }
+                if (!sawPreferenceBusy) console.log("NAV_ERROR update busy not observed");
+                if (update.prefs.notifications !== true) return;
                 const feature = findNamed(update, "updateMajorOnly");
                 if (!feature || !feature.enabled) console.log("NAV_ERROR update feature enabled");
                 update.setPreference("major_only", true);
             } else if (step === visiblePages.length + 2) {
                 const update = updatePage;
-                if (update.prefsBusy || update.prefs.major_only !== true) return;
+                if (update.prefsBusy) {
+                    sawFeatureBusy = true;
+                    const feature = findNamed(update, "updateMajorOnly");
+                    if (feature.enabled || feature.opacity !== 1) console.log("NAV_ERROR update feature busy appearance");
+                    return;
+                }
+                if (!sawFeatureBusy) console.log("NAV_ERROR update feature busy not observed");
+                if (update.prefs.major_only !== true) return;
                 update.setPreference("beta", false);
             } else if (step === visiblePages.length + 3) {
                 const update = updatePage;
                 if (update.prefsBusy || update.prefs.beta !== false) return;
                 update.check();
+                const check = findNamed(update, "updateCheck");
+                const beta = findNamed(update, "updateBeta");
+                if (!update.checking || check.enabled || beta.enabled || check.opacity !== 1 || beta.opacity !== 1)
+                    console.log("NAV_ERROR update checking appearance");
             } else {
                 const update = updatePage;
                 if (update.checking) return;
@@ -126,7 +149,7 @@ with tempfile.TemporaryDirectory(prefix="phantom-settings-navigation-", dir="/tm
     (p / "home/.local/bin").mkdir(parents=True)
     update = p / "home/.local/bin/rice-update"
     update.write_text('''#!/usr/bin/env python3
-import json, os, sys
+import json, os, sys, time
 p = os.path.join(os.environ["HOME"], "preferences.json")
 if sys.argv[1] == "settings":
     try:
@@ -134,6 +157,7 @@ if sys.argv[1] == "settings":
     except FileNotFoundError:
         prefs = {"notifications": False, "major_only": False, "beta": True}
     if len(sys.argv) == 4:
+        time.sleep(0.3)
         prefs[sys.argv[2]] = sys.argv[3] == "on"
         with open(p, "w") as f: json.dump(prefs, f)
     print(json.dumps(prefs))
