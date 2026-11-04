@@ -4,6 +4,13 @@
 
 ---
 
+## 2026-11-04 — установка названия Phantom Shell
+
+- По разрешению пользователя точечно обновлены `~/.config/quickshell/rice-settings/{PopupMock,DashboardPage}.qml` и `~/.local/bin/rice-{hotcorner,notify,services,effects,calendar}`. Отличающиеся дефолты установленного `rice-notify` сохранены. Копия: `/tmp/opencode/phantom-branding-live-20261104/installed-before.tar`.
+- Синтаксис и изолированная проверка имени в обоих путях уведомления скриншота и тестовом уведомлении прошли; тестовое уведомление отправлено, Quickshell владеет D-Bus уведомлений. Визуальный вид и реальный скриншот ожидают проверки пользователем.
+
+---
+
 ## 2026-11-04 — название в превью и уведомлениях
 
 - Название Phantom Shell заменило старое в `quickshell/rice-settings/{PopupMock,DashboardPage}.qml` и уведомлениях `bin/rice-{hotcorner,notify,services,effects,calendar}`. Исторические записи и служебные идентификаторы не менялись.
