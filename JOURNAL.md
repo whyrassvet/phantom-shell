@@ -4,6 +4,12 @@
 
 ---
 
+## 2026-11-04 — коммит групп уведомлений
+
+- По просьбе пользователя изменения центра подготовлены к отдельному коммиту до визуальной проверки. Повторно прошли тест синтетических нажатий, headless связанных панелей и уведомлений на приватной D-Bus; реальный ввод, длинный список и внешний вид остаются непроверенными.
+
+---
+
 ## 2026-11-04 — установка названия Phantom Shell
 
 - По разрешению пользователя точечно обновлены `~/.config/quickshell/rice-settings/{PopupMock,DashboardPage}.qml` и `~/.local/bin/rice-{hotcorner,notify,services,effects,calendar}`. Отличающиеся дефолты установленного `rice-notify` сохранены. Копия: `/tmp/opencode/phantom-branding-live-20261104/installed-before.tar`.
@@ -15,6 +21,21 @@
 
 - Название Phantom Shell заменило старое в `quickshell/rice-settings/{PopupMock,DashboardPage}.qml` и уведомлениях `bin/rice-{hotcorner,notify,services,effects,calendar}`. Исторические записи и служебные идентификаторы не менялись.
 - Прошли `tests/phantom-notification-branding.py`, `tests/phantom-screenshots.py`, `tests/phantom-notification-settings.py`, `bash -n bin/rice-calendar` и `git diff --check`. Реальная сессия и внешний вид не проверены, установленная копия не менялась. Копия до изменений: `/tmp/opencode/phantom-branding-20261104/project-before.tar`.
+
+---
+
+## 2026-11-04 — установка исправления центра уведомлений
+
+- По разрешению пользователя установлены три QML в `~/.config/quickshell/caelestia-bar/components/`. Старые fallback попапов в установленной `NotificationCard.qml` сохранены, затронут только фон центра; резервная копия `/tmp/opencode/phantom-notification-groups-20261104/installed-before.tar`.
+- Работающий бар не загрузил встроенный компонент кнопки `Pill`, несмотря на успех headless. Компонент заменён двумя обычными Rectangle, повторно прошли тесты синтетического ввода, связанных панелей и уведомлений; бар после обновления сообщил `Configuration Loaded`. Старые предупреждения `Time.qml` сохраняются. Реальные группы, кнопки, длинный список и вид ожидают проверки пользователя.
+
+---
+
+## 2026-11-04 — группы и оформление центра уведомлений
+
+- Подготовлены настоящее сворачивание групп до заголовка и раскрытие всех сообщений, кнопки DND/Clear в стиле Phantom и фон заголовков и карточек по параметру `card_alpha` центра управления. Всплывающие уведомления не менялись.
+- Файлы: `quickshell/caelestia-bar/components/{NotificationPanel,NotificationCard,UnifiedCorner}.qml`, `tests/phantom-notification-groups-pointer.py`. Копия проекта: `/tmp/opencode/phantom-notification-groups-20261104/before.tar`.
+- Проверены синтетические нажатия на группы, DND и очистку с тестовыми данными, headless связанных панелей и уведомлений, настройки и звук, `git diff --check`. Реальный ввод, прокрутка большого списка и внешний вид не проверены; установленная копия не изменена.
 
 ---
 

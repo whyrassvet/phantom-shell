@@ -149,6 +149,7 @@ Item {
             height: root.notificationHeight
             screenState: root.screenState
             backgroundColor: control.item?.backgroundColor ?? "transparent"
+            cardColor: Qt.rgba(1, 1, 1, root.cfg.card_alpha !== undefined ? root.cfg.card_alpha : 0.05)
             visible: root.shownNotifications
         }
         Loader {

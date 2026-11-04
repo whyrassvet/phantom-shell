@@ -8,6 +8,7 @@ Rectangle {
     id: root
     required property ScreenState screenState
     required property color backgroundColor
+    required property color cardColor
     width: 380
     radius: 22
     color: root.backgroundColor
@@ -22,16 +23,27 @@ Rectangle {
         spacing: 12
         Row {
             width: parent.width
-            spacing: 12
-            Text { width: parent.width - 150; text: "Notifications (" + Notifs.notClosed.length + ")"; color: Colours.palette.m3onSurface; font.pixelSize: 18; font.bold: true }
-            Text {
-                text: Notifs.dnd ? "DND on" : "DND off"
-                color: Colours.palette.m3primary
-                MouseArea { anchors.fill: parent; onClicked: Notifs.dnd = !Notifs.dnd }
+            spacing: 6
+            Text { width: Math.max(0, parent.width - dndButton.width - clearButton.width - 12); anchors.verticalCenter: parent.verticalCenter; text: "Notifications (" + Notifs.notClosed.length + ")"; color: Colours.palette.m3onSurface; font.pixelSize: 18; font.bold: true; elide: Text.ElideRight }
+            Rectangle {
+                id: dndButton
+                width: dndLabel.implicitWidth + 26; height: 36; radius: 18
+                color: Notifs.dnd ? (dndMouse.containsMouse ? Qt.lighter(Colours.palette.m3primary, 1.1) : Colours.palette.m3primary) : (dndMouse.containsMouse ? Qt.rgba(1, 1, 1, 0.14) : Qt.rgba(1, 1, 1, 0.08))
+                scale: dndMouse.pressed ? 0.96 : 1
+                Behavior on color { ColorAnimation { duration: 140 } }
+                Behavior on scale { NumberAnimation { duration: 90 } }
+                Text { id: dndLabel; anchors.centerIn: parent; text: Notifs.dnd ? "DND on" : "DND off"; font.pixelSize: 13; font.bold: Notifs.dnd; color: Notifs.dnd ? Colours.palette.m3onPrimary : "#F6F5F4" }
+                MouseArea { id: dndMouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: Notifs.dnd = !Notifs.dnd }
             }
-            Text {
-                text: "Clear"; color: Colours.palette.m3primary
-                MouseArea { anchors.fill: parent; onClicked: { for (const n of Notifs.notClosed.slice()) n.close(); } }
+            Rectangle {
+                id: clearButton
+                width: clearLabel.implicitWidth + 26; height: 36; radius: 18
+                color: clearMouse.containsMouse ? Qt.rgba(1, 1, 1, 0.14) : Qt.rgba(1, 1, 1, 0.08)
+                scale: clearMouse.pressed ? 0.96 : 1
+                Behavior on color { ColorAnimation { duration: 140 } }
+                Behavior on scale { NumberAnimation { duration: 90 } }
+                Text { id: clearLabel; anchors.centerIn: parent; text: "Clear"; font.pixelSize: 13; color: "#F6F5F4" }
+                MouseArea { id: clearMouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: { for (const n of Notifs.notClosed.slice()) n.close(); } }
             }
         }
         ListView {
@@ -57,24 +69,28 @@ Rectangle {
                     width: group.width
                     height: 38
                     radius: 14
-                    color: Colours.tPalette.m3surfaceContainer
+                    color: root.cardColor
+                    border.width: 1
+                    border.color: Qt.rgba(1, 1, 1, 0.04)
                     Text {
                         anchors.centerIn: parent
                         text: (group.modelData || "Unknown") + "  ·  " + group.notifications.length + (group.expanded ? "  ▴" : "  ▾")
                         color: Colours.palette.m3onSurface
                     }
-                    MouseArea { anchors.fill: parent; onClicked: group.expanded = !group.expanded }
+                    MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: group.expanded = !group.expanded }
                 }
                 Repeater {
-                    model: group.expanded ? group.notifications : group.notifications.slice(0, 3)
+                    model: group.expanded ? group.notifications : []
                     NotificationCard {
                         required property var modelData
                         width: group.width
                         notif: modelData
                         expanded: group.expanded
+                        cardColor: root.cardColor
                     }
                 }
             }
         }
     }
+
 }

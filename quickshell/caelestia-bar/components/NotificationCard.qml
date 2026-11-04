@@ -12,6 +12,7 @@ Rectangle {
     required property NotifData notif
     property bool popup: false
     property bool expanded: !popup
+    property color cardColor: Qt.rgba(1, 1, 1, 0.05)
     signal dismissed()
     readonly property string look: popup ? PopupSettings.get("popup_style", "glass") : ""
     readonly property string surface: PopupSettings.get("colors", "black")
@@ -25,9 +26,9 @@ Rectangle {
     readonly property int textSize: Math.max(10, Math.min(18, Number(PopupSettings.get("font_size", 14))))
     implicitHeight: content.implicitHeight + 24
     radius: !popup ? 18 : look === "pill" ? height / 2 : look === "minimal" ? 8 : look === "accent" ? 10 : look === "island" ? 28 : 18
-    color: !popup ? Colours.tPalette.m3surfaceContainer : look === "island" ? "black" : look === "light" ? Qt.rgba(0.965, 0.96, 0.957, Math.max(popupOpacity, 0.9)) : Qt.alpha(base, look === "solid" ? 1 : look === "glass" ? Math.min(popupOpacity, 0.62) : popupOpacity)
+    color: !popup ? root.cardColor : look === "island" ? "black" : look === "light" ? Qt.rgba(0.965, 0.96, 0.957, Math.max(popupOpacity, 0.9)) : Qt.alpha(base, look === "solid" ? 1 : look === "glass" ? Math.min(popupOpacity, 0.62) : popupOpacity)
     border.width: 1
-    border.color: !popup ? Colours.outline : PopupSettings.get("border", "subtle") === "none" ? "transparent" : PopupSettings.get("border", "subtle") === "accent" || look === "glow" ? accent : (lightText ? "#1a000000" : "#1affffff")
+    border.color: !popup ? Qt.rgba(1, 1, 1, 0.04) : PopupSettings.get("border", "subtle") === "none" ? "transparent" : PopupSettings.get("border", "subtle") === "accent" || look === "glow" ? accent : (lightText ? "#1a000000" : "#1affffff")
     layer.enabled: popup && (look === "glow" || PopupSettings.get("shadow", false))
     layer.effect: MultiEffect {
         shadowEnabled: true
