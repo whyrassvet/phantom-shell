@@ -24,9 +24,9 @@ class SettingsWithoutWaybar(unittest.TestCase):
         expected = {0: "HomePage", 1: "SoundsPage", 2: "PhantomBarPage", 4: "HyprlandPage",
                     5: "DashboardPage", 6: "ThemePage", 7: "CursorsPage", 8: "NotificationsPage",
                     9: "IdlePage", 10: "DesktopPage", 11: "HotCornersPage", 12: "InterfacePage",
-                    13: "ServicesPage", 14: "Flickable"}
+                    13: "ServicesPage", 14: "Flickable", 15: "UpdatePage"}
         self.assertEqual(slots, expected)
-        self.assertEqual(len(pages), 15)
+        self.assertEqual(len(pages), 16)
         for label, index in (("Theme", 6), ("Notifications", 8), ("Lock screen", 9), ("Bar", 2)):
             self.assertRegex(home, r't: "' + re.escape(label) + r'", d: "[^"]+", p: ' + str(index) + r'\s*}')
         self.assertEqual([pages[i] for i in (6, 8, 9, 14)], ["Theme", "Notifications", "Idle & Lockscreen", "Monitors"])

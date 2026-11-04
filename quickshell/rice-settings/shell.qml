@@ -248,8 +248,30 @@ FloatingWindow {
         { name: "Hot corners", icon: "\udb82\ude0b" },
         { name: "Interface", icon: "\uf2d0" },
         { name: "Services", icon: "" },
-        { name: "Monitors", icon: "\uf108" }
+        { name: "Monitors", icon: "\uf108" },
+        { name: "Update", icon: "\uf021" }
     ]
+    readonly property var navGroups: [
+        { name: "Appearance", icon: "\udb80\udfd8", pages: [2, 6, 7, 12] },
+        { name: "Desktop", icon: "\uf26c", pages: [4, 5, 10, 11, 14] },
+        { name: "Sound & Alerts", icon: "\uf028", pages: [1, 8] },
+        { name: "System", icon: "\uf013", pages: [9, 13] }
+    ]
+    property var expandedGroups: ({})
+    function toggleGroup(name) {
+        const groups = Object.assign({}, expandedGroups)
+        groups[name] = !groups[name]
+        expandedGroups = groups
+    }
+    function revealPageGroup() {
+        const group = navGroups.find(g => g.pages.indexOf(page) >= 0)
+        if (group && !expandedGroups[group.name]) {
+            const groups = Object.assign({}, expandedGroups)
+            groups[group.name] = true
+            expandedGroups = groups
+        }
+    }
+    onPageChanged: revealPageGroup()
 
     readonly property string hyprTool: home + "/.local/bin/hypr-set"
     property var hv: ({})
@@ -334,6 +356,36 @@ FloatingWindow {
     }
 
     Timer { id: hrefresh; interval: 800; onTriggered: hstate.running = true }
+
+    component NavPage: Rectangle {
+        id: navPage
+        property int pageIndex: 0
+        property bool indented: false
+        readonly property bool selected: win.page === pageIndex
+        objectName: "navPage_" + pageIndex
+        function reveal() {
+            if (!selected || pageIndex === 15) return
+            Qt.callLater(function() {
+                if (!navPage.selected || !navPage.parent) return
+                const top = navPage.mapToItem(navCol, 0, 0).y
+                if (top < navFlick.contentY) navFlick.contentY = top
+                else if (top + navPage.height > navFlick.contentY + navFlick.height)
+                    navFlick.contentY = Math.min(Math.max(0, navFlick.contentHeight - navFlick.height), top + navPage.height + 8 - navFlick.height)
+            })
+        }
+        onSelectedChanged: if (selected) reveal()
+        Component.onCompleted: if (selected) reveal()
+        height: 46
+        radius: 14
+        color: selected ? "#262626" : (navPageMouse.containsMouse ? "#1a1a1a" : "transparent")
+        border.width: selected ? 1 : 0
+        border.color: Qt.rgba(1, 1, 1, 0.05)
+        Behavior on color { ColorAnimation { duration: 150 } }
+        Rectangle { visible: navPage.selected; x: 0; anchors.verticalCenter: parent.verticalCenter; width: 3; height: 18; radius: 1.5; color: "#F6F5F4" }
+        T { kind: "icon"; x: navPage.indented ? 30 : 18; anchors.verticalCenter: parent.verticalCenter; text: win.pages[navPage.pageIndex].icon; font.pixelSize: navPage.indented ? 15 : 18; color: navPage.selected ? "#F6F5F4" : "#a8a8b0" }
+        T { x: navPage.indented ? 62 : 50; width: parent.width - x - 8; anchors.verticalCenter: parent.verticalCenter; text: win.pages[navPage.pageIndex].name; font.pixelSize: navPage.indented ? 13 : 14; font.weight: navPage.selected ? Font.DemiBold : Font.Normal; color: navPage.selected ? "#F6F5F4" : "#b8b8c0"; elide: Text.ElideRight }
+        MouseArea { id: navPageMouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: win.page = navPage.pageIndex }
+    }
 
     Rectangle {
         id: card
@@ -582,7 +634,7 @@ FloatingWindow {
             x: 16
             y: 144
             width: 206
-            height: parent.height - 144 - 34
+            height: parent.height - 144 - 94
             // while you search, the results take this place
             opacity: searchIn.text.length ? 0 : 1
             visible: opacity > 0.01
@@ -602,66 +654,43 @@ FloatingWindow {
                     navFlick.contentY = Math.max(0, Math.min(max, navFlick.contentY - e.angleDelta.y * 0.9))
                 }
             }
-            // keep the selected category visible
-            function reveal() {
-                const top = (win.page > 3 ? win.page - 1 : win.page) * 56, bottom = top + 46
-                if (top < contentY) contentY = top
-                else if (bottom > contentY + height) contentY = Math.min(Math.max(0, contentHeight - height), bottom + 8 - height)
-            }
-            Connections { target: win; function onPageChanged() { navFlick.reveal() } }
-
-            // the selection glides to the new category and stretches a little on the way (Material 3)
-            Rectangle {
-                id: navSel
-                property real target: (win.page > 3 ? win.page - 1 : win.page) * 56
-                y: target
-                width: 206
-                height: 46
-                radius: 14
-                color: "#262626"
-                border.width: 1
-                border.color: Qt.rgba(1, 1, 1, 0.05)
-                Behavior on y { NumberAnimation { duration: 420; easing.type: Easing.BezierSpline; easing.bezierCurve: [0.2, 0, 0, 1, 1, 1] } }
-                Rectangle {
-                    x: 0; anchors.verticalCenter: parent.verticalCenter
-                    width: 3; height: 18; radius: 1.5
-                    color: "#F6F5F4"
-                }
-            }
-
             Column {
                 id: navCol
                 width: 206
                 spacing: 10
-
+                NavPage { pageIndex: 0; width: parent.width }
                 Repeater {
-                    model: win.pages
-                    delegate: Rectangle {
+                    model: win.navGroups
+                    delegate: Column {
+                        id: groupColumn
+                        required property var modelData
                         width: parent.width
-                        height: 46
-                        visible: !modelData.hidden
-                        radius: 14
-                        color: win.page !== index && navMouse.containsMouse ? "#1a1a1a" : "transparent"
-                        Behavior on color { ColorAnimation { duration: 150 } }
-                        T { kind: "icon"; x: 18; anchors.verticalCenter: parent.verticalCenter; text: modelData.icon; font.pixelSize: 18
-                            color: win.page === index ? "#F6F5F4" : "#a8a8b0"
-                            scale: win.page === index ? 1.1 : 1
-                            Behavior on scale { NumberAnimation { duration: 300; easing.type: Easing.OutBack } }
-                            Behavior on color { ColorAnimation { duration: 200 } } }
-                        T { x: 50; width: parent.width - 58; elide: Text.ElideRight; anchors.verticalCenter: parent.verticalCenter; text: modelData.name; font.pixelSize: 14
-                            font.weight: win.page === index ? Font.DemiBold : Font.Normal
-                            color: win.page === index ? "#F6F5F4" : "#b8b8c0"
-                            Behavior on color { ColorAnimation { duration: 200 } } }
-                        MouseArea {
-                            id: navMouse
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: win.page = index
+                        spacing: 2
+                        Rectangle {
+                            objectName: "navGroup_" + groupColumn.modelData.name
+                            width: parent.width; height: 46; radius: 14
+                            color: groupMouse.containsMouse ? "#1a1a1a" : "transparent"
+                            Behavior on color { ColorAnimation { duration: 150 } }
+                            T { kind: "icon"; x: 18; anchors.verticalCenter: parent.verticalCenter; text: groupColumn.modelData.icon; font.pixelSize: 18; color: "#a8a8b0" }
+                            T { x: 50; width: parent.width - 78; anchors.verticalCenter: parent.verticalCenter; text: groupColumn.modelData.name; font.pixelSize: 14; color: "#b8b8c0"; elide: Text.ElideRight }
+                            T { anchors.right: parent.right; anchors.rightMargin: 15; anchors.verticalCenter: parent.verticalCenter; kind: "icon"; text: "\uf078"; font.pixelSize: 11; color: "#a8a8b0"; rotation: win.expandedGroups[groupColumn.modelData.name] ? 180 : 0; Behavior on rotation { NumberAnimation { duration: 160 } } }
+                            MouseArea { id: groupMouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: win.toggleGroup(groupColumn.modelData.name) }
+                        }
+                        Repeater {
+                            model: win.expandedGroups[groupColumn.modelData.name] ? groupColumn.modelData.pages : []
+                            delegate: NavPage { required property int modelData; width: groupColumn.width; pageIndex: modelData; indented: true }
                         }
                     }
                 }
             }
+        }
+
+        NavPage {
+            objectName: "navUpdate"
+            x: 16; width: 206; height: 46
+            anchors.bottom: parent.bottom; anchors.bottomMargin: 14
+            pageIndex: 15
+            visible: searchIn.text.length === 0
         }
 
 
@@ -698,6 +727,7 @@ FloatingWindow {
                     MonitorsPage { id: monitorPage; x: 24; y: 16; width: parent.width - 48; ctl: win }
                 }
             }
+            PageSlot { idx: 15; cur: win.page; UpdatePage { id: updatePage; anchors.fill: parent; ctl: win } }
         }
 
         // ---------- the tour (after the welcome intro, or rice-welcome tour) ----------
@@ -714,8 +744,8 @@ FloatingWindow {
                   body: "The bar, the theme, notifications, the lock screen, the dashboard and more. Click one to open it.",
                   rect: function() { return { x: navFlick.x - 6, y: navFlick.y - 6, w: navFlick.width + 12, h: Math.min(navFlick.height, navCol.height) + 12 } } },
                 { title: "Sounds you can change", r: 14,
-                  body: "The soft clicks and this quiet music live in Sfx & sounds. Pick another sound pack, make it quieter or turn it off.",
-                  rect: function() { return { x: navFlick.x - 4, y: navFlick.y + 56 - navFlick.contentY - 4, w: navFlick.width + 8, h: 54 } } },
+                  body: "Open Sound & Alerts for sound effects, music and notifications.",
+                  rect: function() { return { x: navFlick.x - 4, y: navFlick.y - 4, w: navFlick.width + 8, h: Math.min(navFlick.height, navCol.height) + 8 } } },
                 { title: "Make it yours", r: 16,
                   body: "Start with the things people change first. Most changes show up right away, and every page has a live preview.",
                   rect: function() {

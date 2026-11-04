@@ -4,6 +4,14 @@
 
 ---
 
+## 2026-11-04 — группы настроек и Update
+
+- Боковое меню сгруппировано в Appearance, Desktop, Sound & Alerts и System; Bar помещён в Appearance, Launcher не добавлялся. Update закреплён внизу и открывает страницу ручной проверки через существующий `rice-update`; фоновый режим не включён.
+- Файлы: `quickshell/rice-settings/{shell,UpdatePage}.qml`, `tests/settings-navigation-headless.py`, `tests/settings-no-waybar.py`. Копия `/tmp/opencode/phantom-settings-groups-20261104/before.tar`.
+- Изолированно проверены состав и раскрытие групп, страницы, поиск и ручная проверка Update с тестовым ответом. Настоящее обновление, физический ввод и внешний вид не проверены; установленная копия не менялась.
+
+---
+
 ## 2026-11-04 — установка фиксированного hot corner
 
 - По разрешению пользователя установлены `rice-hotcorner` и QML настроек, desktop и общей панели; файлы сверены с проектом, личный конфиг не менялся. Резервная копия `/tmp/opencode/phantom-fixed-corner-live-20261104/before.tar`.

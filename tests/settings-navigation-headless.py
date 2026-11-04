@@ -28,7 +28,33 @@ with tempfile.TemporaryDirectory(prefix="phantom-settings-navigation-", dir="/tm
                 const slot = pagesHolder.children.find(c => c.idx === idx);
                 if (!slot || slot.cur !== idx)
                     console.log("NAV_ERROR", idx, win.pages[idx].name);
+            } else if (step === visiblePages.length) {
+                win.buildIndex();
+                const missing = visiblePages.filter(i => !win.searchIndex.some(e => e.page === i && e.kind === "page"));
+                const groups = win.navGroups;
+                const members = [].concat.apply([], groups.map(g => g.pages));
+                const expected = visiblePages.filter(i => i !== 0 && i !== 15);
+                if (groups.map(g => g.name).join("|") !== "Appearance|Desktop|Sound & Alerts|System"
+                    || members.length !== expected.length || expected.some(i => members.filter(m => m === i).length !== 1)
+                    || !groups[0].pages.includes(2) || win.pages[15].name !== "Update")
+                    console.log("NAV_ERROR grouping");
+                win.expandedGroups = ({});
+                win.page = 2;
+                if (!win.expandedGroups.Appearance) console.log("NAV_ERROR auto-expand");
+                win.toggleGroup("Appearance");
+                if (win.expandedGroups.Appearance) console.log("NAV_ERROR collapse");
+                win.toggleGroup("Appearance");
+                if (!win.expandedGroups.Appearance) console.log("NAV_ERROR expand");
+                win.runSearch("notifications");
+                if (!win.results.some(r => r.page === 8)) console.log("NAV_ERROR search");
+                const update = updatePage;
+                if (!update || update.checked || update.checking) console.log("NAV_ERROR update initial");
+                else update.check();
             } else {
+                const update = updatePage;
+                if (update.checking) return;
+                if (!update.checked || update.failure || update.updateInfo.latest !== "9.0" || !update.updateInfo.update)
+                    console.log("NAV_ERROR update check");
                 win.buildIndex();
                 const missing = visiblePages.filter(i => !win.searchIndex.some(e => e.page === i && e.kind === "page"));
                 console.log("NAV_RESULT", visiblePages.length, missing.length,
@@ -42,6 +68,10 @@ with tempfile.TemporaryDirectory(prefix="phantom-settings-navigation-", dir="/tm
     shell.write_text(text.replace(marker, instrument + marker))
     for name in ("home", "runtime", "config", "cache", "state", "data"):
         (p / name).mkdir()
+    (p / "home/.local/bin").mkdir(parents=True)
+    update = p / "home/.local/bin/rice-update"
+    update.write_text('#!/bin/sh\nprintf \'%s\\n\' \'{"installed":"1.0","latest":"9.0","update":true,"error":""}\'\n')
+    update.chmod(0o755)
     (p / "runtime").chmod(0o700)
     args = ["bwrap", "--ro-bind", "/", "/", "--bind", tmp, tmp, "--dev", "/dev", "--proc", "/proc", "--unshare-net", "--unshare-pid"]
     if Path("/run/dbus").is_dir():
@@ -54,10 +84,13 @@ with tempfile.TemporaryDirectory(prefix="phantom-settings-navigation-", dir="/tm
         args += ["--setenv", key, str(value)]
     for key in ("WAYLAND_DISPLAY", "DISPLAY", "DBUS_SESSION_BUS_ADDRESS", "HYPRLAND_INSTANCE_SIGNATURE"):
         args += ["--unsetenv", key]
-    result = subprocess.run(args + ["cage", "--", "qs", "-n", "-p", str(settings)],
-                            text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=30)
+    try:
+        result = subprocess.run(args + ["cage", "--", "qs", "-n", "-p", str(settings)],
+                                text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=30)
+    except subprocess.TimeoutExpired as exc:
+        raise AssertionError(f"Settings test timed out: {exc.stdout!r}") from exc
     assert result.returncode == 0, result.stdout
-    assert "NAV_RESULT 14 0 false false" in result.stdout, result.stdout
+    assert "NAV_RESULT 15 0 false false" in result.stdout, result.stdout
     for error in ("NAV_ERROR", "ReferenceError", "TypeError", "Failed to load configuration"):
         assert error not in result.stdout, result.stdout
     print("Settings navigation and search passed in isolated headless mode")
