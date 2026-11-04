@@ -361,6 +361,10 @@ FloatingWindow {
         id: navPage
         property int pageIndex: 0
         property bool indented: false
+        // Repeater children initially overlap at the group's origin. Do not
+        // sample hover until the Column has positioned the complete group.
+        property bool hoverReady: !indented
+        property bool hoverAllowed: true
         readonly property bool selected: win.page === pageIndex
         objectName: "navPage_" + pageIndex
         function reveal() {
@@ -374,17 +378,24 @@ FloatingWindow {
             })
         }
         onSelectedChanged: if (selected) reveal()
-        Component.onCompleted: if (selected) reveal()
+        Component.onCompleted: {
+            if (selected) reveal()
+            if (indented) Qt.callLater(function() {
+                if (!navPage.parent) return
+                navPage.parent.forceLayout()
+                navPage.hoverReady = true
+            })
+        }
         height: 46
         radius: 14
-        color: selected ? "#262626" : (navPageMouse.containsMouse ? "#1a1a1a" : "transparent")
+        color: selected ? "#262626" : (hoverAllowed && navPageMouse.containsMouse ? "#1a1a1a" : "transparent")
         border.width: selected ? 1 : 0
         border.color: Qt.rgba(1, 1, 1, 0.05)
-        Behavior on color { ColorAnimation { duration: 150 } }
+        Behavior on color { enabled: navPage.hoverReady; ColorAnimation { duration: 150 } }
         Rectangle { visible: navPage.selected; x: 0; anchors.verticalCenter: parent.verticalCenter; width: 3; height: 18; radius: 1.5; color: "#F6F5F4" }
         T { kind: "icon"; x: navPage.indented ? 30 : 18; anchors.verticalCenter: parent.verticalCenter; text: win.pages[navPage.pageIndex].icon; font.pixelSize: navPage.indented ? 15 : 18; color: navPage.selected ? "#F6F5F4" : "#a8a8b0" }
         T { x: navPage.indented ? 62 : 50; width: parent.width - x - 8; anchors.verticalCenter: parent.verticalCenter; text: win.pages[navPage.pageIndex].name; font.pixelSize: navPage.indented ? 13 : 14; font.weight: navPage.selected ? Font.DemiBold : Font.Normal; color: navPage.selected ? "#F6F5F4" : "#b8b8c0"; elide: Text.ElideRight }
-        MouseArea { id: navPageMouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: win.page = navPage.pageIndex }
+        MouseArea { id: navPageMouse; anchors.fill: parent; hoverEnabled: navPage.hoverReady; cursorShape: Qt.PointingHandCursor; onClicked: win.page = navPage.pageIndex }
     }
 
     Rectangle {
@@ -664,6 +675,7 @@ FloatingWindow {
                     delegate: Column {
                         id: groupColumn
                         required property var modelData
+                        property bool hoverArmed: true
                         width: parent.width
                         spacing: 2
                         Rectangle {
@@ -674,11 +686,18 @@ FloatingWindow {
                             T { kind: "icon"; x: 18; anchors.verticalCenter: parent.verticalCenter; text: groupColumn.modelData.icon; font.pixelSize: 18; color: "#a8a8b0" }
                             T { x: 50; width: parent.width - 78; anchors.verticalCenter: parent.verticalCenter; text: groupColumn.modelData.name; font.pixelSize: 14; color: "#b8b8c0"; elide: Text.ElideRight }
                             T { anchors.right: parent.right; anchors.rightMargin: 15; anchors.verticalCenter: parent.verticalCenter; kind: "icon"; text: "\uf078"; font.pixelSize: 11; color: "#a8a8b0"; rotation: win.expandedGroups[groupColumn.modelData.name] ? 180 : 0; Behavior on rotation { NumberAnimation { duration: 160 } } }
-                            MouseArea { id: groupMouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: win.toggleGroup(groupColumn.modelData.name) }
+                            MouseArea {
+                                id: groupMouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
+                                onExited: groupColumn.hoverArmed = true
+                                onClicked: {
+                                    groupColumn.hoverArmed = !!win.expandedGroups[groupColumn.modelData.name]
+                                    win.toggleGroup(groupColumn.modelData.name)
+                                }
+                            }
                         }
                         Repeater {
                             model: win.expandedGroups[groupColumn.modelData.name] ? groupColumn.modelData.pages : []
-                            delegate: NavPage { required property int modelData; width: groupColumn.width; pageIndex: modelData; indented: true }
+                            delegate: NavPage { required property int modelData; width: groupColumn.width; pageIndex: modelData; indented: true; hoverAllowed: groupColumn.hoverArmed }
                         }
                     }
                 }

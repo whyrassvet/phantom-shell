@@ -31,6 +31,7 @@ Item {
     }
     property var about: ({})
     property var history: []
+    readonly property var visibleHistory: history.slice(0, 10)
     function loadHistory() { if (!historyProc.running) historyProc.running = true }
     Component.onCompleted: { prefsProc.running = true; aboutProc.running = true; loadHistory() }
     Process {
@@ -166,7 +167,7 @@ Item {
                             id: historyHeader
                             x: 16; y: 16; width: parent.width - 32; spacing: 4
                             T { text: "Release notes"; font.pixelSize: 17; font.bold: true }
-                            T { width: parent.width; text: page.history.length ? "Scroll to explore previous versions" : "Release notes are unavailable. Check for updates to load them."; wrapMode: Text.WordWrap; color: "#8a8a92"; font.pixelSize: 11 }
+                            T { width: parent.width; text: page.visibleHistory.length ? "Last 10 versions" : "Release notes are unavailable. Check for updates to load them."; wrapMode: Text.WordWrap; color: "#8a8a92"; font.pixelSize: 11 }
                         }
                         Flickable {
                             id: historyScroll
@@ -184,7 +185,7 @@ Item {
                                 id: historyList
                                 width: parent.width; spacing: 10
                                 Repeater {
-                                    model: page.history
+                                    model: page.visibleHistory
                                     Rectangle {
                                         width: historyList.width; height: entry.implicitHeight + 24; radius: 12
                                         color: Qt.rgba(1, 1, 1, 0.035); border.width: 1; border.color: Qt.rgba(1, 1, 1, 0.06)
