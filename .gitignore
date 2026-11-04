@@ -12,3 +12,12 @@ __pycache__/
 .venv/
 build/
 dist/
+
+# Local development notes
+/AGENTS.md
+/PROJECT.md
+/HANDOFF.md
+/JOURNAL.md
+/docs/PROJECT-history-*.md
+/docs/PROJECT-snapshot-*.md
+/docs/HANDOFF-snapshot-*.md
