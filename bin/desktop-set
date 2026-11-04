@@ -22,7 +22,7 @@ DEFAULTS = {
     "clock": {"enabled": False, "onlyLocked": False, "placement": "draggable", "style": "digital"},
     "dock": {"enabled": False, "background": True, "hover": True, "pinnedStartup": False,
              "media": True, "pinButton": True, "appsButton": True, "tint": False,
-             "opacity": 0.78, "blur": True,
+             "opacity": 0.78, "blur": True, "scale": 1.0,
              "apps": ["kitty", "org.gnome.Nautilus", "firefox", "spotify", "discord", "steam"]},
     "lock": {"toolbars": False, "widgets": False, "media": False},
     "widgetBlur": True,
@@ -229,6 +229,8 @@ def main(a):
             die("%s KEY on|off (keys: %s)" % (cmd, ", ".join(k for k in c[cmd] if k != "apps")))
         if cmd == "dock" and a[2] == "opacity":
             c["dock"]["opacity"] = round(max(0.2, min(1.0, float(a[3]))), 2)
+        elif cmd == "dock" and a[2] == "scale":
+            c["dock"]["scale"] = round(max(1.0, min(2.0, float(a[3]))), 1)
         else:
             c[cmd][a[2]] = tobool(a[3])
     elif cmd in ("lock-regen", "dock-blur"):

@@ -61,9 +61,10 @@ Item {
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.bottom: parent.bottom
                     anchors.bottomMargin: 14
-                    width: icons.width + 20
-                    height: 52
-                    radius: 20
+                    readonly property real sizeScale: Math.max(1, Math.min(2, Number(page.dv("scale", 1)) || 1))
+                    width: icons.width + 20 * sizeScale
+                    height: 52 * sizeScale
+                    radius: 20 * sizeScale
                     visible: page.dv("enabled", false) === true
                     color: page.dv("background", true) === false ? "transparent"
                          : Qt.rgba(0.1, 0.1, 0.11, Number(page.dv("opacity", 0.78)))
@@ -73,11 +74,11 @@ Item {
                     Row {
                         id: icons
                         anchors.centerIn: parent
-                        spacing: 8
+                        spacing: 8 * mockDock.sizeScale
                         Repeater {
                             model: ["#e06c75", "#61afef", "#e5c07b", "#98c379", "#c678dd", "#56b6c2"]
                             delegate: Rectangle {
-                                width: 34; height: 34; radius: 10
+                                width: 34 * mockDock.sizeScale; height: width; radius: 10 * mockDock.sizeScale
                                 color: page.dv("tint", false) === true ? "#9a9aa4" : modelData
                                 opacity: 0.9
                             }
@@ -111,6 +112,13 @@ Item {
                 desc: "Draw a panel behind the icons"
                 checked: page.dv("background", true) === true
                 onToggled: function(v) { page.ctl.dset("dock", "background", v ? "on" : "off") }
+            }
+            SliderRow {
+                label: "Size"
+                desc: "Scale the dock and its icons"
+                from: 1; to: 2; step: 0.1; decimals: 1
+                value: Number(page.dv("scale", 1))
+                onCommitted: function(x) { page.ctl.dset("dock", "scale", x.toFixed(1)) }
             }
             SliderRow {
                 label: "Opacity"

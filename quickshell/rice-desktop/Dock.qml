@@ -11,6 +11,10 @@ PanelWindow {
     property bool hovering: false
     readonly property bool autoHide: dc.hover !== false
     readonly property bool reveal: !autoHide || pinned || hovering
+    readonly property real dockScale: {
+        const value = Number(dc.scale === undefined ? 1 : dc.scale)
+        return isFinite(value) ? Math.max(1, Math.min(2, value)) : 1
+    }
 
     function pickPlayer() {
         const l = Mpris.players.values
@@ -64,20 +68,22 @@ PanelWindow {
     color: "transparent"
     anchors { bottom: true }
     implicitWidth: bar.width + 24
-    implicitHeight: (reveal || slide.running) ? bar.height + 28 : 6
+    implicitHeight: bar.height + 28
     exclusionMode: ExclusionMode.Ignore
     WlrLayershell.layer: WlrLayer.Top
     WlrLayershell.namespace: "rice-dock"
 
-    MouseArea {
-        anchors.fill: parent
-        hoverEnabled: true
-        acceptedButtons: Qt.NoButton
-        onEntered: { hideTimer.stop(); dock.hovering = true }
-        onExited: hideTimer.restart()
-    }
-    Timer { id: hideTimer; interval: 500; onTriggered: dock.hovering = false }
+    mask: Region { item: (dock.reveal || slide.running) ? hoverArea : edge }
 
+    Item {
+        id: hoverArea
+        anchors.fill: parent
+        HoverHandler {
+            onHoveredChanged: {
+                if (hovered) { hideTimer.stop(); dock.hovering = true }
+                else hideTimer.restart()
+            }
+        }
     Rectangle {
         id: bar
         anchors.horizontalCenter: parent.horizontalCenter
@@ -86,9 +92,9 @@ PanelWindow {
         Behavior on anchors.bottomMargin {
             NumberAnimation { id: slide; duration: 280; easing.type: Easing.OutCubic }
         }
-        width: row.width + 20
-        height: 60
-        radius: 22
+        width: row.width + 20 * dock.dockScale
+        height: 60 * dock.dockScale
+        radius: 22 * dock.dockScale
         color: dock.dc.background === false ? "transparent" : Qt.rgba(0.1, 0.1, 0.11, Look.flat ? 1 : (dock.dc.opacity !== undefined ? Number(dock.dc.opacity) : 0.78))
         border.width: dock.dc.background === false ? 0 : 1
         border.color: Qt.rgba(1, 1, 1, 0.07)
@@ -97,20 +103,20 @@ PanelWindow {
         Row {
             id: row
             anchors.centerIn: parent
-            spacing: 6
+            spacing: 6 * dock.dockScale
 
             Rectangle {
                 visible: dock.dc.pinButton !== false
-                width: 40
-                height: 40
-                radius: 14
+                width: 40 * dock.dockScale
+                height: 40 * dock.dockScale
+                radius: 14 * dock.dockScale
                 anchors.verticalCenter: parent.verticalCenter
                 color: dock.pinned ? "#F6F5F4" : (pinMouse.containsMouse ? Qt.rgba(1, 1, 1, 0.14) : Qt.rgba(1, 1, 1, 0.06))
                 Behavior on color { ColorAnimation { duration: 140 } }
                 T {
                     anchors.centerIn: parent
                     text: ""
-                    font.pixelSize: 15
+                    font.pixelSize: 15 * dock.dockScale
                     color: dock.pinned ? "#0d0d0d" : "#F6F5F4"
                     rotation: dock.pinned ? 0 : 45
                     Behavior on rotation { NumberAnimation { duration: 200 } }
@@ -128,28 +134,28 @@ PanelWindow {
                 model: dock.items
                 delegate: Item {
                     id: app
-                    width: 44
-                    height: 48
+                    width: 44 * dock.dockScale
+                    height: 48 * dock.dockScale
                     anchors.verticalCenter: parent.verticalCenter
                     readonly property bool tint: dock.dc.tint === true
                     Image {
                         id: ico
-                        width: 34
-                        height: 34
-                        x: 5
-                        y: 3
+                        width: 34 * dock.dockScale
+                        height: 34 * dock.dockScale
+                        x: 5 * dock.dockScale
+                        y: 3 * dock.dockScale
                         visible: false
                         source: dock.iconFor(modelData)
-                        sourceSize.width: 64
-                        sourceSize.height: 64
+                        sourceSize.width: 64 * dock.dockScale
+                        sourceSize.height: 64 * dock.dockScale
                         asynchronous: true
                     }
                     MultiEffect {
                         id: fx
-                        x: 5
-                        y: 3
-                        width: 34
-                        height: 34
+                        x: 5 * dock.dockScale
+                        y: 3 * dock.dockScale
+                        width: 34 * dock.dockScale
+                        height: 34 * dock.dockScale
                         source: ico
                         colorization: app.tint ? 1.0 : 0.0
                         colorizationColor: "#e4e4e7"
@@ -160,9 +166,9 @@ PanelWindow {
                     }
                     Rectangle {
                         visible: modelData.tl !== null
-                        width: modelData.tl && modelData.tl.activated ? 14 : 5
-                        height: 4
-                        radius: 2
+                        width: (modelData.tl && modelData.tl.activated ? 14 : 5) * dock.dockScale
+                        height: 4 * dock.dockScale
+                        radius: 2 * dock.dockScale
                         color: "#F6F5F4"
                         opacity: modelData.tl && modelData.tl.activated ? 1 : 0.55
                         anchors.horizontalCenter: parent.horizontalCenter
@@ -185,37 +191,37 @@ PanelWindow {
             Rectangle {
                 visible: dock.dc.media !== false && dock.player !== null
                 width: 1
-                height: 30
+                height: 30 * dock.dockScale
                 color: Qt.rgba(1, 1, 1, 0.12)
                 anchors.verticalCenter: parent.verticalCenter
             }
 
             Row {
                 visible: dock.dc.media !== false && dock.player !== null
-                spacing: 8
+                spacing: 8 * dock.dockScale
                 anchors.verticalCenter: parent.verticalCenter
                 RoundImage {
-                    width: 38
-                    height: 38
-                    cornerRadius: 12
+                    width: 38 * dock.dockScale
+                    height: 38 * dock.dockScale
+                    cornerRadius: 12 * dock.dockScale
                     fallback: ""
                     anchors.verticalCenter: parent.verticalCenter
                     source: dock.player && dock.player.trackArtUrl ? dock.player.trackArtUrl : ""
                 }
                 Column {
                     anchors.verticalCenter: parent.verticalCenter
-                    width: 130
-                    T { width: parent.width; elide: Text.ElideRight; font.pixelSize: 12; font.bold: true; text: dock.player ? (dock.player.trackTitle || "") : "" }
-                    T { width: parent.width; elide: Text.ElideRight; font.pixelSize: 10; color: "#a8a8ad"; text: dock.player ? (dock.player.trackArtist || "") : "" }
+                    width: 130 * dock.dockScale
+                    T { width: parent.width; elide: Text.ElideRight; font.pixelSize: 12 * dock.dockScale; font.bold: true; text: dock.player ? (dock.player.trackTitle || "") : "" }
+                    T { width: parent.width; elide: Text.ElideRight; font.pixelSize: 10 * dock.dockScale; color: "#a8a8ad"; text: dock.player ? (dock.player.trackArtist || "") : "" }
                 }
                 Rectangle {
-                    width: 34
-                    height: 34
-                    radius: 17
+                    width: 34 * dock.dockScale
+                    height: 34 * dock.dockScale
+                    radius: 17 * dock.dockScale
                     anchors.verticalCenter: parent.verticalCenter
                     color: playMouse.containsMouse ? Qt.rgba(1, 1, 1, 0.16) : Qt.rgba(1, 1, 1, 0.07)
                     Behavior on color { ColorAnimation { duration: 140 } }
-                    T { anchors.centerIn: parent; text: dock.player && dock.player.isPlaying ? "" : ""; font.pixelSize: 12 }
+                    T { anchors.centerIn: parent; text: dock.player && dock.player.isPlaying ? "" : ""; font.pixelSize: 12 * dock.dockScale }
                     MouseArea {
                         id: playMouse
                         anchors.fill: parent
@@ -228,13 +234,13 @@ PanelWindow {
 
             Rectangle {
                 visible: dock.dc.appsButton !== false
-                width: 40
-                height: 40
-                radius: 14
+                width: 40 * dock.dockScale
+                height: 40 * dock.dockScale
+                radius: 14 * dock.dockScale
                 anchors.verticalCenter: parent.verticalCenter
                 color: appsMouse.containsMouse ? Qt.rgba(1, 1, 1, 0.14) : Qt.rgba(1, 1, 1, 0.06)
                 Behavior on color { ColorAnimation { duration: 140 } }
-                T { anchors.centerIn: parent; text: ""; font.pixelSize: 16 }
+                T { anchors.centerIn: parent; text: ""; font.pixelSize: 16 * dock.dockScale }
                 MouseArea {
                     id: appsMouse
                     anchors.fill: parent
@@ -245,6 +251,9 @@ PanelWindow {
             }
         }
     }
+    }
+    Item { id: edge; anchors.bottom: parent.bottom; width: parent.width; height: 6 }
+    Timer { id: hideTimer; interval: 500; onTriggered: dock.hovering = false }
 
     // a soft click on the dock's buttons (Settings > Sfx & sounds)
     SfxTap {}

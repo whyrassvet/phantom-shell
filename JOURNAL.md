@@ -4,6 +4,14 @@
 
 ---
 
+## 2026-11-04 — размер Dock и наведение
+
+- Добавлен масштаб Dock 100–200% с сохранением прежнего размера по умолчанию; изменены обработка наведения и геометрия поверхности для устранения самопроизвольного открытия и закрытия.
+- Файлы: `quickshell/rice-desktop/Dock.qml`, `quickshell/rice-settings/InterfacePage.qml`, `bin/desktop-set`, `settings/rice/desktop.json`, `tests/phantom-dock.py`, `tests/phantom-dock-headless.py`. Копия `/tmp/opencode/phantom-dock-20261104/before.tar`.
+- Прошли синтетические проверки наведения, клика и сохранения масштаба, headless загрузка Dock и навигация настроек. Установленная копия, физический ввод, визуальная проверка и реальное устранение бага не проверены.
+
+---
+
 ## 2026-11-04 — установка жеста дашборда
 
 - По разрешению пользователя установлены два QML и точечно обновлена привязка в `~/.config/hypr/rice-keys.lua`; отличающиеся настройки скриншотов сохранены. Из личного `hyprland-user.lua` убрана отмена Super+D, личный `dashboard.json` не изменялся. Копии `/tmp/opencode/phantom-dashboard-gesture-live-20261104/`.

@@ -62,6 +62,7 @@
     "appsButton": true,
     "tint": false,
     "opacity": 0.78,
+    "scale": 1.0,
     "blur": true,
     "apps": [
       "kitty",
